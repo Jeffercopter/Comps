@@ -206,8 +206,8 @@ staff_data = [
         'FIP Group Holdings Pty Ltd',
         'Peoplein Limited',
         '100%', 'Australia', 'Jun-22',
-        None, 9.5, 45.0, 4.7,
-        'ASX Announcement (3 Jun 2022); A$45M upfront (A$70M max); expected FY23 EBITDA ~A$9.5M; 4.7x upfront'
+        60.4, 9.5, 45.0, 4.7,
+        'ASX Announcement (3 Jun 2022); A$45M upfront (A$70M max); expected FY23 EBITDA ~A$9.5M; 4.7x upfront; Revenue ~A$60M (est.)'
     ],
     [
         'Perigon Group Pty Ltd',
@@ -242,7 +242,7 @@ staff_data = [
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '75%', 'Australia', 'Jul-21',
         None, None, 6.7, None,
-        'ASX Announcement (1 Jun 2021); A$6.7M upfront (up to A$10.5M for 100%); standalone EBITDA not separately disclosed'
+        'ASX Announcement (1 Jun 2021); A$6.7M upfront for 75% (up to A$10.5M for 100%); combined EBITDA with Techforce ~A$5.8M FY22; 14% revenue CAGR'
     ],
     [
         'Techforce Personnel Pty Limited',
@@ -255,8 +255,8 @@ staff_data = [
         'Business of SwingShift Nurses',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Mar-21',
-        None, None, None, None,
-        'ASX Announcement (Mar 2021); financial details not publicly disclosed'
+        None, 1.0, 3.1, 3.1,
+        'ASX Announcement (15 Mar 2021); A$3.1M cash; expected EBITDA A$1M in 12 months post-completion; ~3.1x implied'
     ],
     [
         'Oncontractor Pty. Ltd.',
@@ -287,11 +287,11 @@ staff_data = [
         'ASX Announcement (15 Sep 2020); national rail training provider; financial terms not publicly disclosed'
     ],
     [
-        'Serendipity (WA) Pty Ltd',
+        'Serendipity (WA) Pty Ltd (t/a APM)',
         'Madison Dearborn Partners, LLC',
         '55%', 'Australia', 'Jun-20',
-        None, None, None, None,
-        'Transaction details not publicly available; may relate to MDP/APM Group transaction (A$1.6B EV)'
+        1100.0, 148.4, 1500.0, 10.1,
+        'ASX/media (Jun 2020); Serendipity (WA) = APM legal entity; MDP acquired 55% at ~A$1.5B EV from Quadrant PE; FY20 Revenue ~A$1.1B, EBITDA ~A$148M'
     ],
     [
         'Cd Group Holdings Pty. Ltd.',
@@ -312,28 +312,28 @@ staff_data = [
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Jun-19',
         None, None, None, None,
-        'ASX Announcement (Jun 2019); combined with First Choice Care above (A$16.8M total)'
+        'ASX Announcement (Jun 2019); combined with First Choice Care (A$16.8M total); EBITDA A$3.4M combined; individual split not disclosed'
     ],
     [
         'Halcyon Knights / Halcyon Knights Commercial and Contracting',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Jun-19',
-        None, None, None, None,
-        'ASX Announcement (Jun 2019); IT recruitment firm; standalone financial terms not publicly disclosed'
+        None, 3.9, 13.5, 3.5,
+        'ASX Announcement (Jun 2019); A$13.5M upfront (up to A$21.75M with earnout); expected FY20 EBITDA A$3.9M; ~3.5x upfront'
     ],
     [
         'Remaining Shares in Recon Solutions Pty Ltd and Project Partners Corp',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Mar-19',
-        None, None, None, None,
-        'ASX Announcement (Mar 2019); acquisition of remaining shares; financial terms not publicly disclosed'
+        None, None, 2.8, None,
+        'ASX Announcement (Mar 2019); A$2.8M for remaining 50% shares; combined EBITDA with VNS ~A$1.1M incremental'
     ],
     [
         'Victorian Nurse Specialists Pty Ltd',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Mar-19',
-        None, None, None, None,
-        'ASX Announcement (Mar 2019); financial terms not publicly disclosed'
+        None, None, 2.5, None,
+        'ASX Announcement (Mar 2019); A$2.5M cash; combined EBITDA with Recon ~A$1.1M incremental; standalone EBITDA not disclosed'
     ],
     [
         'Network Nursing Agency Pty Ltd / Australian Healthcare Academy Pty Ltd',
@@ -346,8 +346,8 @@ staff_data = [
         '50% Stake in Recon Solutions Pty Ltd and 50% Stake in Recon Technology',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Jan-18',
-        None, None, None, None,
-        'ASX Announcement (Jan 2018); financial terms not publicly disclosed'
+        None, 0.8, 2.8, 3.5,
+        'ASX Announcement (Jan 2018); A$2.8M for 50% stake; expected A$0.8M EBITDA (50% share) over 12 months; ~3.5x stated'
     ],
     [
         'AWX Pty Ltd',
