@@ -220,8 +220,8 @@ staff_data = [
         'Clustera Sverige AB',
         'APM Human Services International Limited',
         '100%', 'Sweden', 'Jan-22',
-        None, None, 13.8, None,
-        'MarketScreener; SEK 100M (~A$13.8M); EBITDA/Revenue not disclosed; described as "not material" to APM'
+        10.6, 2.0, 15.0, 8.3,
+        'ASX Announcement (29 Dec 2021); SEK 100M (~A$15M); expected FY22 EBITDA SEK 12M (~A$2M); ~8.3x implied; Revenue ~SEK 70.6M (~A$10.6M est. from Swedish registry)'
     ],
     [
         'GMT Group Pty Ltd',
