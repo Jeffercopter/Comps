@@ -382,7 +382,7 @@ staff_data = [
     [
         '50% Stake in Recon Solutions Pty Ltd and 50% Stake in Recon Technology',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
-        '100%', 'Australia', 'Jan-18',
+        '50%', 'Australia', 'Jan-18',
         None, 0.8, 2.8, 3.5,
         'ASX Announcement (Jan 2018); A$2.8M for 50% stake; expected A$0.8M EBITDA (50% share) over 12 months (forward); ~3.5x explicitly stated; consistent on 50% or 100% basis',
         'https://www.proactiveinvestors.com.au/companies/news/189851/people-infrastructure-s-acquisition-will-drive-revenue-higher-189851.html'
