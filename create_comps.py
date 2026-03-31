@@ -276,8 +276,8 @@ staff_data = [
         'Ecareer Employment Services Pty Ltd / Illuminate Search and Consulting',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Jan-21',
-        None, None, None, None,
-        'MarketScreener; financial details not publicly disclosed'
+        None, 1.3, 5.2, 4.0,
+        'ASX Announcement (17 Dec 2020); A$5.15M (~A$5.2M net of cash); expected EBITDA A$1.3M; ~4.0x implied'
     ],
     [
         'The Instruction Company Pty Ltd',
