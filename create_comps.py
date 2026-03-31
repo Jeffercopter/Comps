@@ -49,81 +49,91 @@ ws1 = wb.active
 headers1 = [
     'Target', 'Acquirer', 'Percentage\nacquired (%)', 'Country',
     'Completion\ndate', 'Revenue\n(A$m)', 'EBITDA\n(A$m)',
-    'Enterprise Value\n(A$m)', 'EV/EBITDA\nMultiple', 'Source'
+    'Enterprise Value\n(A$m)', 'EV/EBITDA\nMultiple', 'Source', 'Source Link'
 ]
 setup_sheet(ws1, 'Equipment & Infrastructure', headers1)
 
 equip_data = [
-    # Row data: Target, Acquirer, %, Country, Date, Revenue, EBITDA, EV, EV/EBITDA, Source
+    # Row data: Target, Acquirer, %, Country, Date, Revenue, EBITDA, EV, EV/EBITDA, Source, Source Link
     [
         'SG Fleet Group Limited',
         'Pacific Equity Partners Pty Limited',
         '100%', 'Australia', 'Apr-25',
         1112.4, 171.0, 1400.0, 8.2,
-        'ASX Scheme Booklet (Dec 2024); FY24 Operating EBITDA; EV includes ~$199M net debt'
+        'ASX Scheme Booklet (Dec 2024); FY24 Operating EBITDA; EV includes ~$199M net debt',
+        'https://investors.sgfleet.com/DownloadFile.axd?file=/Report/ComNews/20241204/02890088.pdf'
     ],
     [
         'Benchmark Scaffolding Ltd.',
         'Acrow Limited',
         '100%', 'United Kingdom', 'Mar-24',
         9.0, 2.4, 10.0, 4.0,
-        'ASX Announcement (1 Mar 2024); ~A$9M base + ~A$1M earnout; 3.8-4.0x stated range'
+        'ASX Announcement (1 Mar 2024); ~A$9M base + ~A$1M earnout; 3.8-4.0x stated range',
+        'https://www.listcorp.com/asx/acf/acrow-limited/news/acquisition-of-benchmark-scaffolding-3001857.html'
     ],
     [
         'Pit N Portal Mining Services Pty Ltd',
         'Macmahon Holdings Limited',
         '100%', 'Australia', 'Feb-24',
         None, None, 10.0, None,
-        'ASX Announcement (19 Dec 2023); A$10M asset sale (contracts & assets); standalone financials not disclosed'
+        'ASX Announcement (19 Dec 2023); A$10M asset sale (contracts & assets); standalone financials not disclosed',
+        'https://www.marketindex.com.au/asx/mah/announcements/macmahon-completes-pit-n-portal-acquisition-6A1192683'
     ],
     [
         'MI Scaffold Pty Ltd',
         'Acrow Formwork and Construction Services Limited (nka: Acrow)',
         '100%', 'Australia', 'Nov-23',
         None, 9.1, 36.4, 4.0,
-        'ASX Announcement (6 Nov 2023); A$26.4M upfront + A$9.9M deferred; ~4.0x upfront EV/EBITDA stated'
+        'ASX Announcement (6 Nov 2023); A$26.4M upfront + A$9.9M deferred; ~4.0x upfront EV/EBITDA stated',
+        'https://www.listcorp.com/asx/acf/acrow-limited/news/acquisition-of-mi-scaffold-and-equity-raising-2952231.html'
     ],
     [
         'STA Traffic Management Pty Ltd',
         'AVADA Group Limited',
         '100%', 'Australia', 'Oct-23',
         None, None, 8.5, None,
-        'ASX Announcement (24 Aug 2023); A$8.5M total consideration; EBITDA/Revenue not publicly disclosed'
+        'ASX Announcement (24 Aug 2023); A$8.5M total consideration; EBITDA/Revenue not publicly disclosed',
+        'https://www.marketscreener.com/quote/stock/AVADA-GROUP-LIMITED-129389843/news/AVADA-Group-Limited-entered-in-a-binding-agreement-to-acquire-Sta-Traffic-Management-Pty-Ltd-fir-AUD-44687162/'
     ],
     [
         'Business and assets of Construct Traffic Pty Ltd',
         'AVADA Group Limited',
         '100%', 'Australia', 'Aug-22',
         34.0, 5.0, 17.6, 3.5,
-        'ASX Announcement (20 Jun 2022); A$17.6M upfront (up to A$23.5M with earnout); ~A$34M revenue, ~A$5M EBITDA'
+        'ASX Announcement (20 Jun 2022); A$17.6M upfront (up to A$23.5M with earnout); ~A$34M revenue, ~A$5M EBITDA',
+        'https://www.listcorp.com/asx/avd/avada-group-limited/news/avada-confirms-completion-of-construct-traffic-acquisition-2754130.html'
     ],
     [
         'Karratha Machinery Hire',
         'SSH Group Limited',
         '100%', 'Australia', 'May-22',
         6.3, 3.8, 15.0, 3.9,
-        'ASX Announcement (20 Apr 2022); A$15M consideration; FY21 revenue ~$6.3M, EBITDA ~$3.8M'
+        'ASX Announcement (20 Apr 2022); A$15M consideration; FY21 revenue ~$6.3M, EBITDA ~$3.8M',
+        'https://www.listcorp.com/asx/ssh/ssh-group-ltd/news/transformative-eps-accretive-equipment-business-acquisition-2698290.html'
     ],
     [
         'Pit N Portal Mining Services Pty Ltd / Pit N Portal Equipment',
         'Emeco Holdings Limited',
         '100%', 'Australia', 'Feb-20',
         101.0, 20.0, 72.0, 3.6,
-        'ASX Announcement (29 Jan 2020); 3.6x FY19 Operating EBITDA explicitly stated; A$62M cash + A$10M shares'
+        'ASX Announcement (29 Jan 2020); 3.6x FY19 Operating EBITDA explicitly stated; A$62M cash + A$10M shares',
+        'https://announcements.asx.com.au/asxpdf/20200129/pdf/44dl8skrl5by12.pdf'
     ],
     [
         'Uni-Span Australia Pty Limited',
         'Acrow Formwork and Construction Services Limited (nka: Acrow)',
         '100%', 'Australia', 'Oct-19',
         34.0, 4.8, 21.3, 4.4,
-        'ASX Announcement (17 Oct 2019); A$21.25M before earnouts; 4.4x FY19 normalised EBITDA stated'
+        'ASX Announcement (17 Oct 2019); A$21.25M before earnouts; 4.4x FY19 normalised EBITDA stated',
+        'https://www.listcorp.com/asx/acf/acrow-limited/news/acquisition-of-uni-span-australia-pty-ltd-2251229.html'
     ],
     [
         'Matilda Equipment Holdings Pty Ltd',
         'Emeco Holdings Limited',
         '100%', 'Australia', 'Jul-18',
         None, 24.2, 80.0, 3.3,
-        'ASX Announcement (30 Apr 2018); A$80M EV; ~3.3x annualised Operating EBITDA stated'
+        'ASX Announcement (30 Apr 2018); A$80M EV; ~3.3x annualised Operating EBITDA stated',
+        'https://www.emecogroup.com/assets/reports/uploads/2018/07/1-20180430_Emeco-to-acquire-Matilda-Equipment.pdf'
     ],
 ]
 
@@ -137,7 +147,7 @@ for i, row in enumerate(equip_data, 2):
         cell.number_format = '0.0"x"'
 
 # Set column widths for Sheet 1
-col_widths1 = [45, 45, 12, 15, 12, 12, 12, 15, 12, 60]
+col_widths1 = [45, 45, 12, 15, 12, 12, 12, 15, 12, 55, 50]
 for i, w in enumerate(col_widths1, 1):
     ws1.column_dimensions[get_column_letter(i)].width = w
 
@@ -148,7 +158,7 @@ ws2 = wb.create_sheet()
 headers2 = [
     'Target', 'Acquirer', 'Percentage\nacquired (%)', 'Country',
     'Completion\ndate', 'Revenue\n(A$m)', 'EBITDA\n(A$m)',
-    'Enterprise Value\n(A$m)', 'EV/EBITDA\nMultiple', 'Source'
+    'Enterprise Value\n(A$m)', 'EV/EBITDA\nMultiple', 'Source', 'Source Link'
 ]
 setup_sheet(ws2, 'Staffing & Services', headers2)
 
@@ -158,203 +168,232 @@ staff_data = [
         'Peoplein Limited',
         '100%', 'New Zealand', 'Feb-26',
         None, 4.6, 22.1, 4.8,
-        'ASX Announcement (20 Feb 2026); NZD 24M upfront (NZD 56M max); NZD 5M EBITDA; 4.8x stated; converted at NZD/AUD ~0.92'
+        'ASX Announcement (20 Feb 2026); NZD 24M upfront (NZD 56M max); NZD 5M EBITDA; 4.8x stated; converted at NZD/AUD ~0.92',
+        'https://www.listcorp.com/asx/ppe/peoplein-limited/news/completion-of-acquisition-of-infrawork-holdings-3321455.html'
     ],
     [
         'First Choice Care / Edmen',
         'Healthcare Australia Pty Ltd.',
         '100%', 'Australia', 'Dec-25',
         None, 3.3, 20.3, 6.2,
-        'ASX Announcement (Dec 2025); A$20.25M; 6.2x FY25 earnings stated by PeopleIN'
+        'ASX Announcement (Dec 2025); A$20.25M; 6.2x FY25 earnings stated by PeopleIN',
+        'https://www.businessnewsaustralia.com/articles/peoplein-to-sell-first-choice-care-and-edmen.html'
     ],
     [
         'Techforce Personnel Pty Limited',
         'ina.',
         '79%', 'Australia', 'Dec-25',
         None, None, 23.5, None,
-        'ASX Announcement (27 Nov 2025); A$23.5M for 79.3% stake (~A$29.6M implied 100%); EBITDA/Revenue not disclosed'
+        'ASX Announcement (27 Nov 2025); A$23.5M for 79.3% stake (~A$29.6M implied 100%); EBITDA/Revenue not disclosed',
+        'https://www.listcorp.com/asx/ppe/peoplein-limited/news/peoplein-to-divest-techforce-personnel-3283656.html'
     ],
     [
         'APM Human Services International Limited',
         'Madison Dearborn Partners, LLC',
         '71%', 'Australia', 'Sep-24',
         2332.0, 281.0, 2100.0, 7.5,
-        'ASX Scheme Booklet (Aug 2024); $1.45/share; ~A$1.3B equity + ~A$800M net debt; FY24 EBITDA A$281M'
+        'ASX Scheme Booklet (Aug 2024); $1.45/share; ~A$1.3B equity + ~A$800M net debt; FY24 EBITDA A$281M',
+        'https://www.listcorp.com/asx/apm/apm-human-services-international/news/scheme-booklet-registered-with-asic-3070553.html'
     ],
     [
         'Owen Pacific Workforce Pty Ltd',
         'Ashley Services Group Limited',
         '100%', 'Australia', 'Feb-23',
         62.8, 4.5, 15.1, 3.4,
-        'ASX Announcement (3 Feb 2023); A$14.2-15.9M; EBITDA A$4.1-5.0M expected FY23; Revenue ~A$62.8M (FY24 full year)'
+        'ASX Announcement (3 Feb 2023); A$14.2-15.9M; EBITDA A$4.1-5.0M expected FY23; Revenue ~A$62.8M (FY24 full year)',
+        'https://www.marketscreener.com/quote/stock/ASHLEY-SERVICES-GROUP-LIM-55288579/news/Ashley-Services-Completes-Acquisition-of-Owen-Pacific-Workforce-42906039/'
     ],
     [
         'Arbor E&T, LLC',
         'APM Human Services International Limited',
         '100%', 'United States', 'Nov-22',
         454.7, 50.0, 239.8, 4.8,
-        'ASX Announcement (Nov 2022); A$239.8M (US$153.5M); FY22 Revenue A$454.7M, EBITDA A$50M'
+        'ASX Announcement (Nov 2022); A$239.8M (US$153.5M); FY22 Revenue A$454.7M, EBITDA A$50M',
+        'https://newsnreleases.com/2022/11/02/apm-completes-acquisition-of-equus-workforce-solutions/'
     ],
     [
         'Linc Personnel Pty Ltd',
         'Ashley Services Group Limited',
         '75%', 'Australia', 'Jul-22',
         14.0, 1.4, 4.2, 3.0,
-        'ASX Announcement (30 May 2022); A$3.6-4.2M for 75%; normalised FY22 EBITDA A$1.4M; Revenue ~A$14M'
+        'ASX Announcement (30 May 2022); A$3.6-4.2M for 75%; normalised FY22 EBITDA A$1.4M; Revenue ~A$14M',
+        'https://www.listcorp.com/asx/ash/ashley-services-group/news/ashley-acquires-major-shareholding-in-linc-personnel-2730158.html'
     ],
     [
         'FIP Group Holdings Pty Ltd',
         'Peoplein Limited',
         '100%', 'Australia', 'Jun-22',
         60.4, 9.5, 45.0, 4.7,
-        'ASX Announcement (3 Jun 2022); A$45M upfront (A$70M max); expected FY23 EBITDA ~A$9.5M; 4.7x upfront; Revenue ~A$60M (est.)'
+        'ASX Announcement (3 Jun 2022); A$45M upfront (A$70M max); expected FY23 EBITDA ~A$9.5M; 4.7x upfront; Revenue ~A$60M (est.)',
+        'https://www.businessnewsaustralia.com/articles/peoplein-buys-food-industry-people-for--45-million.html'
     ],
     [
         'Perigon Group Pty Ltd',
         'Peoplein Limited',
         '100%', 'Australia', 'Feb-22',
         None, 4.3, 16.0, 3.7,
-        'ASX Announcement (9 Feb 2022); A$16M upfront (up to A$26.8M); expected FY23 EBITDA ~A$4.3M'
+        'ASX Announcement (9 Feb 2022); A$16M upfront (up to A$26.8M); expected FY23 EBITDA ~A$4.3M',
+        'https://www.marketscreener.com/quote/stock/PEOPLEIN-LIMITED-38467017/news/Peoplein-Limited-agreed-to-acquire-Perigon-Group-Pty-Ltd-for-AUD-26-8-million-37827523/'
     ],
     [
         'Clustera Sverige AB',
         'APM Human Services International Limited',
         '100%', 'Sweden', 'Jan-22',
         10.6, 2.0, 15.0, 8.3,
-        'ASX Announcement (29 Dec 2021); SEK 100M (~A$15M); expected FY22 EBITDA SEK 12M (~A$2M); ~8.3x implied; Revenue ~SEK 70.6M (~A$10.6M est. from Swedish registry)'
+        'ASX Announcement (29 Dec 2021); SEK 100M (~A$15M); expected FY22 EBITDA SEK 12M (~A$2M); ~8.3x implied; Revenue ~SEK 70.6M (~A$10.6M est. from Swedish registry)',
+        'https://www.listcorp.com/asx/apm/apm-human-services-international/news/apm-completes-ipo-acquisitions-and-amp-swedish-market-entry-2652618.html'
     ],
     [
         'GMT Group Pty Ltd',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Dec-21',
         None, None, None, None,
-        'ASX Announcement (Dec 2021); financial details not disclosed; described as not material to FY21 earnings'
+        'ASX Announcement (Dec 2021); financial details not disclosed; described as not material to FY21 earnings',
+        'https://www.marketscreener.com/quote/stock/PEOPLEIN-LIMITED-38467017/news/People-Infrastructure-Ltd-acquired-GMT-People-37179876/'
     ],
     [
         'Inverse Group Pty. Ltd.',
         'Hiremii Limited',
         '100%', 'Australia', 'Nov-21',
         12.0, None, 1.5, None,
-        'ASX Announcement (Nov 2021); up to A$1.5M; revenue milestones A$12-16M; EBITDA not disclosed'
+        'ASX Announcement (Nov 2021); up to A$1.5M; revenue milestones A$12-16M; EBITDA not disclosed',
+        'https://www.listcorp.com/asx/hmi/hiremii-limited/news/acquisition-of-inverse-group-2625801.html'
     ],
     [
         'Vision Surveys (QLD) Pty Ltd',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '75%', 'Australia', 'Jul-21',
         None, None, 6.7, None,
-        'ASX Announcement (1 Jun 2021); A$6.7M upfront for 75% (up to A$10.5M for 100%); combined EBITDA with Techforce ~A$5.8M FY22; 14% revenue CAGR'
+        'ASX Announcement (1 Jun 2021); A$6.7M upfront for 75% (up to A$10.5M for 100%); combined EBITDA with Techforce ~A$5.8M FY22; 14% revenue CAGR',
+        'https://www.marketscreener.com/quote/stock/PEOPLEIN-LIMITED-38467017/news/People-Infrastructure-Ltd-completed-the-acquisition-of-75-majority-stake-in-Vision-Surveys-Pty-Ltd-36025964/'
     ],
     [
         'Techforce Personnel Pty Limited',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '79%', 'Australia', 'Jun-21',
         None, 5.8, 23.8, 4.1,
-        'ASX Announcement (1 Jun 2021); A$23.8M for 79.3% (debt-free); expected FY22 EBITDA ~A$5.8M; ~4.1x implied'
+        'ASX Announcement (1 Jun 2021); A$23.8M for 79.3% (debt-free); expected FY22 EBITDA ~A$5.8M; ~4.1x implied',
+        'https://www.marketscreener.com/quote/stock/PEOPLEIN-LIMITED-38467017/news/People-Infrastructure-Ltd-entered-into-binding-agreements-to-acquire-Techforce-Personnel-Pty-Ltd-for-35497394/'
     ],
     [
         'Business of SwingShift Nurses',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Mar-21',
         None, 1.0, 3.1, 3.1,
-        'ASX Announcement (15 Mar 2021); A$3.1M cash; expected EBITDA A$1M in 12 months post-completion; ~3.1x implied'
+        'ASX Announcement (15 Mar 2021); A$3.1M cash; expected EBITDA A$1M in 12 months post-completion; ~3.1x implied',
+        'https://www.marketscreener.com/quote/stock/PEOPLEIN-LIMITED-38467017/news/People-Infrastructure-Ltd-entered-into-a-binding-agreement-to-acquire-Business-of-SwingShift-Nurses-33481796/'
     ],
     [
         'Oncontractor Pty. Ltd.',
         'Hiremii Limited',
         '100%', 'Australia', 'Feb-21',
         None, None, None, None,
-        'ASX Announcement (19 Feb 2021); acquired via share swap (14.3M shares); EBITDA/Revenue not disclosed'
+        'ASX Announcement (19 Feb 2021); acquired via share swap (14.3M shares); EBITDA/Revenue not disclosed',
+        'https://www.listcorp.com/asx/hmi/hiremii-limited/news/hiremii-completes-acquisition-of-inverse-group-2635188.html'
     ],
     [
         'Assets of ECT4Health Pty Ltd',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Feb-21',
         None, None, None, None,
-        'ASX Announcement (Feb 2021); financial details not publicly disclosed'
+        'ASX Announcement (Feb 2021); expected EBITDA A$1M; purchase price not separately disclosed',
+        'https://www.listcorp.com/asx/ppe/peoplein-limited/news/completion-of-swingshift-nurses-2525245.html'
     ],
     [
         'Ecareer Employment Services Pty Ltd / Illuminate Search and Consulting',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Jan-21',
         None, 1.3, 5.2, 4.0,
-        'ASX Announcement (17 Dec 2020); A$5.15M (~A$5.2M net of cash); expected EBITDA A$1.3M; ~4.0x implied'
+        'ASX Announcement (17 Dec 2020); A$5.15M (~A$5.2M net of cash); expected EBITDA A$1.3M; ~4.0x implied',
+        'https://www.marketscreener.com/quote/stock/PEOPLEIN-LIMITED-38467017/news/People-Infrastructure-Ltd-completed-the-acquisition-of-Ecareer-Employment-Services-Pty-Ltd-Illuminat-33544375/'
     ],
     [
         'The Instruction Company Pty Ltd',
         'Ashley Services Group Limited',
         '100%', 'Australia', 'Sep-20',
         None, None, None, None,
-        'ASX Announcement (15 Sep 2020); national rail training provider; financial terms not publicly disclosed'
+        'ASX Announcement (15 Sep 2020); national rail training provider; financial terms not publicly disclosed',
+        'https://ashleyservicesgroup.com.au/ticrail-expands-into-western-australia/'
     ],
     [
         'Serendipity (WA) Pty Ltd (t/a APM)',
         'Madison Dearborn Partners, LLC',
         '55%', 'Australia', 'Jun-20',
         1100.0, 148.4, 1500.0, 10.1,
-        'ASX/media (Jun 2020); Serendipity (WA) = APM legal entity; MDP acquired 55% at ~A$1.5B EV from Quadrant PE; FY20 Revenue ~A$1.1B, EBITDA ~A$148M'
+        'ASX/media (Jun 2020); Serendipity (WA) = APM legal entity; MDP acquired 55% at ~A$1.5B EV from Quadrant PE; FY20 Revenue ~A$1.1B, EBITDA ~A$148M',
+        'https://michaelwest.com.au/apm-promoters-exit-jobless-profits-in-asx-float-turn-to-profiteering-from-disabled/'
     ],
     [
         'Cd Group Holdings Pty. Ltd.',
         'Ashley Services Group Limited',
         '80%', 'Australia', 'Dec-19',
         40.0, 4.1, 11.2, 2.7,
-        'ASX Announcement (2019); A$11.2M for 80%; FY19 normalised EBITDA A$4.1M; Revenue A$40M'
+        'ASX Announcement (2019); A$11.2M for 80%; FY19 normalised EBITDA A$4.1M; Revenue A$40M',
+        'https://www.lexology.com/library/detail.aspx?g=fe4a314d-4853-4892-83f1-ce9fb0ba5d5b'
     ],
     [
         'First Choice Care Pty. Ltd.',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Jul-19',
         None, 3.4, 16.8, 4.9,
-        'ASX Announcement (Jun 2019); A$16.8M combined with Carestaff; expected EBITDA A$3.4M combined'
+        'ASX Announcement (Jun 2019); A$16.8M combined with Carestaff; expected EBITDA A$3.4M combined',
+        'https://www.fool.com.au/2019/06/19/people-infrastructure-announces-more-acquisitions/'
     ],
     [
         'Carestaff Healthcare Solutions Pty Ltd',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Jun-19',
         None, None, None, None,
-        'ASX Announcement (Jun 2019); combined with First Choice Care (A$16.8M total); EBITDA A$3.4M combined; individual split not disclosed'
+        'ASX Announcement (Jun 2019); combined with First Choice Care (A$16.8M total); EBITDA A$3.4M combined; individual split not disclosed',
+        'https://www.fool.com.au/2019/06/19/people-infrastructure-announces-more-acquisitions/'
     ],
     [
         'Halcyon Knights / Halcyon Knights Commercial and Contracting',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Jun-19',
         None, 3.9, 13.5, 3.5,
-        'ASX Announcement (Jun 2019); A$13.5M upfront (up to A$21.75M with earnout); expected FY20 EBITDA A$3.9M; ~3.5x upfront'
+        'ASX Announcement (Jun 2019); A$13.5M upfront (up to A$21.75M with earnout); expected FY20 EBITDA A$3.9M; ~3.5x upfront',
+        'https://www.businessnewsaustralia.com/articles/people-infrastructure-buys-halcyon-knights-for--13-5m.html'
     ],
     [
         'Remaining Shares in Recon Solutions Pty Ltd and Project Partners Corp',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Mar-19',
         None, None, 2.8, None,
-        'ASX Announcement (Mar 2019); A$2.8M for remaining 50% shares; combined EBITDA with VNS ~A$1.1M incremental'
+        'ASX Announcement (Mar 2019); A$2.8M for remaining 50% shares; combined EBITDA with VNS ~A$1.1M incremental',
+        'https://www.businessnewsaustralia.com/articles/steve-scanlan-sells-remaining-stake-in-recon-group.html'
     ],
     [
         'Victorian Nurse Specialists Pty Ltd',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Mar-19',
         None, None, 2.5, None,
-        'ASX Announcement (Mar 2019); A$2.5M cash; combined EBITDA with Recon ~A$1.1M incremental; standalone EBITDA not disclosed'
+        'ASX Announcement (Mar 2019); A$2.5M cash; combined EBITDA with Recon ~A$1.1M incremental; standalone EBITDA not disclosed',
+        'https://www.finnewsnetwork.com.au/archives/finance_news_network222179.html'
     ],
     [
         'Network Nursing Agency Pty Ltd / Australian Healthcare Academy Pty Ltd',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Aug-18',
         None, 2.7, 8.0, 3.0,
-        'ASX Announcement (Aug 2018); A$8M upfront (up to A$9.1M); EBITDA target ~A$2.65-2.8M; ~3.0x implied'
+        'ASX Announcement (Aug 2018); A$8M upfront (up to A$9.1M); EBITDA target ~A$2.65-2.8M; ~3.0x implied',
+        'https://www.staffingindustry.com/news/global-daily-news/australia-people-infrastructure-acquires-nursing-agency-business'
     ],
     [
         '50% Stake in Recon Solutions Pty Ltd and 50% Stake in Recon Technology',
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Jan-18',
         None, 0.8, 2.8, 3.5,
-        'ASX Announcement (Jan 2018); A$2.8M for 50% stake; expected A$0.8M EBITDA (50% share) over 12 months; ~3.5x stated'
+        'ASX Announcement (Jan 2018); A$2.8M for 50% stake; expected A$0.8M EBITDA (50% share) over 12 months; ~3.5x stated',
+        'https://www.proactiveinvestors.com.au/companies/news/189851/people-infrastructure-s-acquisition-will-drive-revenue-higher-189851.html'
     ],
     [
         'AWX Pty Ltd',
         'People Infrastructure Pty Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Oct-16',
         None, None, 18.4, None,
-        'MarketScreener; A$18.4M (A$16.6M cash + A$1.8M earnout); standalone EBITDA/Revenue not disclosed'
+        'MarketScreener; A$18.4M (A$16.6M cash + A$1.8M earnout); standalone EBITDA/Revenue not disclosed',
+        'https://www.marketscreener.com/quote/stock/PEOPLEIN-LIMITED-38467017/news/People-Infrastructure-Ltd-acquired-AWX-Pty-Ltd-for-AUD-18-4-million-35119752/'
     ],
 ]
 
@@ -366,7 +405,7 @@ for i, row in enumerate(staff_data, 2):
         cell.number_format = '0.0"x"'
 
 # Set column widths for Sheet 2
-col_widths2 = [55, 50, 12, 15, 12, 12, 12, 15, 12, 65]
+col_widths2 = [55, 50, 12, 15, 12, 12, 12, 15, 12, 55, 50]
 for i, w in enumerate(col_widths2, 1):
     ws2.column_dimensions[get_column_letter(i)].width = w
 
