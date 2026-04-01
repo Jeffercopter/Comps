@@ -60,15 +60,15 @@ equip_data = [
         'Pacific Equity Partners Pty Limited',
         '100%', 'Australia', 'Apr-25',
         1112.4, 171.0, 1400.0, 8.2,
-        'ASX Scheme Booklet (Dec 2024); FY24 Operating EBITDA (historical); 100% EV (equity + net corporate debt); fleet financing debt excluded',
+        'ASX Scheme Booklet (Dec 2024); FY24 Operating EBITDA A$171M (historical); 100% EV (equity + net corporate debt); 8.2x implied; fleet financing debt excluded',
         'https://investors.sgfleet.com/DownloadFile.axd?file=/Report/ComNews/20241204/02890088.pdf'
     ],
     [
         'Benchmark Scaffolding Ltd.',
         'Acrow Limited',
         '100%', 'United Kingdom', 'Mar-24',
-        9.0, 2.4, 10.0, 4.0,
-        'ASX Announcement (1 Mar 2024); ~A$9M base + ~A$1M earnout; 3.8-4.0x stated range; historical EBITDA; upfront CFDF basis',
+        9.0, 2.4, 9.0, 3.8,
+        'ASX Announcement (1 Mar 2024); A$9M base + up to A$1M earnout; EBITDA A$2.4M annualised (run-rate); ~3.8x on base (FY24 annual report cites 3.8-4.0x range for ACF acquisitions); multiple implied',
         'https://www.listcorp.com/asx/acf/acrow-limited/news/acquisition-of-benchmark-scaffolding-3001857.html'
     ],
     [
@@ -84,7 +84,7 @@ equip_data = [
         'Acrow Formwork and Construction Services Limited (nka: Acrow)',
         '100%', 'Australia', 'Nov-23',
         None, 6.6, 26.4, 4.0,
-        'ASX Announcement (6 Nov 2023); A$26.4M upfront + A$9.9M deferred (A$36.3M total); ~4.0x upfront EV/EBITDA stated; EBITDA back-solved from stated multiple; historical basis',
+        'ASX Announcement (6 Nov 2023); A$26.4M upfront CFDF + A$9.9M deferred (A$36.3M total); "about 4.0x" upfront EV/EBITDA explicitly stated; EBITDA ~A$6.6M back-solved; historical',
         'https://www.listcorp.com/asx/acf/acrow-limited/news/acquisition-of-mi-scaffold-and-equity-raising-2952231.html'
     ],
     [
@@ -100,7 +100,7 @@ equip_data = [
         'AVADA Group Limited',
         '100%', 'Australia', 'Aug-22',
         34.0, 5.0, 17.6, 3.5,
-        'ASX Announcement (20 Jun 2022); A$17.6M upfront CFDF (up to A$23.5M with earnout); FY22 sustainable EBITDA ~A$5M (historical/normalised); asset acquisition',
+        'ASX Announcement (20 Jun 2022); A$17.6M upfront CFDF (up to A$23.5M with earnout); FY22 sustainable EBITDA ~A$5M (historical); 3.5x implied; asset acquisition',
         'https://www.listcorp.com/asx/avd/avada-group-limited/news/avada-confirms-completion-of-construct-traffic-acquisition-2754130.html'
     ],
     [
@@ -108,7 +108,7 @@ equip_data = [
         'SSH Group Limited',
         '100%', 'Australia', 'May-22',
         6.3, 3.8, 15.0, 3.9,
-        'ASX Announcement (20 Apr 2022); A$15M total consideration; FY21 EBITDA ~$3.8M (historical)',
+        'ASX Announcement (20 Apr 2022); A$15M total consideration; FY21 EBITDA ~A$3.8M (historical); 3.9x implied',
         'https://www.listcorp.com/asx/ssh/ssh-group-ltd/news/transformative-eps-accretive-equipment-business-acquisition-2698290.html'
     ],
     [
@@ -116,7 +116,7 @@ equip_data = [
         'Emeco Holdings Limited',
         '100%', 'Australia', 'Feb-20',
         101.0, 20.0, 72.0, 3.6,
-        'ASX Announcement (29 Jan 2020); 3.6x FY19 Operating EBITDA explicitly stated (historical); A$62M cash + A$10M shares = A$72M total EV',
+        'ASX Announcement (29 Jan 2020); 3.6x FY19 Operating EBITDA explicitly stated (historical); A$62M cash + A$10M shares = A$72M EV CFDF',
         'https://announcements.asx.com.au/asxpdf/20200129/pdf/44dl8skrl5by12.pdf'
     ],
     [
@@ -132,7 +132,7 @@ equip_data = [
         'Emeco Holdings Limited',
         '100%', 'Australia', 'Jul-18',
         None, 24.2, 80.0, 3.3,
-        'ASX Announcement (30 Apr 2018); A$80M total EV; ~3.3x annualised Operating EBITDA stated (historical)',
+        'ASX Announcement (30 Apr 2018); A$80M total EV; "circa 3.3x" annualised March quarter Operating EBITDA explicitly stated (run-rate); A$24.2M EBITDA back-solved',
         'https://www.emecogroup.com/assets/reports/uploads/2018/07/1-20180430_Emeco-to-acquire-Matilda-Equipment.pdf'
     ],
 ]
@@ -168,7 +168,7 @@ staff_data = [
         'Peoplein Limited',
         '100%', 'New Zealand', 'Feb-26',
         None, 4.6, 22.1, 4.8,
-        'ASX Announcement (20 Feb 2026); NZD 24M upfront CFDF (NZD 56M max); NZD 5M EBITDA (forward); 4.8x stated; converted at NZD/AUD ~0.92',
+        'ASX Announcement (20 Feb 2026); NZD 24M upfront (NZD 56M max); NZD 5M EBITDA (forward); 4.8x explicitly stated; converted at NZD/AUD ~0.92',
         'https://www.listcorp.com/asx/ppe/peoplein-limited/news/completion-of-acquisition-of-infrawork-holdings-3321455.html'
     ],
     [
@@ -176,7 +176,7 @@ staff_data = [
         'Healthcare Australia Pty Ltd.',
         '100%', 'Australia', 'Dec-25',
         None, 3.3, 20.3, 6.2,
-        'ASX Announcement (Dec 2025); A$20.25M total; 6.2x FY25 earnings stated by PeopleIN (historical)',
+        'ASX Announcement (Dec 2025); A$20.25M total; 6.2x FY25 earnings explicitly stated by PeopleIN (historical)',
         'https://www.businessnewsaustralia.com/articles/peoplein-to-sell-first-choice-care-and-edmen.html'
     ],
     [
@@ -192,7 +192,7 @@ staff_data = [
         'Madison Dearborn Partners, LLC',
         '71%', 'Australia', 'Sep-24',
         2332.0, 281.0, 2100.0, 7.5,
-        'ASX Scheme Booklet (Aug 2024); $1.45/share; ~A$1.3B equity + ~A$800M net debt = ~A$2.1B 100% EV; FY24 Adjusted EBITDA A$281M (historical); scheme of arrangement',
+        'ASX Scheme Booklet (Aug 2024); $1.45/share; ~A$1.3B equity + net debt; FY24 Underlying EBITDA ~A$280M (historical); 7.5x implied; NOTE: some data providers show EV ~A$2.27B / ~8.1x depending on net debt definition',
         'https://www.listcorp.com/asx/apm/apm-human-services-international/news/scheme-booklet-registered-with-asic-3070553.html'
     ],
     [
@@ -200,7 +200,7 @@ staff_data = [
         'Ashley Services Group Limited',
         '100%', 'Australia', 'Feb-23',
         62.8, 4.5, 15.1, 3.4,
-        'ASX Announcement (3 Feb 2023); A$14.2-15.9M range (midpoint used); EBITDA A$4.1-5.0M expected FY23 (forward); Revenue ~A$62.8M',
+        'ASX Announcement (3 Feb 2023); A$14.2-15.9M range (midpoint used); EBITDA A$4.1-5.0M expected FY23 (forward); 3.4x implied from midpoints',
         'https://www.marketscreener.com/quote/stock/ASHLEY-SERVICES-GROUP-LIM-55288579/news/Ashley-Services-Completes-Acquisition-of-Owen-Pacific-Workforce-42906039/'
     ],
     [
@@ -208,7 +208,7 @@ staff_data = [
         'APM Human Services International Limited',
         '100%', 'United States', 'Nov-22',
         454.7, 50.0, 239.8, 4.8,
-        'ASX Announcement (Nov 2022); A$239.8M (US$153.5M) total EV; FY22 EBITDA A$50M (historical)',
+        'ASX Announcement (Nov 2022); A$239.8M (US$153.5M) CFDF; FY22 Underlying EBITDA A$50M (historical); 4.8x implied',
         'https://newsnreleases.com/2022/11/02/apm-completes-acquisition-of-equus-workforce-solutions/'
     ],
     [
@@ -216,7 +216,7 @@ staff_data = [
         'Ashley Services Group Limited',
         '75%', 'Australia', 'Jul-22',
         14.0, 1.4, 5.6, 4.0,
-        'ASX Announcement (30 May 2022); A$4.2M for 75% (implied 100% EV A$5.6M); normalised FY22 EBITDA A$1.4M (100% basis); historical',
+        'ASX Announcement (30 May 2022); A$4.2M for 75% (implied 100% EV A$5.6M); normalised FY22 EBITDA A$1.4M (100% basis); historical; 4.0x implied',
         'https://www.listcorp.com/asx/ash/ashley-services-group/news/ashley-acquires-major-shareholding-in-linc-personnel-2730158.html'
     ],
     [
@@ -224,7 +224,7 @@ staff_data = [
         'Peoplein Limited',
         '100%', 'Australia', 'Jun-22',
         60.4, 9.5, 45.0, 4.7,
-        'ASX Announcement (3 Jun 2022); A$45M upfront CFDF (A$70M max with earnout); expected FY23 EBITDA ~A$9.5M (forward); 4.7x upfront',
+        'ASX Announcement (3 Jun 2022); A$45M upfront CFDF (A$70M max); expected FY23 EBITDA ~A$9.5M (forward); 4.7x explicitly stated',
         'https://www.businessnewsaustralia.com/articles/peoplein-buys-food-industry-people-for--45-million.html'
     ],
     [
@@ -232,7 +232,7 @@ staff_data = [
         'Peoplein Limited',
         '100%', 'Australia', 'Feb-22',
         None, 4.3, 16.0, 3.7,
-        'ASX Announcement (9 Feb 2022); A$16M upfront CFDF (up to A$26.8M); expected FY23 EBITDA ~A$4.3M (forward); 3.7x upfront',
+        'ASX Announcement (9 Feb 2022); A$16M upfront CFDF (up to A$26.8M); expected FY23 EBITDA ~A$4.3M (forward); 3.7x implied',
         'https://www.marketscreener.com/quote/stock/PEOPLEIN-LIMITED-38467017/news/Peoplein-Limited-agreed-to-acquire-Perigon-Group-Pty-Ltd-for-AUD-26-8-million-37827523/'
     ],
     [
@@ -240,7 +240,7 @@ staff_data = [
         'APM Human Services International Limited',
         '100%', 'Sweden', 'Jan-22',
         10.6, 2.0, 15.0, 8.3,
-        'ASX Announcement (29 Dec 2021); SEK 100M (~A$15M) total; expected FY22 EBITDA SEK 12M (~A$2M) (forward); ~8.3x implied',
+        'ASX Announcement (29 Dec 2021); SEK 100M (~A$15M) total; expected FY22 EBITDA SEK 12M (~A$2M) (forward); 8.3x implied',
         'https://www.listcorp.com/asx/apm/apm-human-services-international/news/apm-completes-ipo-acquisitions-and-amp-swedish-market-entry-2652618.html'
     ],
     [
@@ -272,7 +272,7 @@ staff_data = [
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '79%', 'Australia', 'Jun-21',
         None, 5.8, 30.0, 5.2,
-        'ASX Announcement (1 Jun 2021); A$23.8M for 79.3% debt-free (implied 100% EV A$30.0M); expected FY22 EBITDA ~A$5.8M (100% basis); forward',
+        'ASX Announcement (1 Jun 2021); A$23.8M for 79.3% debt-free (implied 100% EV A$30.0M); expected FY22 EBITDA ~A$5.8M (100% basis); forward; 5.2x implied',
         'https://www.marketscreener.com/quote/stock/PEOPLEIN-LIMITED-38467017/news/People-Infrastructure-Ltd-entered-into-binding-agreements-to-acquire-Techforce-Personnel-Pty-Ltd-for-35497394/'
     ],
     [
@@ -280,7 +280,7 @@ staff_data = [
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Mar-21',
         None, 1.0, 3.1, 3.1,
-        'ASX Announcement (15 Mar 2021); A$3.1M cash upfront; expected EBITDA A$1M over next 12 months (forward); ~3.1x implied',
+        'ASX Announcement (15 Mar 2021); A$3.1M cash upfront; expected EBITDA A$1M over next 12 months (forward); 3.1x implied',
         'https://www.marketscreener.com/quote/stock/PEOPLEIN-LIMITED-38467017/news/People-Infrastructure-Ltd-entered-into-a-binding-agreement-to-acquire-Business-of-SwingShift-Nurses-33481796/'
     ],
     [
@@ -288,7 +288,7 @@ staff_data = [
         'Hiremii Limited',
         '100%', 'Australia', 'Feb-21',
         None, None, None, None,
-        'ASX Announcement (19 Feb 2021); acquired via share swap (14.3M shares); EBITDA/Revenue not disclosed',
+        '⚠ NO ASX SOURCE (pre-IPO scrip deal, ~A$2.85M implied at IPO price); EBITDA/Revenue not disclosed',
         'https://www.listcorp.com/asx/hmi/hiremii-limited/news/hiremii-completes-acquisition-of-inverse-group-2635188.html'
     ],
     [
@@ -304,7 +304,7 @@ staff_data = [
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Jan-21',
         None, 1.3, 5.2, 4.0,
-        'ASX Announcement (17 Dec 2020); A$5.15M (~A$5.2M net of cash); expected EBITDA A$1.3M (forward); ~4.0x implied',
+        'ASX Announcement (17 Dec 2020); A$5.15M (~A$5.2M net of cash); expected EBITDA A$1.3M (forward); 4.0x implied',
         'https://www.marketscreener.com/quote/stock/PEOPLEIN-LIMITED-38467017/news/People-Infrastructure-Ltd-completed-the-acquisition-of-Ecareer-Employment-Services-Pty-Ltd-Illuminat-33544375/'
     ],
     [
@@ -320,7 +320,7 @@ staff_data = [
         'Madison Dearborn Partners, LLC',
         '55%', 'Australia', 'Jun-20',
         1100.0, 148.4, 1500.0, 10.1,
-        'Media reports (Jun 2020); Serendipity (WA) = APM legal entity; MDP acquired 55% at ~A$1.5-1.6B implied 100% EV from Quadrant PE; FY20 EBITDA ~A$148M (historical)',
+        '⚠ NO ASX SOURCE (APM was private; IPO Nov 2021). Media/IPO prospectus only; MDP acquired 55% at ~A$1.5B implied 100% EV from Quadrant PE; FY20 EBITDA A$148.4M (historical); 10.1x implied',
         'https://michaelwest.com.au/apm-promoters-exit-jobless-profits-in-asx-float-turn-to-profiteering-from-disabled/'
     ],
     [
@@ -328,7 +328,7 @@ staff_data = [
         'Ashley Services Group Limited',
         '80%', 'Australia', 'Dec-19',
         40.0, 4.1, 14.0, 3.4,
-        'ASX Announcement (2019); A$11.2M for 80% (implied 100% EV A$14.0M); FY19 normalised EBITDA A$4.1M (100% basis); historical',
+        'ASX Announcement (Aug 2019); A$11.2M for 80% (implied 100% EV A$14.0M); FY19 normalised EBITDA A$4.1M (100% basis); historical; 3.4x implied',
         'https://www.lexology.com/library/detail.aspx?g=fe4a314d-4853-4892-83f1-ce9fb0ba5d5b'
     ],
     [
@@ -336,7 +336,7 @@ staff_data = [
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Jul-19',
         None, 3.4, 16.8, 4.9,
-        'ASX Announcement (Jun 2019); A$16.8M combined upfront with Carestaff; expected FY20 EBITDA A$3.4M combined (forward)',
+        'ASX Announcement (Jun 2019); A$16.8M combined upfront with Carestaff (no earnout); expected FY20 EBITDA A$3.4M combined (forward); 4.9x implied',
         'https://www.fool.com.au/2019/06/19/people-infrastructure-announces-more-acquisitions/'
     ],
     [
@@ -352,7 +352,7 @@ staff_data = [
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Jun-19',
         None, 3.9, 13.5, 3.5,
-        'ASX Announcement (Jun 2019); A$13.5M upfront CFDF (up to A$21.75M with earnout); expected FY20 EBITDA A$3.9M (forward); ~3.5x upfront',
+        'ASX Announcement (Jun 2019); A$13.5M upfront (up to A$21.75M with earnout); expected FY20 EBITDA A$3.9M (forward); 3.5x implied',
         'https://www.businessnewsaustralia.com/articles/people-infrastructure-buys-halcyon-knights-for--13-5m.html'
     ],
     [
@@ -376,7 +376,7 @@ staff_data = [
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '100%', 'Australia', 'Aug-18',
         None, 2.7, 8.0, 3.0,
-        'ASX Announcement (Aug 2018); A$8M upfront (up to A$9.1M); FY19 EBITDA target ~A$2.65-2.8M (forward); ~3.0x upfront implied',
+        'ASX Announcement (Aug 2018); A$8M upfront (up to A$9.1M); FY19 EBITDA target ~A$2.65-2.8M (forward, midpoint used); 3.0x implied',
         'https://www.staffingindustry.com/news/global-daily-news/australia-people-infrastructure-acquires-nursing-agency-business'
     ],
     [
@@ -384,7 +384,7 @@ staff_data = [
         'People Infrastructure Ltd (nka: Peoplein Limited)',
         '50%', 'Australia', 'Jan-18',
         None, 0.8, 2.8, 3.5,
-        'ASX Announcement (Jan 2018); A$2.8M for 50% stake; expected A$0.8M EBITDA (50% share) over 12 months (forward); ~3.5x explicitly stated; consistent on 50% or 100% basis',
+        'ASX Announcement (Jan 2018); A$2.8M for 50% stake; expected A$0.8M EBITDA (50% share) over 12 months (forward); 3.5x explicitly stated; consistent on 50% or 100% basis',
         'https://www.proactiveinvestors.com.au/companies/news/189851/people-infrastructure-s-acquisition-will-drive-revenue-higher-189851.html'
     ],
     [
