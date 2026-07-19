@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10151c">
+<title>Global Mine &amp; Processing Sites</title>
+<link rel="stylesheet" href="vendor/leaflet.css">
+<link rel="stylesheet" href="vendor/MarkerCluster.css">
+<link rel="stylesheet" href="vendor/MarkerCluster.Default.css">
+<style>
+  :root {
+    --bg: #10151c;
+    --panel: #1a212b;
+    --panel-2: #232c38;
+    --text: #eef2f6;
+    --muted: #9aa7b4;
+    --mine: #46bb60;
+    --smelter: #4e57a6;
+    --accent: #4ea1f7;
+    --radius: 14px;
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sat: env(safe-area-inset-top, 0px);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text);
+    overscroll-behavior: none;
+  }
+  #map { position: fixed; inset: 0; background: #0d1117; }
+
+  /* ---------- top bar ---------- */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    padding: calc(var(--sat) + 10px) 12px 8px;
+    display: flex; flex-direction: column; gap: 8px;
+    pointer-events: none;
+  }
+  .searchrow {
+    display: flex; gap: 8px; pointer-events: auto;
+  }
+  .searchbox {
+    flex: 1; display: flex; align-items: center; gap: 8px;
+    background: var(--panel); border-radius: var(--radius);
+    padding: 0 12px; height: 46px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.35);
+  }
+  .searchbox svg { flex: none; opacity: .6; }
+  .searchbox input {
+    flex: 1; min-width: 0; background: none; border: 0; outline: 0;
+    color: var(--text); font-size: 16px; height: 100%;
+  }
+  .searchbox input::placeholder { color: var(--muted); }
+  .searchbox input::-webkit-search-cancel-button,
+  .searchbox input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
+  .searchbox .clear {
+    flex: none; border: 0; background: var(--panel-2); color: var(--muted);
+    width: 28px; height: 28px; border-radius: 50%; font-size: 15px;
+    display: none; align-items: center; justify-content: center;
+  }
+  .searchbox.hasval .clear { display: flex; }
+  .chips {
+    display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+    pointer-events: auto; padding-bottom: 2px;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: none; border: 0; height: 36px; padding: 0 14px;
+    border-radius: 18px; font-size: 14px; font-weight: 600;
+    background: var(--panel); color: var(--muted);
+    box-shadow: 0 2px 8px rgba(0,0,0,.3);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .chip .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .chip.on { background: var(--text); color: #10151c; }
+  .chip.on .dot { outline: 2px solid rgba(0,0,0,.15); }
+
+  /* ---------- search results ---------- */
+  .results {
+    position: fixed; z-index: 1001;
+    top: calc(var(--sat) + 64px); left: 12px; right: 12px;
+    max-height: 55dvh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    background: var(--panel); border-radius: var(--radius);
+    box-shadow: 0 8px 30px rgba(0,0,0,.5);
+    display: none;
+  }
+  .results.open { display: block; }
+  .result {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,.06);
+    cursor: pointer;
+  }
+  .result:last-child { border-bottom: 0; }
+  .result:active { background: var(--panel-2); }
+  .result .dot { flex: none; width: 10px; height: 10px; border-radius: 50%; }
+  .result .rname { font-size: 15px; font-weight: 600; }
+  .result .rsub { font-size: 12.5px; color: var(--muted); margin-top: 1px; }
+  .results .none { padding: 14px; color: var(--muted); font-size: 14px; }
+
+  /* ---------- count pill ---------- */
+  .countpill {
+    position: fixed; z-index: 999;
+    bottom: calc(var(--sab) + 14px); left: 50%; transform: translateX(-50%);
+    background: var(--panel); color: var(--muted);
+    font-size: 12.5px; font-weight: 600;
+    padding: 7px 14px; border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.35);
+    pointer-events: none; white-space: nowrap;
+    transition: opacity .2s;
+  }
+  body.sheet-open .countpill { opacity: 0; }
+
+  /* ---------- bottom sheet ---------- */
+  .sheet {
+    position: fixed; z-index: 1100; left: 0; right: 0; bottom: 0;
+    background: var(--panel);
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -8px 30px rgba(0,0,0,.5);
+    transform: translateY(105%);
+    transition: transform .28s cubic-bezier(.32,.72,.35,1);
+    max-height: 72dvh; display: flex; flex-direction: column;
+    touch-action: none;
+  }
+  .sheet.open { transform: translateY(0); }
+  .grab { padding: 10px 0 4px; display: flex; justify-content: center; flex: none; }
+  .grab::before {
+    content: ""; width: 42px; height: 5px; border-radius: 3px;
+    background: rgba(255,255,255,.22);
+  }
+  .sheet-body {
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding: 4px 18px calc(var(--sab) + 18px);
+    touch-action: pan-y;
+  }
+  .stitle { display: flex; align-items: flex-start; gap: 10px; }
+  .stitle h2 { margin: 2px 0 0; font-size: 20px; line-height: 1.25; flex: 1; }
+  .badge {
+    flex: none; margin-top: 4px; font-size: 11.5px; font-weight: 700;
+    letter-spacing: .3px; text-transform: uppercase;
+    padding: 4px 9px; border-radius: 8px; color: #fff;
+  }
+  .badge.mine { background: var(--mine); color: #08240f; }
+  .badge.smelter { background: var(--smelter); }
+  .scountry { color: var(--muted); font-size: 14px; margin: 4px 0 12px; }
+  .rows { display: flex; flex-direction: column; gap: 10px; }
+  .row .k {
+    font-size: 11.5px; font-weight: 700; letter-spacing: .5px;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 2px;
+  }
+  .row .v { font-size: 15px; line-height: 1.45; overflow-wrap: anywhere; }
+  .actions { display: flex; gap: 10px; margin-top: 16px; }
+  .btn {
+    flex: 1; height: 46px; border: 0; border-radius: 12px;
+    font-size: 15px; font-weight: 600; text-decoration: none;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+  }
+  .btn.primary { background: var(--accent); color: #06131f; }
+  .btn.secondary { background: var(--panel-2); color: var(--text); }
+  .btn:active { filter: brightness(1.15); }
+
+  /* ---------- markers / clusters ---------- */
+  .site-dot {
+    border-radius: 50%; border: 2px solid rgba(255,255,255,.85);
+    box-shadow: 0 1px 4px rgba(0,0,0,.5);
+  }
+  .cluster {
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; color: #fff; font-weight: 700; font-size: 13px;
+    background: rgba(78,161,247,.9);
+    border: 3px solid rgba(255,255,255,.55);
+    box-shadow: 0 2px 8px rgba(0,0,0,.45);
+  }
+  .leaflet-control-attribution {
+    background: rgba(16,21,28,.75) !important; color: var(--muted) !important;
+    font-size: 10px !important;
+  }
+  .leaflet-control-attribution a { color: var(--muted) !important; }
+  .leaflet-control-zoom { display: none; }
+  @media (min-width: 700px) {
+    .topbar { left: 50%; right: auto; transform: translateX(-50%); width: 480px; }
+    .results { left: 50%; right: auto; transform: translateX(-50%); width: 480px; }
+    .sheet { left: 50%; right: auto; transform: translate(-50%, 105%); width: 520px; border-radius: 18px; bottom: 16px; }
+    .sheet.open { transform: translate(-50%, 0); }
+    .leaflet-control-zoom { display: block; }
+  }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div class="topbar">
+  <div class="searchrow">
+    <div class="searchbox" id="searchbox">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Search 1,175 sites, commodities, owners…" autocomplete="off" enterkeyhint="search">
+      <button class="clear" id="clearbtn" aria-label="Clear search">✕</button>
+    </div>
+  </div>
+  <div class="chips" id="chips">
+    <button class="chip on" data-f="all">All <span id="c-all"></span></button>
+    <button class="chip" data-f="mine"><span class="dot" style="background:var(--mine)"></span>Mines <span id="c-mine"></span></button>
+    <button class="chip" data-f="smelter"><span class="dot" style="background:var(--smelter)"></span>Smelters &amp; Refineries <span id="c-smelter"></span></button>
+  </div>
+</div>
+
+<div class="results" id="results"></div>
+
+<div class="countpill" id="countpill"></div>
+
+<div class="sheet" id="sheet">
+  <div class="grab" id="grab"></div>
+  <div class="sheet-body" id="sheetbody"></div>
+</div>
+
+<script src="vendor/leaflet.js"></script>
+<script src="vendor/leaflet.markercluster.js"></script>
+<script src="data/sites.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var map = L.map('map', {
+    zoomControl: true,
+    worldCopyJump: true,
+    minZoom: 2
+  }).setView([18, 10], 2);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a> | Data: Jasansky et al. 2023 (CC BY 4.0), CMD Consulting',
+    subdomains: 'abcd', maxZoom: 19
+  }).addTo(map);
+
+  var COLORS = { 1: '#46bb60', 0: '#4e57a6' };
+
+  function makeIcon(g) {
+    return L.divIcon({
+      className: '',
+      html: '<div class="site-dot" style="width:100%;height:100%;background:' + COLORS[g] + '"></div>',
+      iconSize: [16, 16],
+      iconAnchor: [8, 8]
+    });
+  }
+  var ICONS = { 1: makeIcon(1), 0: makeIcon(0) };
+
+  var cluster = L.markerClusterGroup({
+    maxClusterRadius: 46,
+    showCoverageOnHover: false,
+    spiderfyOnMaxZoom: true,
+    disableClusteringAtZoom: 10,
+    iconCreateFunction: function (c) {
+      var n = c.getChildCount();
+      var size = n < 10 ? 34 : n < 100 ? 40 : 48;
+      return L.divIcon({
+        className: '',
+        html: '<div class="cluster" style="width:' + size + 'px;height:' + size + 'px">' + n + '</div>',
+        iconSize: [size, size]
+      });
+    }
+  });
+  map.addLayer(cluster);
+
+  // build markers once
+  SITES.forEach(function (s) {
+    s.marker = L.marker([s.lat, s.lon], { icon: ICONS[s.g] });
+    s.marker.on('click', function () { openSheet(s); });
+    s.search = (s.n + ' ' + s.c + ' ' + s.com + ' ' + s.o + ' ' + s.r + ' ' + s.t).toLowerCase();
+  });
+
+  var filter = 'all';
+  var query = '';
+
+  function matches(s) {
+    if (filter === 'mine' && s.g !== 1) return false;
+    if (filter === 'smelter' && s.g !== 0) return false;
+    if (query && s.search.indexOf(query) === -1) return false;
+    return true;
+  }
+
+  var countpill = document.getElementById('countpill');
+  function refresh() {
+    cluster.clearLayers();
+    var shown = [];
+    SITES.forEach(function (s) { if (matches(s)) shown.push(s.marker); });
+    cluster.addLayers(shown);
+    countpill.textContent = shown.length.toLocaleString() + ' site' + (shown.length === 1 ? '' : 's');
+    return shown.length;
+  }
+
+  // counts in chips
+  var nm = SITES.filter(function (s) { return s.g === 1; }).length;
+  document.getElementById('c-all').textContent = '(' + SITES.length.toLocaleString() + ')';
+  document.getElementById('c-mine').textContent = '(' + nm.toLocaleString() + ')';
+  document.getElementById('c-smelter').textContent = '(' + (SITES.length - nm).toLocaleString() + ')';
+
+  // ---------- chips ----------
+  var chipsEl = document.getElementById('chips');
+  chipsEl.addEventListener('click', function (e) {
+    var b = e.target.closest('.chip');
+    if (!b) return;
+    filter = b.dataset.f;
+    chipsEl.querySelectorAll('.chip').forEach(function (c) { c.classList.toggle('on', c === b); });
+    refresh();
+    renderResults();
+  });
+
+  // ---------- search ----------
+  var q = document.getElementById('q');
+  var searchbox = document.getElementById('searchbox');
+  var resultsEl = document.getElementById('results');
+  var debounce;
+
+  q.addEventListener('input', function () {
+    searchbox.classList.toggle('hasval', !!q.value);
+    clearTimeout(debounce);
+    debounce = setTimeout(function () {
+      query = q.value.trim().toLowerCase();
+      refresh();
+      renderResults();
+    }, 160);
+  });
+  q.addEventListener('focus', renderResults);
+  q.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { q.blur(); }
+  });
+  document.getElementById('clearbtn').addEventListener('click', function () {
+    q.value = ''; query = '';
+    searchbox.classList.remove('hasval');
+    refresh(); closeResults(); q.blur();
+  });
+  map.on('click movestart', function () { closeResults(); q.blur(); });
+
+  function closeResults() { resultsEl.classList.remove('open'); }
+
+  function renderResults() {
+    if (!query) { closeResults(); return; }
+    var hits = SITES.filter(matches).slice(0, 40);
+    var html_ = hits.map(function (s, i) {
+      return '<div class="result" data-i="' + SITES.indexOf(s) + '">' +
+        '<span class="dot" style="background:' + COLORS[s.g] + '"></span>' +
+        '<div><div class="rname">' + esc(s.n) + '</div>' +
+        '<div class="rsub">' + esc(s.c) + (s.com ? ' · ' + esc(trunc(s.com, 60)) : '') + '</div></div></div>';
+    }).join('');
+    resultsEl.innerHTML = html_ || '<div class="none">No matching sites</div>';
+    resultsEl.classList.add('open');
+  }
+
+  resultsEl.addEventListener('click', function (e) {
+    var r = e.target.closest('.result');
+    if (!r) return;
+    var s = SITES[+r.dataset.i];
+    closeResults(); q.blur();
+    map.setView([s.lat, s.lon], 11, { animate: true });
+    setTimeout(function () { openSheet(s); }, 250);
+  });
+
+  // ---------- bottom sheet ----------
+  var sheet = document.getElementById('sheet');
+  var sheetbody = document.getElementById('sheetbody');
+
+  function row(k, v) {
+    if (!v) return '';
+    return '<div class="row"><div class="k">' + k + '</div><div class="v">' + esc(v) + '</div></div>';
+  }
+
+  function openSheet(s) {
+    var isMine = s.g === 1;
+    sheetbody.innerHTML =
+      '<div class="stitle"><h2>' + esc(s.n) + '</h2>' +
+      '<span class="badge ' + (isMine ? 'mine' : 'smelter') + '">' + esc(s.t || (isMine ? 'Mine' : 'Smelter')) + '</span></div>' +
+      '<div class="scountry">' + esc(s.c) + (s.r ? ' — ' + esc(s.r) : '') + '</div>' +
+      '<div class="rows">' +
+        row('Commodities', s.com) +
+        row('Owner / operator', s.o) +
+        row('Status', s.s) +
+        row('Production start', s.p) +
+        row('Coordinates', s.lat.toFixed(4) + ', ' + s.lon.toFixed(4)) +
+      '</div>' +
+      '<div class="actions">' +
+        '<a class="btn primary" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=' + s.lat + ',' + s.lon + '">' +
+          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12S3 17 3 10a9 9 0 1 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>Google Maps</a>' +
+        (s.u ? '<a class="btn secondary" target="_blank" rel="noopener" href="' + esc(s.u) + '">Source ↗</a>' : '') +
+      '</div>';
+    sheet.classList.add('open');
+    document.body.classList.add('sheet-open');
+    sheetbody.scrollTop = 0;
+  }
+
+  function closeSheet() {
+    sheet.classList.remove('open');
+    document.body.classList.remove('sheet-open');
+  }
+  map.on('click dragstart', closeSheet);
+
+  // swipe-down to dismiss
+  var startY = null, curY = null;
+  sheet.addEventListener('touchstart', function (e) {
+    if (sheetbody.scrollTop > 0 && sheetbody.contains(e.target)) return;
+    startY = e.touches[0].clientY; curY = startY;
+    sheet.style.transition = 'none';
+  }, { passive: true });
+  sheet.addEventListener('touchmove', function (e) {
+    if (startY === null) return;
+    curY = e.touches[0].clientY;
+    var dy = Math.max(0, curY - startY);
+    sheet.style.transform = 'translateY(' + dy + 'px)';
+  }, { passive: true });
+  sheet.addEventListener('touchend', function () {
+    if (startY === null) return;
+    var dy = curY - startY;
+    sheet.style.transition = '';
+    sheet.style.transform = '';
+    if (dy > 80) closeSheet();
+    startY = null;
+  });
+  document.getElementById('grab').addEventListener('click', closeSheet);
+
+  // ---------- utils ----------
+  function esc(t) {
+    return String(t).replace(/[&<>"']/g, function (ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+    });
+  }
+  function trunc(t, n) { return t.length > n ? t.slice(0, n - 1) + '…' : t; }
+
+  refresh();
+})();
+</script>
+</body>
+</html>
