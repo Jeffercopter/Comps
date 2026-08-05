@@ -305,9 +305,9 @@
     <div id="hud">
       <div class="hud-item"><div class="v accent" id="hudRpm">0.0</div><div class="l">rpm</div></div>
       <div class="hud-item"><div class="v" id="hudNc">0 %</div><div class="l">% critical speed</div></div>
-      <div class="hud-item"><div class="v blue" id="hudPower">0</div><div class="l">power kW/m</div></div>
+      <div class="hud-item"><div class="v blue" id="hudPower">0</div><div class="l">power kW total</div></div>
       <div class="hud-item"><div class="v" id="hudCoM">0.0 m</div><div class="l">c. of mass offset</div></div>
-      <div class="hud-item"><div class="v" id="hudCrit" style="color:#ff0000">0</div><div class="l">crit. impacts /s</div></div>
+      <div class="hud-item"><div class="v" id="hudCrit" style="color:#ff0000">0</div><div class="l">crit. impacts /s·m</div></div>
       <div class="hud-item"><div class="v" id="hudN">0</div><div class="l">particles</div></div>
       <div class="hud-item"><div class="v" id="hudFps">60</div><div class="l">fps</div></div>
     </div>
@@ -321,7 +321,7 @@
         <button class="mode active" data-mode="beginner">Beginner</button>
         <button class="mode" data-mode="advanced">Advanced</button>
       </div>
-      <footer-note style="margin-top:8px" id="modeNote">Beginner: (regime, speed, filling and balls). Advanced: (particle size, liner, densities and contact properties.)</footer-note>
+      <footer-note style="margin-top:8px" id="modeNote">Beginner: (mill size, regime, speed, filling and balls). Advanced: (particle size, liner, densities and contact properties.)</footer-note>
     </div>
 
     <div class="card">
@@ -332,6 +332,22 @@
         <button class="preset" data-preset="cataracting">Cataracting</button>
         <button class="preset" data-preset="centrifuging">Centrifuging</button>
       </div>
+    </div>
+
+    <div class="card">
+      <h2>Mill geometry</h2>
+      <div class="ctrl">
+        <div class="row"><span>Shell diameter D</span><span class="val" id="vMillD">8.0 m</span></div>
+        <input type="range" id="sMillD" min="3" max="14" step="0.5" value="8">
+      </div>
+      <div class="ctrl">
+        <div class="row"><span>Grinding length L</span><span class="val" id="vMillL">4.0 m</span></div>
+        <input type="range" id="sMillL" min="1.5" max="14" step="0.5" value="4">
+      </div>
+      <div class="ctrl">
+        <div class="row"><span>Critical speed N<sub>c</sub></span><span class="val" id="vNc">15.0 rpm</span></div>
+      </div>
+      <footer-note style="margin-top:2px">D drives N<sub>c</sub> = 42.3/&radic;D, the charge mass and the lever arm — a bigger mill turns slower and draws far more power. L only scales the 2D slice up to a total: the simulated cross-section is the same at any length.</footer-note>
     </div>
 
     <div class="card">
@@ -437,7 +453,7 @@
 
     <div class="card">
       <h2>Charts</h2>
-      <div class="chart-label">Power draw (kW per metre of mill length)</div>
+      <div class="chart-label">Power draw (kW, whole mill)</div>
       <canvas class="chart" id="chartPower"></canvas>
       <div class="chart-label">Impact energy spectrum (log E)</div>
       <canvas class="chart" id="chartImpact"></canvas>
@@ -456,9 +472,10 @@
 
     <div class="card">
       <footer-note>
-        Mill of D = 8 m. Critical speed N<sub>c</sub> = 42.3/&radic;D &asymp; 15 rpm.
-        Particles scaled ~10x for real-time visualisation;
-        power is estimated from the reaction torque on the shell: P = &tau;&middot;&omega;.
+        Mill of D = <span id="noteD">8.0</span> m &times; L = <span id="noteL">4.0</span> m.
+        Critical speed N<sub>c</sub> = 42.3/&radic;D &asymp; <span id="noteNc">15.0</span> rpm.
+        Particles scaled ~10x for real-time visualisation, and with the diameter to hold the count constant;
+        power is estimated from the reaction torque on the shell, P = &tau;&middot;&omega; per metre of slice, times L.
         Indicative visualisation for explaining SAG grinding concepts, not a performance prediction model.
       </footer-note>
     </div>
@@ -474,8 +491,12 @@
    ============================================================ */
 
 // ---------- Mill parameters ----------
+// The geometry is driven by the state, so diameter and length are live controls:
+// everything downstream (critical speed, view framing, charge size, total power)
+// is derived, never hard-coded to one machine.
 const MILL = {
-  D: 8.0,                  // diameter (m)
+  get D() { return state.millD; },                     // shell diameter (m)
+  get L() { return state.millL; },                     // effective grinding length (m)
   get R() { return this.D / 2; },
   get Nc() { return 42.3 / Math.sqrt(this.D); },       // critical rpm (classic formula)
   get omegaC() { return this.Nc * 2 * Math.PI / 60; }, // rad/s
@@ -486,7 +507,11 @@ const RHO_ORE = 2700;     // kg/m3
 const RHO_STEEL = 7800;
 const KN = 3.0e6;         // normal stiffness N/m
 const SUBSTEPS = 10;
-const BASE_ORE_R = 0.085; // base ore radius (m), scaled by the slider
+const REF_D = 8.0;        // reference diameter the base particle size was tuned for
+const BASE_ORE_R = 0.085; // base ore radius (m) at REF_D, scaled by the slider
+// Particle radius scales with the diameter, so the particle count — and therefore the
+// frame rate — stays constant as the mill is resized. Particles are already ~10x
+// exaggerated for visualisation; use the size slider to compare absolute sizes.
 const MAX_LIFTERS = 36;
 // Archard-type wear: depth is proportional to friction work + impact energy.
 // WEAR_K in m/J; the wear slider multiplies it (x1 would be the real scale: months).
@@ -506,6 +531,8 @@ const CRIT_VN = 4.0;      // m/s: minimum normal velocity against the shell to c
 
 // ---------- Simulation state ----------
 const state = {
+  millD: 8.0,          // shell diameter (m), live
+  millL: 4.0,          // effective grinding length (m): scales kW/m up to total kW
   speedPct: 72,        // % of critical speed
   fillPct: 30,         // J, % of the mill area
   ballPct: 15,         // Jb: ball filling, % by volume of the mill (subset of fillPct)
@@ -561,7 +588,7 @@ function centerOfMass() {
 function buildCharge() {
   const R = MILL.R;
   const sizeF = state.sizePct / 100;
-  const rOre = BASE_ORE_R * sizeF;
+  const rOre = BASE_ORE_R * sizeF * (MILL.D / REF_D);
   const rBall = rOre * 1.45;
 
   // Fillings as volumetric fractions (area in 2D) of the mill — industry convention:
@@ -1183,7 +1210,7 @@ function drawPowerChart() {
   g.fillStyle = CMD.gray;
   g.font = '10px Consolas, "Lucida Console", monospace';
   g.textAlign = "right";
-  g.fillText(`max ${max.toFixed(0)} kW/m`, w - 4, 11);
+  g.fillText(`max ${max.toFixed(0)} kW`, w - 4, 11);
 }
 
 function drawImpactChart() {
@@ -1273,7 +1300,7 @@ function updateRegime() {
 }
 
 // ---------- UI ----------
-function bindSlider(id, valId, fmt, key, rebuild) {
+function bindSlider(id, valId, fmt, key, rebuild, after) {
   const el = document.getElementById(id);
   const lab = document.getElementById(valId);
   el.addEventListener("input", () => {
@@ -1281,11 +1308,31 @@ function bindSlider(id, valId, fmt, key, rebuild) {
     lab.textContent = fmt(state[key]);
     if (rebuild) buildCharge();
     if (key === "speedPct") { updateRegime(); clearPresetActive(); }
+    if (after) after();
     updateHud();
   });
   lab.textContent = fmt(parseFloat(el.value));
 }
 
+// Resizing the mill invalidates the framing (the view is scaled to R), the charge
+// (particle size and count follow the diameter) and the power history (kW/m and kW
+// are no longer comparable to the previous geometry).
+function onGeometryChange() {
+  resize();
+  state.powerHist = [];
+  updateGeometryReadout();
+}
+
+// Readouts derived from the geometry: critical speed and the footer summary.
+function updateGeometryReadout() {
+  document.getElementById("vNc").textContent = MILL.Nc.toFixed(1) + " rpm";
+  document.getElementById("noteD").textContent = MILL.D.toFixed(1);
+  document.getElementById("noteL").textContent = MILL.L.toFixed(1);
+  document.getElementById("noteNc").textContent = MILL.Nc.toFixed(1);
+}
+
+bindSlider("sMillD", "vMillD", v => v.toFixed(1) + " m", "millD", true, onGeometryChange);
+bindSlider("sMillL", "vMillL", v => v.toFixed(1) + " m", "millL", false, onGeometryChange);
 bindSlider("sSpeed", "vSpeed", v => v + " %", "speedPct", false);
 bindSlider("sFill", "vFill", v => v + " %", "fillPct", true);
 bindSlider("sBalls", "vBalls", v => v + " %", "ballPct", true);
@@ -1420,7 +1467,8 @@ function loop(now) {
     sampleAccum += dtFrame;
     if (sampleAccum > 0.12) {
       sampleAccum = 0;
-      const P = Math.max(0, state.torqueEMA * omega()) / 1000; // kW per metre
+      // kW per metre of slice, scaled by the grinding length to a whole-mill total
+      const P = Math.max(0, state.torqueEMA * omega()) / 1000 * MILL.L;
       state.powerHist.push(P);
       if (state.powerHist.length > 220) state.powerHist.shift();
       document.getElementById("hudPower").textContent = P.toFixed(0);
@@ -1456,6 +1504,7 @@ buildCharge();
 updateRegime();
 updateLegend();
 updateHud();
+updateGeometryReadout();
 requestAnimationFrame(loop);
 </script>
 </body>

@@ -1,9 +1,12 @@
 # DEM Simulator — SAG Mill (CMD Edition)
 
-Interactive Discrete Element Method (DEM) simulator of the cross-section of an
-8 m diameter SAG mill. Built as a visual tool for explaining grinding phenomena:
-cascading, cataracting, centrifuging, the effect of the lifters, the shoulder and
-toe of the charge, and the power curve.
+Interactive Discrete Element Method (DEM) simulator of the cross-section of a SAG
+mill. Built as a visual tool for explaining grinding phenomena: cascading,
+cataracting, centrifuging, the effect of the lifters, the shoulder and toe of the
+charge, and the power curve.
+
+The mill geometry is dynamic — shell diameter and grinding length are live
+controls, and everything downstream derives from them.
 
 This is an English translation and re-skin of
 [luchoplaza/DEM_SAG](https://github.com/luchoplaza/DEM_SAG) by Luis Plaza A.
@@ -72,12 +75,35 @@ Being a static file with no dependencies, it deploys in seconds:
   shortens, but the power does not fall: worse grinding at the same energy cost.
 - Two species: ore (ρ = 2700 kg/m³) and steel balls (ρ = 7800 kg/m³, ~1.45× the
   radius).
-- Real SI units; particles are at ~10× scale so the simulation runs at 60 fps in
-  the browser (up to ~2600 particles).
+- Real SI units; particles are at ~10× scale (and scale with the mill diameter) so
+  the simulation runs at 60 fps in the browser (up to ~2600 particles).
+
+## Dynamic geometry
+
+Diameter D (3–14 m) and grinding length L (1.5–14 m) are live sliders rather than
+hard-coded constants. Changing them re-derives:
+
+| Quantity | How it follows the geometry |
+|---|---|
+| Critical speed | Nc = 42.3/√D — a 14 m mill turns at 11.3 rpm, a 3 m mill at 24.4 rpm |
+| Charge | Rebuilt for the new mill area; Jc and Jb stay volumetric fractions |
+| Particle size | Scales with D, so the particle count — and the frame rate — stay constant |
+| View | Reframed to the new radius |
+| Power | The 2D slice gives kW per metre; L scales it to a whole-mill total in kW |
+
+Power follows D^2.5 as theory predicts (charge mass ∝ D², lever arm ∝ D, speed
+∝ D^−0.5): the default 8 m × 4 m mill at 72% Nc draws ~4.2 MW, and going to 14 m
+at the same relative speed and filling takes it to ~17 MW.
+
+Two caveats the model makes no attempt to hide: L is a pure scale factor, since
+the simulated cross-section is identical at any length (no end effects, no axial
+transport), and critical impacts are reported per metre of slice rather than
+scaled up.
 
 ## Interactive variables
 
-- Speed (% of critical, Nc = 42.3/√D ≈ 15 rpm), live
+- Shell diameter D and grinding length L, live
+- Speed (% of critical, Nc = 42.3/√D), live
 - Charge filling Jc (10–45%)
 - Ball filling Jb (0–30% of the mill)
 - Particle size
@@ -111,8 +137,12 @@ Being a static file with no dependencies, it deploys in seconds:
   original deployment.
 - One behaviour fix: clicking a regime preset now refreshes the rpm / % critical
   speed readout in the HUD (in the original those two tiles kept the previous
-  value until a slider was moved). The physics is otherwise byte-for-byte the
-  original model.
+  value until a slider was moved).
+- Dynamic geometry: the original was fixed at D = 8 m with power reported per
+  metre of mill length. Diameter and grinding length are now live controls and
+  the HUD reports whole-mill kW. The contact law, integrator, spatial hash and
+  wear model are unchanged — the geometry is parametrised around them, not
+  reformulated.
 
 ## Credits
 
