@@ -45,6 +45,9 @@ brief/
   Syama_Ore_Sorting_Brief.docx    two-page decision brief (deliverable)
   Syama_Ore_Sorting_Brief.pdf     rendered, verified at two pages
   build_brief.js                  docx-js source
+  Syama_Ore_Sorting_Letter.pdf    one-page covering letter (deliverable)
+  Syama_Ore_Sorting_Letter.docx   editable source — fill the [placeholder] fields
+  build_letter.js                 docx-js source
 model/
   Syama_Pebble_Sorting_Simulation.xlsx   the updated case
   build_workbook.py               generates the workbook
@@ -72,8 +75,12 @@ aggregate them in a `CIRCUIT TOTAL` block, following the Sukari original.
 pip install openpyxl
 python model/sensitivity.py                                    # writes sensitivity_results.json
 python model/build_workbook.py Syama_Pebble_Sorting_Simulation.xlsx
-npm install docx && node brief/build_brief.js
+npm install docx && node brief/build_brief.js && node brief/build_letter.js
+soffice --headless --convert-to pdf brief/*.docx        # render
 ```
+
+The covering letter carries `[placeholder]` sender, addressee and signatory fields — fill
+these in before sending. Nothing is signed or attributed on your behalf.
 
 The workbook has been verified two ways: recalculated in LibreOffice Calc, and evaluated
 cell-by-cell with the `formulas` package. Both agree with `engine.py` to three decimals.
