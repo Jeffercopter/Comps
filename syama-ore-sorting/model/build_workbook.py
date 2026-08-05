@@ -1,5 +1,7 @@
 """Syama_Pebble_Sorting_Simulation.xlsx
-STEINERT Sukari model SR241558 re-parameterised for the Syama converted SAG line."""
+African gold mine pebble sorting study (2024), re-parameterised for the Syama
+converted (ex-oxide) SAG line. Ratios and unit rates are carried over from the
+reference study; Syama's measured and disclosed values are retained."""
 import openpyxl, sys
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.chart import LineChart, Reference
@@ -40,7 +42,7 @@ for col, w in zip("ABCDEFGHIJKLMN", [2,36,12,8,2,46,19,2,31,12,12,11,8,32]):
     d.column_dimensions[col].width = w
 band(d, 1, 1, 14, "  SYAMA GOLD  |  SAG PEBBLE (SCAT) SORTING  |  BUSINESS CASE", NAVY, H1)
 put(d,"A2","Project:",BD,bd=False); put(d,"B2","Syama Sulphide Conversion Project - converted (ex-oxide) SAG line",bd=False)
-put(d,"A3","Basis:",BD,bd=False);   put(d,"B3","STEINERT model SR241558 (Sukari) re-parameterised for Syama",bd=False)
+put(d,"A3","Basis:",BD,bd=False);   put(d,"B3","African gold mine pebble sorting study (2024), re-parameterised for Syama",bd=False)
 put(d,"A4","Date:",BD,bd=False);    put(d,"B4","2026-08-05",bd=False)
 band(d, 6, 2, 7, "  INPUTS"); band(d, 6, 9, 14, "  OUTPUTS")
 for c,t in [("B7","Parameter"),("C7","Value"),("D7","Unit"),("F7","Basis / source"),("G7","Confidence")]:
@@ -50,32 +52,31 @@ for c,t in [("I7","Parameter"),("J7","BASE"),("K7","SORTING"),("L7","DIFF"),("M7
 
 IN = [
  ("§","OPERATION",None,None,None,None),
- ("feed","New feed to SAG line",200.0,"t/h","1.58 Mtpa - the SSCP increment (2.4 -> 4.0 Mtpa)","Assumption - CONFIRM","#,##0"),
- ("hrs","Annual operating hours",7884.0,"h/a","90% availability","Assumption","#,##0"),
+ ("feed","New feed to SAG line",200.0,"t/h","1.58 Mtpa - the SSCP increment (2.4 -> 4.0 Mtpa)","Syama - CONFIRM","#,##0"),
+ ("hrs","Annual operating hours",7370.0,"h/a","African gold mine study, 2024","Reference study","#,##0"),
  ("rom","ROM grade (diluted)",2.40,"g/t","2026 UG plan 2.4-2.5 g/t Au","Resolute guidance","0.00"),
  ("rec","Gold recovery (flot+roast+CIL)",0.75,"-","FY25 sulphide 75%, Q2-25 76%","Resolute actual","0.0%"),
  ("poz","Gold price",4000.0,"$/oz","Resolute 2026 planning assumption","Resolute","#,##0"),
  ("pg","Gold price",None,"$/g","gold price / 31.1035","Calculated","0.00"),
- ("disc","Discount rate",0.10,"-","8% base + Mali country-risk premium","Assumption","0.0%"),
+ ("disc","Discount rate",0.08,"-","African gold mine study, 2024","Reference study","0.0%"),
  ("§","COSTS",None,None,None,None),
- ("cmill","Milling cost avoided",8.00,"$/t","power + media + reagents (Sukari used 7.69)","Assumption - CONFIRM","0.00"),
- ("cmine","Incremental UG mining cost",53.00,"$/t","~45% of AISC $2,050/oz at 1.8 g/t recovered","Derived - CONFIRM","0.00"),
- ("cdump","Reject rehandle + dump",2.50,"$/t","","Assumption","0.00"),
- ("csort","Sorting OPEX",0.45,"$/t","STEINERT template ($15/50 t/h + $0.15)","Vendor benchmark","0.00"),
+ ("crej","Mining, dumping & G&A on rejects",7.69,"$/t","African gold mine study, 2024","Reference study","0.00"),
+ ("csort","Sorting OPEX",0.45,"$/t","African gold mine study, 2024","Reference study","0.00"),
  ("§","MATERIAL PROPERTY",None,None,None,None),
- ("dil","Waste dilution (SLC)",0.20,"-","sublevel cave, typical 15-25%","Assumption - CONFIRM","0.0%"),
+ ("dil","Waste dilution",0.11905973741018575,"-","African gold mine study, 2024 - see note","Reference study","0.0%"),
  ("og","Undiluted ore grade",None,"g/t","ROM grade / (1 - dilution)","Calculated","0.000"),
- ("fo","Mass yield ore -> scats",0.1111,"-","calibrated to the measured scat stream","Calibrated","0.0000"),
- ("fw","Mass yield waste -> scats",0.2000,"-","calibrated to the measured scat stream","Calibrated","0.0000"),
- ("con","HETEROGENEITY CONTRAST",None,"x","waste yield / ore yield.   Sukari = 8.9x","KEY METRIC","0.00"),
+ ("sfrac","Circulating scat load",0.16408,"-","of new feed; African gold mine study, 2024","Reference study","0.0%"),
+ ("fo","Mass yield ore -> scats",0.1203,"-","calibrated to the measured scat stream","Calibrated","0.0000"),
+ ("fw","Mass yield waste -> scats",0.2682,"-","calibrated to the measured scat stream","Calibrated","0.0000"),
+ ("con","HETEROGENEITY CONTRAST",None,"x","waste yield / ore yield.   Reference study = 8.91x","KEY METRIC","0.00"),
  ("§","SORTER PROPERTY",None,None,None,None),
- ("orec","Sorter ore recovery",0.95,"-","XRT, conservatively tuned","TEST WORK REQUIRED","0.0%"),
- ("w2r","Waste mass to rejects",0.70,"-","XRT on Syama lithologies","TEST WORK REQUIRED","0.0%"),
+ ("orec","Sorter ore recovery",0.90,"-","African gold mine study, 2024","Reference study","0.0%"),
+ ("w2r","Waste mass to rejects",0.90,"-","African gold mine study, 2024","TEST WORK REQUIRED","0.0%"),
  ("§","CAPITAL & EVALUATION",None,None,None,None),
- ("capex","Sorting plant CAPEX",4095000.0,"$","1 x 50 t/h sorter, STEINERT build-up +30%","Vendor benchmark","#,##0"),
- ("build","Build period",12,"months","","Assumption","0"),
- ("life","Evaluation life",96,"months","8 years","Assumption","0"),
- ("upl","ROM feed uplift  (Goal Seek)",7.2,"t/h",'Goal Seek: set L{under} to 0 by changing this cell',"Solved","0.00"),
+ ("capex","Sorting plant CAPEX",4095000.0,"$","1 x 50 t/h sorter, reference build-up +30%","Reference study","#,##0"),
+ ("build","Build period",12,"months","African gold mine study, 2024","Reference study","0"),
+ ("life","Evaluation life",120,"months","African gold mine study, 2024","Reference study","0"),
+ ("upl","ROM feed uplift  (Goal Seek)",8.64,"t/h",'Goal Seek: set the leach-feed DIFF to 0 by changing this cell',"Solved","0.00"),
  ("cap","Capacity capture factor",1.00,"-","share of freed SAG capacity actually filled with ore","CRITICAL ASSUMPTION","0.0%"),
 ]
 r = 9; X = {}
@@ -96,16 +97,17 @@ d[f"C{X['con']}"] = f"=C{X['fw']}/C{X['fo']}"
 CB = r + 1
 band(d, CB-1, 2, 7, "  CALIBRATION CHECK  -  model must reproduce the measured scat stream")
 for i,(lbl,v,nf,conf) in enumerate([
-        ("Measured circulating scat load", 30.0, "0.0", "CLIENT DATA"),
+        ("Target circulating scat load", f"=C{X['sfrac']}*C{X['feed']}", "0.00", "Reference ratio"),
         ("MEASURED SCAT GRADE", 2.00, "0.00", "CLIENT DATA"),
-        ("Modelled circulating scat load", f"='MB Base'!G{R['sfeed']}", "0.0", "calc"),
+        ("Modelled circulating scat load", f"='MB Base'!G{R['sfeed']}", "0.00", "calc"),
         ("Modelled scat grade", f"='MB Base'!H{R['sfeed']}", "0.00", "calc")]):
     put(d,f"B{CB+i}",lbl,BD); put(d,f"C{CB+i}",v,num=nf,f=AMBER if conf=="CLIENT DATA" else None)
     put(d,f"D{CB+i}","t/h" if i in (0,2) else "g/t")
-    put(d,f"F{CB+i}","plant survey / client sampling" if conf=="CLIENT DATA"
-        else "adjust the two mass yields above until modelled = measured", IT)
+    put(d,f"F{CB+i}","16.4% of new feed (African gold mine study, 2024)" if i==0
+        else "client sampling of SAG scats" if conf=="CLIENT DATA"
+        else "adjust the two mass yields above until modelled = target", IT)
     put(d,f"G{CB+i}",conf,IT)
-d[f"C{X['upl']}"] = 7.2
+d[f"C{X['upl']}"] = 8.64
 d[f"F{X['upl']}"] = f"Goal Seek: set L{9+8} to 0 by changing this cell"
 
 # outputs
@@ -139,9 +141,7 @@ EC = [("Incremental gold to leach", f"=L{O['Au to leach']}", "g/h", "#,##0.0"),
       ("Incremental gold recovered", f"=L{O['Au production']}", "oz/a", "#,##0"),
       ("Revenue gain", f"=L{O['Au to leach']}*C{X['rec']}*C{X['pg']}", "$/h", "#,##0"),
       ("Sorting OPEX", f"=-C{X['csort']}*'MB Sort'!G{R['sfeed']}", "$/h", "#,##0"),
-      ("Reject rehandle + dump", f"=-C{X['cdump']}*'MB Sort'!G{R['rej']}", "$/h", "#,##0"),
-      ("Incremental mining cost", f"=-C{X['cmine']}*L{O['ROM feed rate']}", "$/h", "#,##0"),
-      ("Milling cost saved", f"=-C{X['cmill']}*L{O['SAG mill total load']}", "$/h", "#,##0")]
+      ("Mining, dumping & G&A on rejects", f"=-C{X['crej']}*'MB Sort'!G{R['rej']}", "$/h", "#,##0")]
 E0 = r
 for name, f_, unit, nf in EC:
     put(d,f"I{r}",name,BD); put(d,f"K{r}",f_,num=nf); put(d,f"M{r}",unit); r += 1
@@ -218,7 +218,8 @@ def mb(name, orec, w2r, feed_ref, subtitle):
         ("Au lost to rejects", f"=I{R['rej']}","#,##0.00","g/h"),
         ("Recoverable value discarded", f"=I{R['rej']}*Dashboard!C{X['rec']}*Dashboard!C{X['pg']}","#,##0","$/h"),
         ("In-situ value of reject stream", f"=H{R['rej']}*Dashboard!C{X['rec']}*Dashboard!C{X['pg']}","#,##0.00","$/t"),
-        ("Cost avoided per reject tonne", f"=Dashboard!C{X['cmill']}-Dashboard!C{X['cdump']}","#,##0.00","$/t")]):
+        ("Cost avoided per reject tonne", f"=Dashboard!C{X['crej']}","#,##0.00","$/t"),
+        ("Value discarded per $1 avoided", f"=IFERROR(H{R['rej']}*Dashboard!C{X['rec']}*Dashboard!C{X['pg']}/Dashboard!C{X['crej']},0)","0.0","x")]):
         put(ws,f"B{PERF+1+i}",lbl,BD); put(ws,f"C{PERF+1+i}",f_,num=nf); put(ws,f"D{PERF+1+i}",u)
     return ws
 
@@ -239,7 +240,7 @@ for i,(lbl,f_,nf,u) in enumerate([
         ("Build period", f"=Dashboard!C{X['build']}", "0","months"),
         ("Evaluation life", f"=Dashboard!C{X['life']}", "0","months")]):
     put(n,f"A{3+i}",lbl,BD); put(n,f"B{3+i}",f_,num=nf); put(n,f"C{3+i}",u,bd=False)
-NM_ = 120
+NM_ = 144   # must exceed build + life
 last = CL(3 + NM_)
 put(n,"A8","NPV",KEY); put(n,"B8",f"=NPV(B5/12,D13:{last}13)",BD,num="#,##0",f=GREEN); put(n,"C8","$",bd=False)
 put(n,"A9","IRR (annualised)",KEY)
@@ -264,10 +265,11 @@ sv = wb.create_sheet("Sensitivity"); sv.sheet_view.showGridLines = False
 for col, w in zip("ABCDEFG", [2,26,18,18,18,18,18]):
     sv.column_dimensions[col].width = w
 band(sv, 1, 1, 7, "  SENSITIVITY   |   computed off the same mass-balance engine as MB Base / MB Sort", NAVY, H1)
-put(sv,"B3","Values are static (generated with the model engine). Re-run build_wb.py to refresh "
+put(sv,"B3","Values are static (generated by sensitivity.py). Re-run it, then build_workbook.py, to refresh "
             "after changing Dashboard inputs.", IT, bd=False)
 r = 5
-for title, hdr, rows in json.load(open("sens.json")):
+import os
+for title, hdr, rows in json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "sensitivity_results.json"))):
     band(sv, r, 2, 2+len(hdr)-1, "  " + title); r += 1
     for j, h in enumerate(hdr): put(sv, f"{CL(2+j)}{r}", h, BD, f=LIGHT, al="center")
     r += 1

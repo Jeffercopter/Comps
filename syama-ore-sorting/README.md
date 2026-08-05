@@ -1,8 +1,12 @@
 # Syama — SAG Pebble (Scat) Ore Sorting Assessment
 
 Assessment of ore sorting on the SAG scat stream at Syama (Resolute Mining, Mali),
-built by re-parameterising the STEINERT Sukari business-case model
-(`SR241558 Sukari Gold Pebble Sorting Simulation.xlsx`, F. Riedel, Oct 2024).
+built by re-parameterising a 2024 African gold mine pebble sorting business-case model.
+
+Where Syama site data was unavailable, that study's **ratios and unit rates are carried
+across** rather than assumed independently. Syama's own measured and disclosed values are
+retained. The reference operation is anonymised as "African gold mine study (2024)"
+throughout the client-facing documents.
 
 **Key client input:** the Syama pebble scats assay **2.0 g/t Au**.
 
@@ -12,9 +16,9 @@ built by re-parameterising the STEINERT Sukari business-case model
 |---|---|
 | Recommendation | **Conditional GO — fund test work, not the plant** |
 | CAPEX | US$4.1 M (1 × 50 t/h sorter) |
-| NPV @10%, full capacity capture | **+US$33.6 M**, payback 6.5 months |
-| NPV if freed SAG capacity is *not* refilled | **−US$13.9 M** |
-| NPV breakeven | 29% capacity capture |
+| NPV @8%, full capacity capture | **+US$55.2 M**, payback 5.3 months |
+| NPV if freed SAG capacity is *not* refilled | **−US$36.9 M** |
+| NPV breakeven | 40% capacity capture |
 
 The entire case is a **throughput debottlenecking** case, not a recovery case — scats
 already recirculate, so no gold is currently being lost. Value therefore exists only if
@@ -23,20 +27,22 @@ ore to fill the capacity that sorting frees.
 
 ## Why the 2 g/t scat grade matters
 
-Back-solving the deportment against 20% sublevel-cave dilution gives a waste-to-ore
-contrast to scats of **1.8×**, against **8.9×** at Sukari.
+Back-solving the deportment on the reference study's dilution gives a waste-to-ore contrast
+to scats of **2.23×**, against **8.91×** in the reference case.
 
-| | Sukari | Syama |
+| | Reference study | Syama |
 |---|---|---|
-| ROM / scat grade (g/t Au) | 1.57 / 0.56 | 2.40 / 2.00 |
+| ROM / scat grade (g/t Au) | 1.57 / 0.55 | 2.40 / 2.00 |
 | Scat grade as % of ROM | 35% | 83% |
-| Heterogeneity contrast | 8.9× | 1.8× |
-| Barren mass available in scats | ~69% | ~33% |
-| Reject grade achieved (g/t) | 0.148 | 0.429 |
+| Heterogeneity contrast | 8.91× | 2.23× |
+| Barren mass available in scats | ~69% | ~27% |
+| Reject grade at 90/90 duty (g/t) | 0.151 | 0.782 |
+| Mass pull achieved | 54% | 27% |
 
-At 0.43 g/t the reject stream holds US$41/t of recoverable gold against US$10.50/t of cost
-avoided. Roughly 60% of the Sukari-style prize is lost to the ore's own character before a
-sorter is even specified, and no sorter tuning recovers it.
+At 0.78 g/t the reject stream holds US$75/t of recoverable gold against the US$7.69/t of
+mining, dumping and G&A it avoids — nearly ten dollars of gold discarded per dollar saved.
+More than half the reference-style prize is lost to the ore's own character before a sorter
+is even specified, and no sorter tuning recovers it.
 
 ## Contents
 
@@ -69,7 +75,7 @@ model/
 | `Sensitivity` | capacity capture, incremental feed grade, scat grade, sorter performance, dilution, gold price |
 
 Both mass-balance sheets model the recirculating scat load as six sequential SAG passes and
-aggregate them in a `CIRCUIT TOTAL` block, following the Sukari original.
+aggregate them in a `CIRCUIT TOTAL` block, following the reference model.
 
 ## Reproducing
 
@@ -101,26 +107,31 @@ cell-by-cell with the `formulas` package. Both agree with `engine.py` to three d
 ## Calibration and Goal Seek
 
 `Dashboard` holds the two mass yields (ore → scats, waste → scats) as *inputs*, calibrated so
-the model reproduces the measured scat stream (30 t/h at 2.00 g/t). The calibration check
+the model reproduces the measured scat stream (32.8 t/h at 2.00 g/t). The calibration check
 block reports modelled vs measured; adjust the yields if the plant survey changes.
 
-`Dashboard!C35` (ROM feed uplift) is solved by Goal Seek — set the ball-mill/leach feed DIFF
-(`L17`) to zero by changing `C35`, so downstream tonnage is held constant and the benefit
-reports as higher feed grade. This follows the Sukari original, where the same cell carried
+`Dashboard!C34` (ROM feed uplift) is solved by Goal Seek — set the ball-mill/leach feed DIFF
+(`L17`) to zero by changing `C34`, so downstream tonnage is held constant and the benefit
+reports as higher feed grade. This follows the reference model, where the same cell carried
 the note *"change with Goal Seek"*.
 
-## Assumptions requiring site confirmation
+## Basis of each input
 
-Flagged `Assumption - CONFIRM` on the Dashboard. These are placeholders, not site data:
+**Retained from Syama** — ROM grade 2.40 g/t, recovery 75%, gold price US$4,000/oz (Resolute
+disclosure), and the measured scat grade of 2.00 g/t (client sampling).
 
-- SAG line new feed **200 t/h** (1.58 Mtpa, the SSCP increment)
-- Sublevel-cave dilution **20%** — drives the back-solved contrast (see Sensitivity table E)
-- Circulating scat load **30 t/h** (15% of new feed)
-- Milling cost avoided **US$8.00/t**
-- Incremental UG mining cost **US$53.00/t** — derived from AISC, not from site costing
+**Carried from the reference study** (flagged `Reference study` on the Dashboard) — waste
+dilution 11.9%, circulating scat load 16.4% of new feed, sorter duty 90/90, US$7.69/t
+mining-dump-G&A on rejects, US$0.45/t sorting, 7,370 h/a, 8% discount, 12-month build,
+120-month life, and the CAPEX build-up.
 
-Sorter ore recovery (95%) and waste rejection (70%) are flagged `TEST WORK REQUIRED`. A 1.8×
-mass contrast is not evidence of a detectable sensor contrast.
+**Still Syama-specific and unconfirmed** — SAG line new feed **200 t/h** (1.58 Mtpa, the SSCP
+increment), flagged `Syama - CONFIRM`.
+
+The one carry-over worth challenging is the **11.9% dilution**: a sublevel cave typically runs
+higher, and dilution drives the back-solved contrast. Sensitivity table E spans 10–25%.
+Sorter duty stays flagged `TEST WORK REQUIRED` — a 2.23× mass contrast is not evidence of a
+detectable sensor contrast.
 
 ## Public sources used for Syama parameters
 

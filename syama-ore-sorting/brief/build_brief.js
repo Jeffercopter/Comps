@@ -76,54 +76,57 @@ const doc = new Document({
   table([15,38,15,32], [
     [{t:"Field",al:AlignmentType.LEFT},{t:"Detail",al:AlignmentType.LEFT},{t:"Field",al:AlignmentType.LEFT},{t:"Detail",al:AlignmentType.LEFT}],
     [{t:"Date",b:true},{t:"5 August 2026",al:AlignmentType.LEFT},{t:"Basis",b:true},
-     {t:"STEINERT model SR241558 (Sukari), re-parameterised",al:AlignmentType.LEFT}],
+     {t:"African gold mine study (2024), re-parameterised",al:AlignmentType.LEFT}],
     [{t:"Subject",b:true},{t:"Sorting of SAG scats, converted (ex-oxide) line",al:AlignmentType.LEFT},
      {t:"Key input",b:true},{t:"Scat grade 2.0 g/t Au (client sampling)",al:AlignmentType.LEFT,b:true}],
   ]),
 
   H("1.  Recommendation"),
-  txt("Conditional GO — fund test work, not the plant. The re-parameterised case returns an NPV of "
-    + "US$33.6 M with a 6.5-month payback on US$4.1 M of capital, but the entire result rests on one "
-    + "assumption that has not been tested: that freed SAG capacity gets refilled with ore. Strip that "
-    + "away and the same plant destroys US$13.9 M. Two gates must be closed before any capital is committed.",
-    { after: 70 }),
+  txt("Conditional GO — fund test work, not the plant. On the reference study's basis the case returns an "
+    + "NPV of US$55.2 M with a 5.3-month payback on US$4.1 M of capital, but the entire result rests on one "
+    + "assumption that has not been tested: that freed SAG capacity gets refilled with ore. Strip that away "
+    + "and the same plant destroys US$36.9 M. Breakeven needs 40% of the freed capacity used. Two gates must "
+    + "close before any capital is committed.", { after: 70 }),
   bullet("Gate 1 (commercial, no cost, ~4 weeks) — confirm that comminution, not the roaster/flotation "
     + "circuit or ore supply, is the binding constraint on the converted line post-SSCP, and that ore exists to fill it.", {b:false}),
   bullet("Gate 2 (technical, ~US$60–150 k, ~3 months) — a bulk XRT/sensor test on 2–5 t of Syama scats. "
-    + "A 1.8× mass contrast is not proof of a detectable sensor contrast."),
+    + "A 2.23× mass contrast is not proof of a detectable sensor contrast."),
   txt("Do not order a sorter until both gates pass. The downside case is not marginal — it is a "
     + "materially negative NPV plus permanent gold loss to the waste dump.", { i:true, after: 40 }),
 
   H("2.  What the work to date establishes"),
-  txt("The Sukari SR241558 model simulates a pebble sorter on the SAG mill discharge screen oversize. "
-    + "Barren scat mass is rejected, the circulating load falls, freed SAG capacity is refilled with ROM, "
-    + "and mill/leach feed tonnage is held constant by Goal Seek so the benefit reports as higher feed grade. "
-    + "At Sukari it produced +7,925 oz/a for US$8.2 M. The engine is sound and transfers directly to Syama; "
-    + "what does not transfer is the material property that made Sukari work.", { after: 70 }),
+  txt("The 2024 African gold mine study simulates a pebble sorter on the SAG mill discharge screen "
+    + "oversize. Barren scat mass is rejected, the circulating load falls, freed SAG capacity is refilled "
+    + "with ROM, and mill/leach feed tonnage is held constant by Goal Seek so the benefit reports as higher "
+    + "feed grade. At that operation it produced +7,925 oz/a for US$8.2 M. The engine is sound and transfers "
+    + "directly to Syama, and its ratios and unit rates — dilution, scat load, sorter duty, costs, discount "
+    + "rate — are carried across in place of site data we do not yet have. What does not transfer is the "
+    + "material property that made the reference case work.", { after: 70 }),
 
   table([30,17,17,36], [
-    [{t:"Parameter",al:AlignmentType.LEFT},{t:"Sukari"},{t:"Syama"},{t:"Why it matters",al:AlignmentType.LEFT}],
-    [{t:"ROM / scat grade (g/t Au)",b:true},{t:"1.57 / 0.56"},{t:"2.40 / 2.00",b:true,fill:AMBER},
-     {t:"Sukari scats were barren; Syama scats are not",al:AlignmentType.LEFT}],
+    [{t:"Parameter",al:AlignmentType.LEFT},{t:"Reference"},{t:"Syama"},{t:"Why it matters",al:AlignmentType.LEFT}],
+    [{t:"ROM / scat grade (g/t Au)",b:true},{t:"1.57 / 0.55"},{t:"2.40 / 2.00",b:true,fill:AMBER},
+     {t:"Reference scats were barren; Syama's are not",al:AlignmentType.LEFT}],
     [{t:"Scat grade as % of ROM",b:true},{t:"35%"},{t:"83%",b:true,fill:AMBER},
      {t:"Gold is not rejecting to the coarse fraction",al:AlignmentType.LEFT}],
-    [{t:"Heterogeneity contrast",b:true},{t:"8.9×"},{t:"1.8×",b:true,fill:RED},
+    [{t:"Heterogeneity contrast",b:true},{t:"8.91×"},{t:"2.23×",b:true,fill:RED},
      {t:"Back-solved waste:ore deportment to scats — the crux",al:AlignmentType.LEFT}],
-    [{t:"Barren mass available in scats",b:true},{t:"~69%"},{t:"~33%",fill:AMBER},
+    [{t:"Barren mass available in scats",b:true},{t:"~69%"},{t:"~27%",fill:AMBER},
      {t:"Hard ceiling on what any sorter can reject",al:AlignmentType.LEFT}],
-    [{t:"Reject grade achieved (g/t)",b:true},{t:"0.148"},{t:"0.429",b:true,fill:RED},
+    [{t:"Reject grade at 90/90 duty (g/t)",b:true},{t:"0.151"},{t:"0.782",b:true,fill:RED},
      {t:"Gold walking out to the dump",al:AlignmentType.LEFT}],
+    [{t:"Mass pull achieved",b:true},{t:"54%"},{t:"27%",fill:AMBER},
+     {t:"Half the mass rejection, at five times the grade",al:AlignmentType.LEFT}],
   ]),
 
   H("3.  Assessment — what a 2 g/t scat grade means"),
-  bullet("The scats are not a waste stream. At 2.0 g/t they run at 83% of ROM grade and carry 12.5% of the "
-    + "gold in the circuit. Back-solving the deportment against 20% SLC dilution gives a waste:ore contrast "
-    + "to scats of only 1.8× — against 8.9× at Sukari. Roughly one third of the scat stream is barren "
-    + "dilution; that is the hard ceiling on mass rejection."),
-  bullet("Every rejected tonne is expensive. At 0.43 g/t and US$4,000/oz the reject stream holds US$41/t of "
-    + "recoverable gold against US$10.50/t of milling and handling cost avoided — a 3.9× ratio. The sorter "
-    + "must be tuned for high ore recovery (≥95%), which caps mass pull at ~25% and forfeits roughly a third "
-    + "of the theoretical prize.", {b:false}),
+  bullet("The scats are not a waste stream. At 2.0 g/t they run at 83% of ROM grade and carry 14% of the "
+    + "gold in the circuit. Back-solving the deportment on the reference study's dilution gives a waste:ore "
+    + "contrast to scats of only 2.23× — against 8.91× in the reference case. Barely a quarter of the scat "
+    + "stream is barren dilution; that is the hard ceiling on mass rejection."),
+  bullet("Every rejected tonne is expensive. At 0.78 g/t and US$4,000/oz the reject stream holds US$75/t of "
+    + "recoverable gold against the US$7.69/t of mining, dumping and G&A it avoids — it discards nearly ten "
+    + "dollars of gold for every dollar saved. The reference case discarded 0.151 g/t on the same duty.", {b:false}),
   bullet("The comminution problem is already being solved. The SSCP installs a secondary crusher and a "
     + "pebble crusher specifically to handle scats. Crushing recovers 100% of the contained gold; sorting "
     + "discards some of it. Sorting must beat crushing, not merely beat doing nothing."),
@@ -132,40 +135,41 @@ const doc = new Document({
 
   H("4.  Economics — and the single factor that decides them"),
   table([34,22,22,22], [
-    [{t:"Scenario (realistic XRT: 95% ore rec / 70% waste rej)",al:AlignmentType.LEFT},
-     {t:"Extra oz/a"},{t:"Net US$/a"},{t:"NPV @10%"}],
-    [{t:"Freed capacity fully refilled with 2.4 g/t ore",b:true},{t:"+2,699"},{t:"+7.58 M"},{t:"+33.6 M",b:true,fill:GREEN}],
-    [{t:"Half refilled",b:true},{t:"+1,066"},{t:"+2.81 M"},{t:"+9.9 M",fill:GREEN}],
-    [{t:"NPV breakeven",b:true},{t:"+388"},{t:"+0.82 M"},{t:"0  (29% capture)",b:true,fill:AMBER}],
-    [{t:"No spare ore — ROM held flat",b:true},{t:"−567"},{t:"−1.96 M"},{t:"−13.9 M",b:true,fill:RED}],
-    [{t:"Refilled with 1.2 g/t stockpile instead",b:true},{t:"+1,066"},{t:"+1.05 M"},{t:"+1.1 M",fill:AMBER}],
+    [{t:"Scenario (reference sorter duty: 90% ore rec / 90% waste rej)",al:AlignmentType.LEFT},
+     {t:"Extra oz/a"},{t:"Net US$/a"},{t:"NPV @8%"}],
+    [{t:"Freed capacity fully refilled with 2.4 g/t ore",b:true},{t:"+2,485"},{t:"+9.34 M"},{t:"+55.2 M",b:true,fill:GREEN}],
+    [{t:"Half refilled",b:true},{t:"+667"},{t:"+2.09 M"},{t:"+9.1 M",fill:GREEN}],
+    [{t:"NPV breakeven",b:true},{t:"+303"},{t:"+0.63 M"},{t:"0  (40% capture)",b:true,fill:AMBER}],
+    [{t:"No spare ore — ROM held flat",b:true},{t:"−1,151"},{t:"−5.17 M"},{t:"−36.9 M",b:true,fill:RED}],
+    [{t:"Refilled with 1.2 g/t stockpile instead",b:true},{t:"+667"},{t:"+2.07 M"},{t:"+9.1 M",fill:AMBER}],
   ]),
-  txt("Secondary sensitivities are mild by comparison: at US$2,500/oz the case still returns +US$13.4 M NPV, "
-    + "and pushing the sorter to 90/90 adds only US$6 M. The scat grade itself is the dominant material lever — "
-    + "at 0.8 g/t the same plant would be worth US$76 M. At 2.0 g/t, roughly 60% of the Sukari-style prize has "
-    + "already been lost to the ore's own character.", { after: 40 }),
+  txt("Adopting the reference basis widens the spread rather than narrowing it: the upside rises to "
+    + "US$55 M, but so does the cost of being wrong, and breakeven moves out to 40% capture. Secondary "
+    + "sensitivities stay mild — at US$2,500/oz the case still returns +US$31.5 M, and no sorter setting "
+    + "changes the verdict. The scat grade remains the dominant material lever: at 0.8 g/t the same plant "
+    + "would be worth US$117 M. At 2.0 g/t, more than half the reference-style prize has already been lost "
+    + "to the ore's own character.", { after: 40 }),
 
   table([26,17,19,19,19], [
-    [{t:"If the scat grade were…",al:AlignmentType.LEFT},{t:"Contrast"},{t:"Reject g/t"},{t:"Mass pull"},{t:"NPV @10%"}],
-    [{t:"0.8 g/t (Sukari-like)",b:true},{t:"7.5×"},{t:"0.10"},{t:"48%"},{t:"+76.4 M",fill:GREEN}],
-    [{t:"1.2 g/t",b:true},{t:"4.4×"},{t:"0.18"},{t:"40%"},{t:"+63.2 M",fill:GREEN}],
-    [{t:"1.6 g/t",b:true},{t:"2.9×"},{t:"0.28"},{t:"32%"},{t:"+49.0 M",fill:GREEN}],
-    [{t:"2.0 g/t  —  Syama, as measured",b:true,fill:AMBER},{t:"1.8×",b:true,fill:AMBER},{t:"0.43",b:true,fill:AMBER},{t:"25%",b:true,fill:AMBER},{t:"+33.6 M",b:true,fill:AMBER}],
-    [{t:"2.4 g/t (= ROM grade)",b:true},{t:"1.0×"},{t:"0.72"},{t:"17%"},{t:"+16.8 M",fill:RED}],
+    [{t:"If the scat grade were…",al:AlignmentType.LEFT},{t:"Contrast"},{t:"Reject g/t"},{t:"Mass pull"},{t:"NPV @8%"}],
+    [{t:"0.8 g/t (reference-like)",b:true},{t:"9.5×"},{t:"0.22"},{t:"55%"},{t:"+117.3 M",fill:GREEN}],
+    [{t:"1.2 g/t",b:true},{t:"5.7×"},{t:"0.35"},{t:"44%"},{t:"+100.7 M",fill:GREEN}],
+    [{t:"1.6 g/t",b:true},{t:"3.7×"},{t:"0.52"},{t:"36%"},{t:"+80.4 M",fill:GREEN}],
+    [{t:"2.0 g/t  —  Syama, as measured",b:true,fill:AMBER},{t:"2.2×",b:true,fill:AMBER},{t:"0.78",b:true,fill:AMBER},{t:"27%",b:true,fill:AMBER},{t:"+55.2 M",b:true,fill:AMBER}],
+    [{t:"2.4 g/t (= ROM grade)",b:true},{t:"1.0×"},{t:"1.31"},{t:"19%"},{t:"+22.9 M",fill:RED}],
   ]),
-  txt("Read down that table: the scat grade alone has already removed more than half the prize before a "
-    + "single sorter is specified, and it does so by making the reject stream progressively more valuable. "
-    + "Sorter performance is the weaker lever — running 90% rejection at 90% ore recovery instead of 70/95 "
-    + "raises NPV only to US$39.6 M, and pushing harder (95/85) turns back down to US$37.7 M because the "
-    + "gold lost outruns the extra mass rejected. There is no sorter setting that rescues a poor contrast.",
-    { after: 40 }),
+  txt("Read down that table: the scat grade alone has removed more than half the prize before a single "
+    + "sorter is specified, and it does so by making the reject stream progressively more valuable. Sorter "
+    + "duty is the weaker lever — backing off to 99/50 still returns US$34 M, and pushing to 85/95 gains "
+    + "under US$1 M because the gold lost outruns the extra mass rejected. There is no sorter setting that "
+    + "rescues a poor contrast.", { after: 40 }),
 
   H("5.  Why Gate 1 is the real risk"),
   txt("Public disclosure points away from comminution being the constraint. Sulphide stockpiles were drawn "
     + "down through 2025 to maintain throughput — a mill short of ore, not short of capacity. The SSCP is "
     + "adding 60% of sulphide capacity (2.4 → 4.0 Mtpa), and the declared debottlenecking target is the "
     + "roaster and its new ESP, not the mills. If flotation, the roaster or ore supply binds first, every "
-    + "tonne of freed SAG capacity is worth zero and the case collapses to the −US$13.9 M row above. "
+    + "tonne of freed SAG capacity is worth zero and the case collapses to the −US$36.9 M row above. "
     + "This must be settled from the plant's own constraint data before anything else is spent.", { after: 40 }),
 
   H("6.  Risks and adjacent opportunity"),
@@ -173,8 +177,9 @@ const doc = new Document({
     + "response. Gold is locked in sulphides and XRT sees density, not gold."),
   bullet("Sulphidic rejects — geochemical/ARD characterisation is required before a new reject stream is "
     + "sent to a waste dump; this can carry its own closure cost."),
-  bullet("Mali country risk — supply chain and spares availability disrupted through 2026; a 10% discount "
-    + "rate is applied and single-sorter redundancy is nil."),
+  bullet("Mali country risk — supply chain and spares disrupted through 2026, and single-sorter redundancy "
+    + "is nil. The reference study's 8% discount rate is used here; a Mali-specific premium would cut the "
+    + "upside case by roughly a tenth."),
   bullet("Larger prize elsewhere: SLC dilution rejection on ROM or coarse-crushed underground feed. Some "
     + "20% dilution across ~2.6 Mt/a offers far more heterogeneity than the scats do, and the same sample "
     + "campaign can test it at marginal extra cost. Recommend it be scoped into Gate 2.", {b:false}),
@@ -190,9 +195,12 @@ const doc = new Document({
   ]),
 
   txt("Model: Syama_Pebble_Sorting_Simulation.xlsx (Dashboard · MB Base · MB Sort · NPV · Sensitivity). "
-    + "All costs in US$. Figures flagged \"Assumption – CONFIRM\" on the Dashboard are placeholders pending "
-    + "site data: SAG line feed rate 200 t/h, SLC dilution 20%, scat load 30 t/h, milling cost US$8.00/t and "
-    + "incremental mining cost US$53.00/t (derived from AISC, not from site costing).",
+    + "All costs in US$. Where Syama site data was unavailable, ratios and unit rates are carried from the "
+    + "2024 African gold mine study: dilution 11.9%, scat load 16.4% of new feed, sorter duty 90/90, "
+    + "US$7.69/t mining-dump-G&A on rejects, US$0.45/t sorting, 7,370 h/a, 8% discount, 10-year life. Syama's "
+    + "own values are retained for ROM grade, recovery, gold price and the measured scat grade. The 11.9% "
+    + "dilution is the one carry-over we would question — a sublevel cave typically runs higher, and "
+    + "dilution drives the back-solved contrast (Sensitivity table E).",
     { i:true, size:14, before: 100 }),
   ]}]
 });

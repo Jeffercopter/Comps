@@ -71,37 +71,36 @@ const doc = new CMD.Document({
       + "opportunity is real but conditional, and the next spend should be on test work "
       + "rather than on plant."),
 
-      CMD.p("The work builds on the Sukari pebble sorting simulation (ref. SR241558), which "
-      + "rejects barren scat mass, reduces the circulating load and refills the freed SAG "
-      + "capacity with ROM. We re-parameterised it for the converted (ex-oxide) SAG line as "
-      + "it will run after the Sulphide Conversion Project, calibrating to your measured "
-      + "scat stream. The engine transfers unmodified; the material property that made the "
-      + "Sukari case work does not."),
+      CMD.p("The work builds on a 2024 African gold mine pebble sorting study, which rejects "
+      + "barren scat mass, reduces the circulating load and refills the freed SAG capacity "
+      + "with ROM. We re-parameterised it for the converted (ex-oxide) SAG line, carrying "
+      + "that study's ratios and unit rates across wherever Syama site data was not "
+      + "available. The engine transfers unmodified; the material property that made the "
+      + "reference case work does not."),
 
       CMD.h2("Principal finding"),
 
       CMD.pRuns([
         CMD.bold("Your measured scat grade of 2.0 g/t Au is the pivotal number. "),
-        CMD.text("Sukari's scats assayed 0.56 g/t against a 1.57 g/t ROM — barren material, "
-        + "discardable almost for free. Syama's run at 83% of ROM grade. Back-solving the "
-        + "deportment against 20% sublevel-cave dilution gives a waste-to-ore contrast of "
-        + "only 1.8×, against 8.9× at Sukari, so roughly one third of the scat stream is "
-        + "barren dilution — a hard ceiling on what any sorter can reject."),
+        CMD.text("The reference scats assayed 0.55 g/t against a 1.57 g/t ROM — barren "
+        + "material, discardable almost for free. Syama's run at 83% of ROM grade. Back-solving "
+        + "the deportment on the same dilution gives a waste-to-ore contrast of only 2.23×, "
+        + "against 8.91×, so barely a quarter of the scat stream is barren dilution — a hard "
+        + "ceiling on what any sorter can reject."),
       ]),
 
-      CMD.caption("Table 1: Syama scat stream compared with the Sukari base case"),
-      table(["Parameter", "Sukari", "Syama"], [4560, 2400, 2400], [
-        ["ROM / scat grade (g/t Au)", "1.57 / 0.56", { t: "2.40 / 2.00", b: true, fill: C.BLUE_TINT }],
+      CMD.caption("Table 1: Syama scats vs the 2024 African gold mine study"),
+      table(["Parameter", "Reference study", "Syama"], [4560, 2400, 2400], [
+        ["ROM / scat grade (g/t Au)", "1.57 / 0.55", { t: "2.40 / 2.00", b: true, fill: C.BLUE_TINT }],
         ["Scat grade as % of ROM", "35%", { t: "83%", b: true, fill: C.BLUE_TINT }],
-        ["Heterogeneity contrast", "8.9×", { t: "1.8×", b: true, fill: C.BLUE_TINT }],
-        ["Barren mass available in scats", "~69%", { t: "~33%", b: true, fill: C.BLUE_TINT }],
-        ["Reject grade achieved (g/t Au)", "0.148", { t: "0.429", b: true, fill: C.BLUE_TINT }],
+        ["Heterogeneity contrast", "8.91×", { t: "2.23×", b: true, fill: C.BLUE_TINT }],
+        ["Barren mass available in scats", "~69%", { t: "~27%", b: true, fill: C.BLUE_TINT }],
+        ["Reject grade at 90/90 duty (g/t)", "0.151", { t: "0.782", b: true, fill: C.BLUE_TINT }],
       ]),
 
-      CMD.p("Every rejected tonne is therefore expensive. At 0.43 g/t and US$4,000/oz the "
-      + "reject stream holds some US$41 per tonne of recoverable gold against roughly US$10 "
-      + "per tonne of cost avoided, so the sorter must be tuned conservatively for high ore "
-      + "recovery — capping mass pull at about 25%.", { after: 160 }),
+      CMD.p("Every rejected tonne is therefore expensive. At 0.78 g/t the reject stream holds "
+      + "some US$75 per tonne of recoverable gold against the US$7.69 it avoids — nearly ten "
+      + "dollars of gold discarded for every dollar saved.", { after: 140 }),
 
       CMD.h2("Economics"),
 
@@ -110,20 +109,20 @@ const doc = new CMD.Document({
       + "case is throughput debottlenecking, not recovery, and turns on whether the freed "
       + "SAG capacity can be refilled with ore."),
 
-      CMD.caption("Table 2: Outcomes at 95% ore recovery / 70% waste rejection, US$4.1 M capital"),
-      table(["Scenario", "Net US$/a", "NPV @ 10%"], [4560, 2400, 2400], [
-        ["Freed capacity refilled at 2.4 g/t", "+7.58 M",
-         { t: "+33.6 M", b: true, fill: C.GREEN_TINT }],
-        ["Breakeven (29% capture)", "+0.82 M",
+      CMD.caption("Table 2: Outcomes at the reference 90/90 sorter duty, US$4.1 M capital"),
+      table(["Scenario", "Net US$/a", "NPV @ 8%"], [4560, 2400, 2400], [
+        ["Freed capacity refilled at 2.4 g/t", "+9.34 M",
+         { t: "+55.2 M", b: true, fill: C.GREEN_TINT }],
+        ["Breakeven (40% capture)", "+0.63 M",
          { t: "0", b: true, fill: C.LIGHT_GREY }],
-        ["No spare ore — ROM feed held flat", "−1.96 M",
-         { t: "−13.9 M", b: true, fill: RED_TINT }],
+        ["No spare ore — ROM feed held flat", "−5.17 M",
+         { t: "−36.9 M", b: true, fill: RED_TINT }],
       ]),
 
-      CMD.p("The upside is genuine, with a payback near six and a half months, but the "
-      + "downside is equally real: a plant that cannot fill the capacity it frees destroys "
-      + "value and permanently sends gold to the dump. Price is not the swing factor — at "
-      + "US$2,500/oz the favourable case still returns some US$13 M.", { after: 150 }),
+      CMD.p("The upside is genuine, with a payback near five months, but the downside is "
+      + "equally real: a plant that cannot fill the capacity it frees destroys value and "
+      + "permanently sends gold to the dump. Price is not the swing factor — at US$2,500/oz "
+      + "the favourable case still returns some US$32 M.", { after: 150 }),
 
       CMD.h2("Recommendation"),
 
@@ -138,7 +137,7 @@ const doc = new CMD.Document({
         + "record points the other way, with sulphide stockpiles drawn down through 2025 to "
         + "maintain throughput. No cost, about four weeks."),
       CMD.numberedBold("Bulk sensor test — ",
-        "2 to 5 tonnes of scats through an XRT rig. A 1.8× mass contrast is not evidence "
+        "2 to 5 tonnes of scats through an XRT rig. A 2.23× mass contrast is not evidence "
         + "of a detectable sensor contrast, and Syama's gold is refractory, so reject grades "
         + "need fire assay. Roughly US$60,000 to US$150,000, about three months.",
         { after: 150 }),
@@ -146,14 +145,15 @@ const doc = new CMD.Document({
       CMD.h2("Related considerations"),
 
       CMD.bullet("We would scope dilution rejection on coarse ROM into the same campaign; "
-      + "20% dilution across some 2.6 Mt/a of underground feed offers far more "
-      + "heterogeneity than the scats do."),
+      + "cave dilution across some 2.6 Mt/a of underground feed offers far more heterogeneity "
+      + "than the scats do."),
       CMD.bullet("A sulphidic reject stream will need acid rock drainage characterisation "
       + "before it can be dumped, carrying its own closure cost.", { after: 150 }),
 
-      CMD.p("Absent site data, several model inputs remain placeholders, flagged on the "
-      + "enclosed model's Dashboard; dilution in particular drives the result. We would "
-      + "welcome the chance to refine these with your team.", { after: 180 }),
+      CMD.p("Reference-study figures are flagged as such on the model Dashboard. Its 11.9% "
+      + "dilution is the one we would question — a sublevel cave typically runs higher, and "
+      + "dilution drives the contrast. We would welcome the chance to refine these with your "
+      + "team.", { after: 170 }),
 
       line("Yours sincerely,", { after: 150, keep: true }),
       line("Mike Daniel", { b: true, keep: true }),
