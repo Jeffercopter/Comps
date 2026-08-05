@@ -87,8 +87,13 @@ both to hold the letter to two pages: body line spacing 1.08 rather than 1.15, a
 bottom margin rather than 1". One colour outside the kit palette, a soft red on the negative
 NPV cell, since the kit carries no semantic accent for a downside figure.
 
-Addressee and signatory remain `[placeholder]` fields — fill these in before sending. Nothing
-is signed or attributed to a named person on your behalf.
+`styles/cmd_docx_styles_final.js` differs from the kit as supplied in one respect:
+`buildHeader()` now right-aligns the company name on the same tab stop the footer uses for
+the page number, with the logo staying left. This was made in the kit rather than overridden
+locally so it applies as the house default to future CMD documents.
+
+The signatory block remains a `[placeholder]` — fill it in before sending. Nothing is signed
+or attributed to a named person on your behalf.
 
 The workbook has been verified two ways: recalculated in LibreOffice Calc, and evaluated
 cell-by-cell with the `formulas` package. Both agree with `engine.py` to three decimals.

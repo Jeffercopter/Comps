@@ -35,6 +35,10 @@
 //   • The type:"jpg" flag is set automatically by the helpers.
 //   • Recommended source size: 300×153 px (≈2:1 aspect ratio).
 //
+// HEADER LAYOUT:
+//   • Logo sits left, "CMD Consulting Pty Ltd" is right-aligned on the
+//     same tab stop the footer uses for the page number.
+//
 // IMPORTANT — HEADING SIZES:
 //   • H1 and H2 are both set to 14pt, differentiated by colour
 //     (H1 = CMD Blue, H2 = Charcoal) and spacing.
@@ -194,7 +198,10 @@ function _requireLogo() {
 
 // ── HEADER BUILDER ───────────────────────────────────────────
 /**
- * Returns a Header with the CMD logo + company name + blue underline.
+ * Returns a Header with the CMD logo left, company name right-aligned,
+ * and a blue underline across the full text width.
+ * The company name sits on the same right tab stop the footer uses for
+ * the page number, so the two align on a common right edge.
  * Logo dimensions: 70×36 px (maintains 2:1 aspect ratio).
  */
 function buildHeader() {
@@ -202,9 +209,10 @@ function buildHeader() {
     children: [new Paragraph({
       border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: COLORS.PRIMARY, space: 4 } },
       spacing: { after: SPACING.HEADER_AFTER },
+      tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
       children: [
         new ImageRun({ data: _requireLogo(), transformation: { width: 70, height: 36 }, type: "jpg" }),
-        new TextRun({ text: "  CMD Consulting Pty Ltd", font: FONTS.HEADING, size: SIZES.HEADER, bold: true, color: COLORS.PRIMARY }),
+        new TextRun({ text: "\tCMD Consulting Pty Ltd", font: FONTS.HEADING, size: SIZES.HEADER, bold: true, color: COLORS.PRIMARY }),
       ],
     })],
   });
