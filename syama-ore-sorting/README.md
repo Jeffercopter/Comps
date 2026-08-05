@@ -45,9 +45,11 @@ brief/
   Syama_Ore_Sorting_Brief.docx    two-page decision brief (deliverable)
   Syama_Ore_Sorting_Brief.pdf     rendered, verified at two pages
   build_brief.js                  docx-js source
-  Syama_Ore_Sorting_Letter.pdf    one-page covering letter (deliverable)
+  Syama_Ore_Sorting_Letter.pdf    two-page covering letter, CMD house style (deliverable)
   Syama_Ore_Sorting_Letter.docx   editable source — fill the [placeholder] fields
-  build_letter.js                 docx-js source
+  build_letter.js                 docx-js source, built on the CMD style kit
+  styles/cmd_docx_styles_final.js CMD Consulting DOCX style kit
+  styles/cmd_logo.jpg             CMD logo (JPEG RGB — the kit rejects RGBA PNG)
 model/
   Syama_Pebble_Sorting_Simulation.xlsx   the updated case
   build_workbook.py               generates the workbook
@@ -79,8 +81,14 @@ npm install docx && node brief/build_brief.js && node brief/build_letter.js
 soffice --headless --convert-to pdf brief/*.docx        # render
 ```
 
-The covering letter carries `[placeholder]` sender, addressee and signatory fields — fill
-these in before sending. Nothing is signed or attributed on your behalf.
+The covering letter uses the CMD Consulting DOCX style kit (`brief/styles/`) — its palette,
+Trebuchet/Calibri pairing, logo header and page footer. Two deviations from the kit defaults,
+both to hold the letter to two pages: body line spacing 1.08 rather than 1.15, and a 0.75"
+bottom margin rather than 1". One colour outside the kit palette, a soft red on the negative
+NPV cell, since the kit carries no semantic accent for a downside figure.
+
+Addressee and signatory remain `[placeholder]` fields — fill these in before sending. Nothing
+is signed or attributed to a named person on your behalf.
 
 The workbook has been verified two ways: recalculated in LibreOffice Calc, and evaluated
 cell-by-cell with the `formulas` package. Both agree with `engine.py` to three decimals.
