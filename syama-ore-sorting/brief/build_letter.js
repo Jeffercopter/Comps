@@ -156,8 +156,7 @@ const doc = new CMD.Document({
       + "welcome the chance to refine these with your team.", { after: 180 }),
 
       line("Yours sincerely,", { after: 150, keep: true }),
-      line("[Name]", { b: true, keep: true }),
-      line("[Title]", { c: C.SLATE, keep: true }),
+      line("Mike Daniel", { b: true, keep: true }),
       line("CMD Consulting Pty Ltd", { c: C.SLATE, after: 150, keep: true }),
 
       new Paragraph({ spacing: { before: 0, after: 0 }, keepLines: true,

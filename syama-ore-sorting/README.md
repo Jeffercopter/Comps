@@ -46,7 +46,7 @@ brief/
   Syama_Ore_Sorting_Brief.pdf     rendered, verified at two pages
   build_brief.js                  docx-js source
   Syama_Ore_Sorting_Letter.pdf    two-page covering letter, CMD house style (deliverable)
-  Syama_Ore_Sorting_Letter.docx   editable source — fill the [placeholder] fields
+  Syama_Ore_Sorting_Letter.docx   editable source
   build_letter.js                 docx-js source, built on the CMD style kit
   styles/cmd_docx_styles_final.js CMD Consulting DOCX style kit
   styles/cmd_logo.jpg             CMD logo (JPEG RGB — the kit rejects RGBA PNG)
@@ -92,8 +92,8 @@ NPV cell, since the kit carries no semantic accent for a downside figure.
 the page number, with the logo staying left. This was made in the kit rather than overridden
 locally so it applies as the house default to future CMD documents.
 
-The signatory block remains a `[placeholder]` — fill it in before sending. Nothing is signed
-or attributed to a named person on your behalf.
+The letter is addressed to Daniel Millar, Principal Metallurgist, Resolute Mining Limited
+(London), and signed by Mike Daniel, CMD Consulting Pty Ltd. No placeholder fields remain.
 
 The workbook has been verified two ways: recalculated in LibreOffice Calc, and evaluated
 cell-by-cell with the `formulas` package. Both agree with `engine.py` to three decimals.
