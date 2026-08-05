@@ -140,8 +140,9 @@ export default function Hud({ products, catalogSource, focus, commandCount }: Pr
       </Panel>
 
       <div className="mt-auto px-3 py-2 text-[10px] leading-relaxed text-phos-dim/70">
-        Independent distributorship proposal. Product data compiled from public Whitmore technical
-        literature; verify against current manufacturer data sheets before quoting.
+        Independent distributorship proposal. Not a Whitmore publication and not an appointed
+        distributor. Product data compiled from public technical literature; verify against current
+        manufacturer data sheets before quoting.
       </div>
     </aside>
   )

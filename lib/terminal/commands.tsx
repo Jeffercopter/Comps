@@ -401,6 +401,11 @@ export const COMMANDS: Command[] = [
         <Head>session</Head>
         <Kv k="console" v="WHITMORE//AU distributorship console" width={18} />
         <Kv
+          k="standing"
+          v={<span className="text-warn">independent proposal — no appointment in place</span>}
+          width={18}
+        />
+        <Kv
           k="catalogue source"
           v={
             ctx.catalogSource === 'supabase' ? (
@@ -479,8 +484,10 @@ export const COMMANDS: Command[] = [
         <Bullets
           items={[
             'Not a manufacturer publication and not endorsed by Whitmore or CSW Industrials.',
+            'Not an appointed distributorship. No appointment is in place; this is a proposal.',
             'Australian launch positioning, priorities and commercial framing are our own commercial interpretation, not manufacturer claims.',
             'The ROI model is a model. Every input is an assumption the customer should be invited to argue with.',
+            'Whitmore®, Surtac®, Envirolube®, Decathlon®, Caliber® and GearMate® are the property of their owner and are used here to identify the genuine products the proposal concerns.',
           ]}
           marker="×"
         />

@@ -62,6 +62,10 @@ export default function Console({ products, catalogSource, catalogNote }: Props)
       { text: '[ WARN ] applied volume ~2× modelled requirement', tone: 'warn' as const },
       { text: '[ WARN ] shut clean-down on critical path', tone: 'warn' as const },
       { text: '[ INFO ] remediation available — run `compare`', tone: 'ok' as const },
+      {
+        text: '[ NOTE ] independent proposal — NOT an appointed Whitmore distributor',
+        tone: 'crit' as const,
+      },
       { text: 'ready.', tone: 'dim' as const },
     ],
     [catalogSource, products.length],
@@ -277,8 +281,14 @@ export default function Console({ products, catalogSource, catalogNote }: Props)
     [products, focusSlug],
   )
 
-  const toneClass = (tone: 'ok' | 'warn' | 'dim') =>
-    tone === 'warn' ? 'text-warn' : tone === 'ok' ? 'text-phos' : 'text-phos-dim'
+  const toneClass = (tone: 'ok' | 'warn' | 'dim' | 'crit') =>
+    tone === 'crit'
+      ? 'text-crit'
+      : tone === 'warn'
+        ? 'text-warn'
+        : tone === 'ok'
+          ? 'text-phos'
+          : 'text-phos-dim'
 
   return (
     <RunContext.Provider value={run}>
@@ -294,6 +304,12 @@ export default function Console({ products, catalogSource, catalogNote }: Props)
           <span className="text-phos-hot tracking-[0.22em] text-[11px]">WHITMORE//AU</span>
           <span className="hidden text-[11px] text-phos-dim sm:inline">
             distributorship console
+          </span>
+          <span
+            className="chip border-warn/65 text-warn"
+            title="This is a proposal, not an appointment."
+          >
+            Independent proposal
           </span>
           <div className="ml-auto flex items-center gap-2">
             <span className="hidden sm:inline">
@@ -366,6 +382,12 @@ export default function Console({ products, catalogSource, catalogNote }: Props)
                     <Chip>gearbox oils</Chip>
                     <Chip>EP greases</Chip>
                     <Chip>draglines</Chip>
+                  </div>
+                  <div className="mt-2 border border-edge p-2">
+                    <span className="text-warn">Standing:</span> this is an independent
+                    distributorship proposal. No appointment is in place, this is not a Whitmore
+                    publication, and it is not endorsed by Whitmore or CSW Industrials. Run{' '}
+                    <Cmd cmd="sources" /> for provenance and the full statement.
                   </div>
                   <div className="mt-2">
                     <Dim>start here:</Dim>{' '}
