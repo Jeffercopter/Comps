@@ -2,7 +2,8 @@
 // Built on the CMD Consulting DOCX Style Kit.
 const fs = require("fs");
 const CMD = require("./styles/cmd_docx_styles_final");
-const { AlignmentType, Paragraph, TextRun, Table, TableRow, WidthType, BorderStyle } = CMD;
+const { AlignmentType, Paragraph, TextRun, Table, TableRow, WidthType, BorderStyle,
+        Header, ImageRun, TabStopType, TabStopPosition } = CMD;
 // letter runs a little tighter than the report template
 CMD.documentStyles.default.document.paragraph.spacing.line = 258;
 CMD.documentStyles.paragraphStyles.forEach(st => {
@@ -12,6 +13,20 @@ CMD.documentStyles.paragraphStyles.forEach(st => {
 CMD.loadLogo(__dirname + "/styles/cmd_logo.jpg");
 
 const C = CMD.COLORS, F = CMD.FONTS, S = CMD.SIZES;
+
+const headerRightAligned = () => new Header({
+  children: [new Paragraph({
+    border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: C.PRIMARY, space: 4 } },
+    spacing: { after: CMD.SPACING.HEADER_AFTER },
+    tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
+    children: [
+      new ImageRun({ data: fs.readFileSync(__dirname + "/styles/cmd_logo.jpg"),
+        transformation: { width: 70, height: 36 }, type: "jpg" }),
+      new TextRun({ text: "\tCMD Consulting Pty Ltd", font: F.HEADING,
+        size: S.HEADER, bold: true, color: C.PRIMARY }),
+    ],
+  })],
+});
 const RED_TINT = "F7E4E4";                 // single semantic accent for the downside case
 const W = 9360;                            // US Letter less 1" margins each side
 
@@ -48,18 +63,18 @@ const doc = new CMD.Document({
   sections: [{
     properties: { page: { size: { width: 12240, height: 15840 },
                     margin: { top: 1440, right: 1440, bottom: 900, left: 1440 } } },
-    headers: { default: CMD.buildHeader() },
+    headers: { default: headerRightAligned() },
     footers: { default: CMD.buildFooter() },
     children: [
 
       line("5 August 2026", { after: 240, c: C.SLATE }),
 
-      line("[Recipient Name]", { b: true }),
+      line("Daniel Millar", { b: true }),
       line("[Title]", { c: C.SLATE }),
       line("Société des Mines de Syama S.A. (SOMISY)"),
       line("Syama Gold Mine, Sikasso Region, Mali", { after: 240 }),
 
-      line("Dear [Recipient Name],", { after: 0 }),
+      line("Dear Daniel,", { after: 0 }),
 
       subject("Syama SAG pebble (scat) ore sorting — assessment and recommendation"),
 
