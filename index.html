@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DEM Simulator — SAG Mill [CMD Edition]</title>
+
+<!-- ===== SEO / indexability ===== -->
+<meta name="description" content="Interactive 2D DEM simulator of a SAG mill: visualise the grinding regimes (slipping, cascading, cataracting, centrifuging), power draw, ball charge (Jb/Jc) and liner wear. Free educational tool, rendered in a classic command-prompt colour scheme.">
+<meta name="keywords" content="SAG mill, DEM simulator, grinding, grinding regimes, cascading, cataracting, centrifuging, ore, mineral processing, metallurgy, education">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#000000">
+
+<!-- ===== Open Graph / social ===== -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="DEM Educational Simulator — SAG Mill [CMD Edition]">
+<meta property="og:description" content="Interactive SAG mill simulator: grinding regimes, power draw, ball charge and liner wear. Free, no install.">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DEM Educational Simulator — SAG Mill [CMD Edition]">
+<meta name="twitter:description" content="Interactive SAG mill simulator: grinding regimes, power draw, ball charge and liner wear.">
+
+<!-- ===== Structured data (Google) ===== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "DEM Educational Simulator — SAG Mill [CMD Edition]",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any (web browser)",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "description": "Interactive 2D DEM simulator of a SAG mill that visually explains grinding phenomena. Audience: teaching and technical outreach.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
+
+<style>
+  :root {
+    /* ===== Classic Windows console palette (the 16 CMD colours) =====
+       0 black   1 blue    2 green   3 aqua    4 red     5 purple  6 yellow  7 white
+       8 gray    9 l.blue  A l.green B l.aqua  C l.red   D l.purple E l.yellow F b.white */
+    --c0: #000000; --c1: #000080; --c2: #008000; --c3: #008080;
+    --c4: #800000; --c5: #800080; --c6: #808000; --c7: #c0c0c0;
+    --c8: #808080; --c9: #0000ff; --cA: #00ff00; --cB: #00ffff;
+    --cC: #ff0000; --cD: #ff00ff; --cE: #ffff00; --cF: #ffffff;
+
+    /* Semantic roles mapped onto the console palette */
+    --bg:      var(--c0);   /* console background      */
+    --panel:   var(--c0);
+    --panel2:  var(--c0);
+    --border:  var(--c8);   /* box-drawing gray        */
+    --text:    var(--c7);   /* default console text    */
+    --muted:   var(--c8);
+    --accent:  var(--cE);   /* bright yellow           */
+    --accent2: var(--cB);   /* bright aqua             */
+    --good:    var(--cA);   /* bright green            */
+    --bad:     var(--cC);   /* bright red              */
+    --mono: Consolas, "Lucida Console", "DejaVu Sans Mono", "Courier New", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: none;
+  }
+  ::selection { background: var(--c7); color: var(--c0); }
+  header {
+    padding: 8px 14px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  header h1 { font-size: 15px; font-weight: normal; color: var(--cF); letter-spacing: .02em; }
+  header h1 .prompt { color: var(--c8); }
+  header h1 span.t { color: var(--accent); }
+  header h1::after {
+    content: "\2588";
+    color: var(--c7);
+    margin-left: 4px;
+    animation: blink 1.05s step-end infinite;
+  }
+  @keyframes blink { 0%, 50% { opacity: 1 } 50.01%, 100% { opacity: 0 } }
+  header .sub { font-size: 12px; color: var(--muted); }
+  header .sub a { color: var(--accent2); text-decoration: none; }
+  header .sub a:hover { background: var(--accent2); color: var(--c0); }
+  #main {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+  }
+  #viewport {
+    flex: 1;
+    position: relative;
+    min-width: 0;
+  }
+  canvas#sim { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #regime-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: var(--c0);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 8px 12px;
+    max-width: 340px;
+  }
+  #regime-badge .title { font-size: 13px; font-weight: bold; color: var(--accent); text-transform: uppercase; }
+  #regime-badge .desc { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.45; }
+  #hud {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .hud-item {
+    background: var(--c0);
+    border: 1px solid var(--border);
+    padding: 5px 10px;
+    min-width: 96px;
+  }
+  .hud-item .v { font-size: 16px; font-weight: bold; color: var(--cF); font-variant-numeric: tabular-nums; }
+  .hud-item .l { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  .hud-item .v.accent { color: var(--accent); }
+  .hud-item .v.blue { color: var(--accent2); }
+
+  #panel {
+    width: 350px;
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  #panel::-webkit-scrollbar { width: 12px; }
+  #panel::-webkit-scrollbar-track { background: var(--c0); border-left: 1px solid var(--border); }
+  #panel::-webkit-scrollbar-thumb { background: var(--c8); }
+  #panel::-webkit-scrollbar-thumb:hover { background: var(--c7); }
+  .card {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    padding: 10px;
+  }
+  .card h2 {
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--accent2);
+    margin-bottom: 10px;
+  }
+  .card h2::before { content: "[ "; color: var(--c8); }
+  .card h2::after  { content: " ]"; color: var(--c8); }
+  .ctrl { margin-bottom: 11px; }
+  .ctrl:last-child { margin-bottom: 0; }
+  .ctrl .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12.5px;
+    margin-bottom: 4px;
+  }
+  .ctrl .val { color: var(--accent); font-weight: bold; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  input[type=range] {
+    width: 100%;
+    appearance: none;
+    height: 10px;
+    background: var(--c0);
+    border: 1px solid var(--border);
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    appearance: none;
+    width: 10px; height: 14px;
+    background: var(--accent);
+    cursor: pointer;
+    border: none;
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 10px; height: 14px;
+    border-radius: 0;
+    background: var(--accent);
+    cursor: pointer;
+    border: none;
+  }
+  input[type=range]:focus-visible { border-color: var(--accent); }
+  .btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  button {
+    background: var(--c0);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 6px 10px;
+    font-family: var(--mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    cursor: pointer;
+  }
+  button:hover { background: var(--c8); color: var(--c0); border-color: var(--c7); }
+  /* "Selected" states use console inverse video: foreground and background swap. */
+  button.primary { background: var(--accent); color: var(--c0); border-color: var(--accent); font-weight: bold; }
+  button.primary:hover { background: var(--cF); color: var(--c0); border-color: var(--cF); }
+  button.preset { flex: 1 1 45%; }
+  button.preset.active { background: var(--accent); color: var(--c0); border-color: var(--accent); font-weight: bold; }
+  button.mode { flex: 1; }
+  button.mode.active { background: var(--accent2); color: var(--c0); border-color: var(--accent2); font-weight: bold; }
+  /* Beginner mode hides every control marked as advanced. */
+  body.mode-beginner .adv { display: none; }
+  select {
+    width: 100%;
+    background: var(--c0);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 5px 6px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12.5px;
+    padding: 3px 0;
+  }
+  /* Toggles are drawn as [ ] / [X] checkboxes, console style. */
+  .switch { position: relative; width: 34px; height: 18px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider-t {
+    position: absolute; inset: 0;
+    background: var(--c0);
+    border: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .slider-t::before {
+    content: "OFF";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    letter-spacing: .04em;
+    color: var(--c8);
+  }
+  .switch input:checked + .slider-t { background: var(--accent); border-color: var(--accent); }
+  .switch input:checked + .slider-t::before { content: "ON"; color: var(--c0); font-weight: bold; }
+  .switch input:focus-visible + .slider-t { border-color: var(--cF); }
+  canvas.chart { width: 100%; height: 70px; display: block; background: var(--c0); border: 1px solid var(--border); }
+  .chart-label { font-size: 10.5px; color: var(--muted); margin: 6px 0 3px; text-transform: uppercase; letter-spacing: .04em; }
+  .legend { display: flex; gap: 12px; font-size: 11px; color: var(--muted); margin-top: 8px; flex-wrap: wrap; }
+  .legend .dot { display: inline-block; width: 9px; height: 9px; margin-right: 4px; vertical-align: -1px; }
+  footer-note { display: block; font-size: 10.5px; color: var(--c8); line-height: 1.5; }
+  @media (max-width: 860px) {
+    /* Compact header: the author credit + links stay, but the descriptive prose is
+       hidden and the height shrinks to give room to the controls (the real
+       bottleneck on mobile). */
+    header { padding: 6px 10px; gap: 8px; }
+    header h1 { font-size: 13px; }
+    header .sub-desc { display: none; }
+    #main { flex-direction: column; }
+    #panel { width: 100%; max-height: 58vh; }
+    /* On narrow screens the mill takes the full width: the regime note and the HUD
+       leave the overlay and join the flow (above/below). */
+    #viewport { display: flex; flex-direction: column; }
+    #regime-badge { position: static; order: -1; max-width: none; margin: 8px 8px 0; padding: 6px 10px; }
+    #regime-badge .title { font-size: 12px; }
+    #regime-badge .desc { font-size: 11px; margin-top: 3px; line-height: 1.35; }
+    canvas#sim { position: static; flex: 1; min-height: 180px; }
+    #hud { position: static; margin: 6px 8px 8px; gap: 4px; }
+    .hud-item { min-width: 0; flex: 1 1 auto; padding: 4px 6px; text-align: center; }
+    .hud-item .v { font-size: 12px; }
+    .hud-item .l { font-size: 8px; letter-spacing: .03em; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span class="prompt">C:\&gt;</span> DEM_SAG.EXE <span class="t">· SAG MILL</span></h1>
+  <div class="sub"><span class="sub-desc">mill cross-section · </span>English CMD-themed clone of the DEM SAG simulator by <a href="https://www.linkedin.com/in/lplazaalvarez/" target="_blank" rel="noopener">Luis Plaza A.</a> (<a href="https://github.com/luchoplaza/DEM_SAG" target="_blank" rel="noopener">@luchoplaza</a>)</div>
+</header>
+
+<div id="main">
+  <div id="viewport">
+    <canvas id="sim"></canvas>
+
+    <div id="regime-badge">
+      <div class="title" id="regimeTitle">Cascading</div>
+      <div class="desc" id="regimeDesc"></div>
+    </div>
+
+    <div id="hud">
+      <div class="hud-item"><div class="v accent" id="hudRpm">0.0</div><div class="l">rpm</div></div>
+      <div class="hud-item"><div class="v" id="hudNc">0 %</div><div class="l">% critical speed</div></div>
+      <div class="hud-item"><div class="v blue" id="hudPower">0</div><div class="l">power kW/m</div></div>
+      <div class="hud-item"><div class="v" id="hudCoM">0.0 m</div><div class="l">c. of mass offset</div></div>
+      <div class="hud-item"><div class="v" id="hudCrit" style="color:#ff0000">0</div><div class="l">crit. impacts /s</div></div>
+      <div class="hud-item"><div class="v" id="hudN">0</div><div class="l">particles</div></div>
+      <div class="hud-item"><div class="v" id="hudFps">60</div><div class="l">fps</div></div>
+    </div>
+  </div>
+
+  <div id="panel">
+
+    <div class="card">
+      <h2>Usage mode</h2>
+      <div class="btn-row">
+        <button class="mode active" data-mode="beginner">Beginner</button>
+        <button class="mode" data-mode="advanced">Advanced</button>
+      </div>
+      <footer-note style="margin-top:8px" id="modeNote">Beginner: (regime, speed, filling and balls). Advanced: (particle size, liner, densities and contact properties.)</footer-note>
+    </div>
+
+    <div class="card">
+      <h2>Regime presets</h2>
+      <div class="btn-row">
+        <button class="preset" data-preset="slipping">Slipping</button>
+        <button class="preset active" data-preset="cascading">Cascading</button>
+        <button class="preset" data-preset="cataracting">Cataracting</button>
+        <button class="preset" data-preset="centrifuging">Centrifuging</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Operating variables</h2>
+      <div class="ctrl">
+        <div class="row"><span>Speed (% critical)</span><span class="val" id="vSpeed">72 %</span></div>
+        <input type="range" id="sSpeed" min="0" max="130" step="1" value="72">
+      </div>
+      <div class="ctrl">
+        <div class="row"><span>Charge filling Jc</span><span class="val" id="vFill">30 %</span></div>
+        <input type="range" id="sFill" min="10" max="45" step="1" value="30">
+      </div>
+      <div class="ctrl">
+        <div class="row"><span>Ball filling Jb (% of mill)</span><span class="val" id="vBalls">15 %</span></div>
+        <input type="range" id="sBalls" min="0" max="30" step="1" value="15">
+        <footer-note style="margin-top:2px">Volumetric fraction of balls relative to the mill. If you raise Jb above Jc, it is capped at Jc.</footer-note>
+      </div>
+      <div class="ctrl adv">
+        <div class="row"><span>Particle size</span><span class="val" id="vSize">100 %</span></div>
+        <input type="range" id="sSize" min="70" max="160" step="5" value="100">
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Visualisation</h2>
+      <div class="ctrl">
+        <div class="row"><span>Colour by</span></div>
+        <select id="colorMode">
+          <option value="type">Type (ball / ore)</option>
+          <option value="speed">Speed</option>
+          <option value="impact">Recent impact energy</option>
+        </select>
+      </div>
+      <div class="toggle-row">
+        <span>Trajectories</span>
+        <label class="switch"><input type="checkbox" id="tTrails"><span class="slider-t"></span></label>
+      </div>
+      <div class="toggle-row">
+        <span>Velocity vectors</span>
+        <label class="switch"><input type="checkbox" id="tVectors"><span class="slider-t"></span></label>
+      </div>
+      <div class="toggle-row">
+        <span>Charge shoulder and toe</span>
+        <label class="switch"><input type="checkbox" id="tShoulder" checked><span class="slider-t"></span></label>
+      </div>
+      <div class="toggle-row">
+        <span>Charge centre of mass</span>
+        <label class="switch"><input type="checkbox" id="tCoM" checked><span class="slider-t"></span></label>
+      </div>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <div class="card adv">
+      <h2>Material densities</h2>
+      <div class="ctrl">
+        <div class="row"><span>Ore density</span><span class="val" id="vRhoOre">2700 kg/m³</span></div>
+        <input type="range" id="sRhoOre" min="2000" max="4500" step="50" value="2700">
+      </div>
+      <div class="ctrl">
+        <div class="row"><span>Ball density</span><span class="val" id="vRhoBall">7800 kg/m³</span></div>
+        <input type="range" id="sRhoBall" min="5000" max="8500" step="50" value="7800">
+      </div>
+      <footer-note style="margin-top:2px">A larger density difference sharpens ball/ore segregation and moves the centre of mass: the heavy balls dominate the position of the kidney.</footer-note>
+    </div>
+
+    <div class="card adv">
+      <h2>Liner (lifters)</h2>
+      <div class="ctrl">
+        <div class="row"><span>Number of lifters</span><span class="val" id="vLifters">16</span></div>
+        <input type="range" id="sLifters" min="0" max="36" step="2" value="16">
+      </div>
+      <div class="ctrl">
+        <div class="row"><span>Lifter height</span><span class="val" id="vLiftH">0.35 m</span></div>
+        <input type="range" id="sLiftH" min="0.10" max="0.70" step="0.05" value="0.35">
+      </div>
+      <div class="ctrl">
+        <div class="row"><span>Accelerated wear</span><span class="val" id="vWear">Off</span></div>
+        <input type="range" id="sWear" min="0" max="500" step="25" value="0">
+      </div>
+      <div class="ctrl">
+        <div class="row"><span>Mean / max wear</span><span class="val" id="vWearAvg">0 % · 0 %</span></div>
+      </div>
+      <div class="chart-label">Wear profile per lifter</div>
+      <canvas class="chart" id="chartWear" style="height:36px"></canvas>
+      <div class="chart-label" id="wearNote" style="display:none; margin-top:8px; line-height:1.45; text-transform:none; letter-spacing:0"></div>
+      <div class="btn-row" style="margin-top:10px">
+        <button id="btnRelining" style="flex:1">&gt; Reline mill</button>
+      </div>
+    </div>
+
+    <div class="card adv">
+      <h2>Contact properties</h2>
+      <div class="ctrl">
+        <div class="row"><span>Friction μ</span><span class="val" id="vMu">0.10</span></div>
+        <input type="range" id="sMu" min="0.05" max="0.9" step="0.05" value="0.1">
+      </div>
+      <div class="ctrl">
+        <div class="row"><span>Restitution ("bounce") e</span><span class="val" id="vRest">0.30</span></div>
+        <input type="range" id="sRest" min="0.05" max="0.8" step="0.05" value="0.3">
+      </div>
+    </div>
+
+
+    <div class="card">
+      <h2>Charts</h2>
+      <div class="chart-label">Power draw (kW per metre of mill length)</div>
+      <canvas class="chart" id="chartPower"></canvas>
+      <div class="chart-label">Impact energy spectrum (log E)</div>
+      <canvas class="chart" id="chartImpact"></canvas>
+      <div class="chart-label" style="margin-top:10px; line-height:1.45; text-transform:none; letter-spacing:0">
+        <span style="color:#ff0000; font-weight:bold">Critical impacts</span> :
+        balls that land <b>beyond the toe</b> and strike the bare liner.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="btn-row">
+        <button class="primary" id="btnPause" style="flex:1">|| Pause</button>
+        <button id="btnReset" style="flex:1">&gt; Reset charge</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <footer-note>
+        Mill of D = 8 m. Critical speed N<sub>c</sub> = 42.3/&radic;D &asymp; 15 rpm.
+        Particles scaled ~10x for real-time visualisation;
+        power is estimated from the reaction torque on the shell: P = &tau;&middot;&omega;.
+        Indicative visualisation for explaining SAG grinding concepts, not a performance prediction model.
+      </footer-note>
+    </div>
+
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   2D DEM Simulator — SAG Mill
+   SI units: m, kg (per metre of depth), s.
+   ============================================================ */
+
+// ---------- Mill parameters ----------
+const MILL = {
+  D: 8.0,                  // diameter (m)
+  get R() { return this.D / 2; },
+  get Nc() { return 42.3 / Math.sqrt(this.D); },       // critical rpm (classic formula)
+  get omegaC() { return this.Nc * 2 * Math.PI / 60; }, // rad/s
+};
+
+const G = 9.81;
+const RHO_ORE = 2700;     // kg/m3
+const RHO_STEEL = 7800;
+const KN = 3.0e6;         // normal stiffness N/m
+const SUBSTEPS = 10;
+const BASE_ORE_R = 0.085; // base ore radius (m), scaled by the slider
+const MAX_LIFTERS = 36;
+// Archard-type wear: depth is proportional to friction work + impact energy.
+// WEAR_K in m/J; the wear slider multiplies it (x1 would be the real scale: months).
+const WEAR_K = 6e-11;
+const WEAR_IMP_F = 4;   // impacts wear more than abrasion, for the same work
+const WEAR_BALL_F = 2.5; // steel on steel wears more than ore does
+
+// Critical impacts: balls in flight (cataracting) that strike the BARE shell, i.e.
+// they land beyond the toe of the charge with no ore bed to cushion them. These are
+// the highest-energy collisions (far above abrasion) and the ones that damage the
+// liner and consume balls the most. A ball only reaches the shell with high vn if no
+// charge slowed it down at that point, so the vn threshold separates abrasion /
+// support contact (vn~0) from ballistic impact against the wall.
+const CRIT_VN = 4.0;      // m/s: minimum normal velocity against the shell to count as "critical".
+// Deliberately high: a ball rolling/sliding along the shell has vn~0 and must NOT
+// count; only a ball in ballistic flight (cataracting onto the bare wall) exceeds it.
+
+// ---------- Simulation state ----------
+const state = {
+  speedPct: 72,        // % of critical speed
+  fillPct: 30,         // J, % of the mill area
+  ballPct: 15,         // Jb: ball filling, % by volume of the mill (subset of fillPct)
+  sizePct: 100,
+  rhoOre: RHO_ORE,     // ore density (kg/m3), editable in advanced mode
+  rhoBall: RHO_STEEL,  // ball density (kg/m3)
+  nLifters: 16,
+  liftH: 0.35,
+  wearMult: 0,                              // 0 = wear switched off
+  lifterWear: new Float32Array(MAX_LIFTERS), // fraction of height lost per lifter
+  mu: 0.1,
+  rest: 0.3,
+  theta: 0,            // shell angle
+  paused: false,
+  colorMode: "type",
+  trails: false,
+  vectors: false,
+  shoulderToe: true,
+  showCoM: true,
+  advanced: false,
+  torqueEMA: 0,
+  powerHist: [],
+  impactBins: new Float32Array(24),
+  // critical ball-shell impacts (cataracting onto the bare liner)
+  critRateEMA: 0,      // critical impacts per second (smoothed)
+  critPowEMA: 0,       // power dissipated on the shell by those impacts (W/m)
+  critHits: [],        // recent markers for the render {x, y, e, age}
+  time: 0,
+};
+
+function omega() { return state.speedPct / 100 * MILL.omegaC; }
+
+// ---------- Particles (struct-of-arrays) ----------
+let N = 0;
+let px, py, vx, vy, rad, mass, isBall, impactHeat;
+let trailBuf = [];   // trajectories of a subset
+let comTrail = [];   // trail of the charge centre of mass
+let lastCoM = null;  // last computed centre of mass {x, y}
+
+// Centre of mass of the charge (mass weighted). Its offset from the mill axis is the
+// lever arm that generates the torque, and therefore the power.
+function centerOfMass() {
+  let mx = 0, my = 0, mt = 0;
+  for (let i = 0; i < N; i++) {
+    mx += px[i] * mass[i];
+    my += py[i] * mass[i];
+    mt += mass[i];
+  }
+  if (mt === 0) return null;
+  return { x: mx / mt, y: my / mt };
+}
+
+function buildCharge() {
+  const R = MILL.R;
+  const sizeF = state.sizePct / 100;
+  const rOre = BASE_ORE_R * sizeF;
+  const rBall = rOre * 1.45;
+
+  // Fillings as volumetric fractions (area in 2D) of the mill — industry convention:
+  // Jc = total charge filling, Jb = ball filling (a subset of the charge). The ore
+  // takes the rest: Jo = Jc - Jb. Everything in % of the mill area.
+  const millArea = Math.PI * R * R;
+  const packing = 0.80;                                  // solid / envelope of the bed
+  const Jc = state.fillPct / 100;
+  const Jb = Math.min(state.ballPct, state.fillPct) / 100; // balls are a subset of the charge
+  const Jo = Math.max(0, Jc - Jb);                         // ore = the rest of the charge
+
+  const aOre = Math.PI * rOre * rOre;
+  const aBall = Math.PI * rBall * rBall;
+
+  // Target count per species = solid area of that species / particle area.
+  // Solid area = packing * (volumetric fraction) * mill area.
+  let nBall = Math.round(packing * Jb * millArea / aBall);
+  let nOre  = Math.round(packing * Jo * millArea / aOre);
+  let n = nBall + nOre;
+  if (n > 2600) {                       // performance cap: scale down preserving the mix
+    const s = 2600 / n;
+    nBall = Math.floor(nBall * s);
+    nOre  = Math.floor(nOre * s);
+    n = nBall + nOre;
+  }
+  // Fraction BY COUNT derived from the volumetric target (balls are bigger and denser,
+  // so their % by count is lower than their volumetric % Jb).
+  const fBall = n > 0 ? nBall / n : 0;
+
+  N = n;
+  px = new Float32Array(N); py = new Float32Array(N);
+  vx = new Float32Array(N); vy = new Float32Array(N);
+  rad = new Float32Array(N); mass = new Float32Array(N);
+  isBall = new Uint8Array(N); impactHeat = new Float32Array(N);
+
+  // seed on a grid inside the lower half-circle, with jitter
+  const cell = rBall * 2.05;
+  let i = 0;
+  outer:
+  for (let row = 0; ; row++) {
+    const y = -R + rad0() + row * cell;
+    if (y > R) break;
+    for (let col = 0; ; col++) {
+      const x = -R + rad0() + col * cell;
+      if (x > R) break;
+      if (Math.hypot(x, y) > R - rBall * 1.3) continue;
+      if (i >= N) break outer;
+      const ball = Math.random() < fBall;
+      const r = (ball ? rBall : rOre) * (0.82 + Math.random() * 0.36);
+      px[i] = x + (Math.random() - 0.5) * cell * 0.3;
+      py[i] = y + (Math.random() - 0.5) * cell * 0.3;
+      vx[i] = 0; vy[i] = 0;
+      rad[i] = r;
+      mass[i] = (ball ? state.rhoBall : state.rhoOre) * Math.PI * r * r;
+      isBall[i] = ball ? 1 : 0;
+      i++;
+    }
+  }
+  N = i;
+  function rad0() { return rBall; }
+
+  // trajectories: sample ~30 particles
+  trailBuf = [];
+  const step = Math.max(1, Math.floor(N / 30));
+  for (let k = 0; k < N; k += step) trailBuf.push({ idx: k, pts: [] });
+
+  state.impactBins.fill(0);
+  state.powerHist = [];
+  state.torqueEMA = 0;
+  state.critRateEMA = 0;
+  state.critPowEMA = 0;
+  state.critHits = [];
+  comTrail = [];
+  document.getElementById("hudN").textContent = N;
+}
+
+// ---------- Spatial hash ----------
+let grid = new Map();
+function hashKey(cx, cy) { return cx * 73856093 ^ cy * 19349663; }
+
+// ---------- Contact physics ----------
+function dampingCoef(e, mEff) {
+  const ln = Math.log(Math.max(e, 0.01));
+  const gamma = -ln / Math.sqrt(Math.PI * Math.PI + ln * ln);
+  return 2 * gamma * Math.sqrt(mEff * KN);
+}
+
+function recordImpact(E) {
+  if (E < 0.5) return;
+  const b = Math.floor((Math.log10(E) + 0.3) / 4.8 * 24);
+  if (b >= 0 && b < 24) state.impactBins[b] += E;
+}
+
+function physicsStep(dt) {
+  const R = MILL.R;
+  const w = omega();
+  const mu = state.mu;
+  const e = state.rest;
+  let shellTorque = 0;
+  let critCountStep = 0, critEnergyStep = 0;
+
+  // --- gravity + velocity integration (semi-implicit) ---
+  for (let i = 0; i < N; i++) vy[i] -= G * dt;
+
+  // --- spatial grid ---
+  let maxR = 0;
+  for (let i = 0; i < N; i++) if (rad[i] > maxR) maxR = rad[i];
+  const cell = maxR * 2.1;
+  grid.clear();
+  for (let i = 0; i < N; i++) {
+    const cx = Math.floor(px[i] / cell), cy = Math.floor(py[i] / cell);
+    const k = hashKey(cx, cy);
+    let arr = grid.get(k);
+    if (!arr) { arr = []; grid.set(k, arr); }
+    arr.push(i);
+  }
+
+  // --- particle-particle contacts ---
+  for (let i = 0; i < N; i++) {
+    const cx = Math.floor(px[i] / cell), cy = Math.floor(py[i] / cell);
+    for (let ox = -1; ox <= 1; ox++) for (let oy = -1; oy <= 1; oy++) {
+      const arr = grid.get(hashKey(cx + ox, cy + oy));
+      if (!arr) continue;
+      for (let a = 0; a < arr.length; a++) {
+        const j = arr[a];
+        if (j <= i) continue;
+        const dx = px[j] - px[i], dy = py[j] - py[i];
+        const rsum = rad[i] + rad[j];
+        const d2 = dx * dx + dy * dy;
+        if (d2 >= rsum * rsum || d2 === 0) continue;
+        const d = Math.sqrt(d2);
+        const nx = dx / d, ny = dy / d;
+        const overlap = rsum - d;
+        const mEff = mass[i] * mass[j] / (mass[i] + mass[j]);
+        const cn = dampingCoef(e, mEff);
+        const rvx = vx[j] - vx[i], rvy = vy[j] - vy[i];
+        const vn = rvx * nx + rvy * ny;
+        let Fn = KN * overlap - cn * vn;
+        if (Fn < 0) Fn = 0;
+        // tangential: viscous with a Coulomb cap
+        const tx = -ny, ty = nx;
+        const vt = rvx * tx + rvy * ty;
+        let Ft = -cn * vt;
+        const FtMax = mu * Fn;
+        if (Ft > FtMax) Ft = FtMax;
+        if (Ft < -FtMax) Ft = -FtMax;
+
+        const fx = Fn * nx + Ft * tx;
+        const fy = Fn * ny + Ft * ty;
+        const imi = dt / mass[i], imj = dt / mass[j];
+        vx[i] -= fx * imi; vy[i] -= fy * imi;
+        vx[j] += fx * imj; vy[j] += fy * imj;
+
+        if (vn < -0.4) {
+          const E = 0.5 * mEff * vn * vn;
+          recordImpact(E);
+          impactHeat[i] = Math.min(impactHeat[i] + E * 0.02, 1);
+          impactHeat[j] = Math.min(impactHeat[j] + E * 0.02, 1);
+        }
+      }
+    }
+  }
+
+  // --- contact with the shell and the lifters ---
+  const nL = state.nLifters;
+  const lh = state.liftH;
+  const lw = 0.18 + lh * 0.25;   // lifter half-width (capsule)
+  const th = state.theta;
+
+  for (let i = 0; i < N; i++) {
+    const x = px[i], y = py[i], r = rad[i];
+    const dist = Math.hypot(x, y);
+
+    // shell
+    const pen = dist + r - R;
+    if (pen > 0 && dist > 0) {
+      const nx = x / dist, ny = y / dist; // outward normal
+      // shell velocity at the contact point
+      const wx = -w * y, wy = w * x;
+      const cn = dampingCoef(e, mass[i]);
+      const rvx = vx[i] - wx, rvy = vy[i] - wy;
+      const vn = rvx * nx + rvy * ny;
+      let Fn = KN * pen + cn * vn; // vn>0 = penetrating outwards
+      if (Fn < 0) Fn = 0;
+      const tx = -ny, ty = nx;
+      const vt = rvx * tx + rvy * ty;
+      let Ft = -cn * vt;
+      const FtMax = mu * Fn;
+      if (Ft > FtMax) Ft = FtMax;
+      if (Ft < -FtMax) Ft = -FtMax;
+      // force on the particle: -Fn*n + Ft*t
+      const fx = -Fn * nx + Ft * tx;
+      const fy = -Fn * ny + Ft * ty;
+      vx[i] += fx * dt / mass[i];
+      vy[i] += fy * dt / mass[i];
+      // reaction torque on the shell (negative of the force on the particle)
+      shellTorque += x * (-fy) - y * (-fx);
+      if (vn > 0.4) recordImpact(0.5 * mass[i] * vn * vn * 0.5);
+      // critical impact: a BALL reaches the shell in flight (high vn), so it landed
+      // beyond the toe, on bare liner. Normal impact energy (J/m).
+      if (isBall[i] && vn > CRIT_VN) {
+        const Ec = 0.5 * mass[i] * vn * vn;
+        critCountStep++;
+        critEnergyStep += Ec;
+        state.critHits.push({ x, y, e: Ec, age: 0 });
+      }
+    }
+
+    // lifters: radial capsules in the mill frame
+    if (nL > 0 && dist > R - lh - r - 0.3) {
+      // particle angle in the mill frame
+      const ang = Math.atan2(y, x) - th;
+      const sector = 2 * Math.PI / nL;
+      // nearest lifter
+      const k = Math.round(ang / sector);
+      const kk = ((k % nL) + nL) % nL;
+      // effective height reduced by wear; fully worn = no longer protrudes
+      const lhk = lh * (1 - state.lifterWear[kk]);
+      if (lhk < 0.02) continue;
+      const lwk = 0.18 + lhk * 0.25;
+      const la = k * sector + th; // lifter angle in the world frame
+      const ca = Math.cos(la), sa = Math.sin(la);
+      // capsule segment: from (R-lhk) to R along the radial
+      const ax = ca * (R - lhk), ay = sa * (R - lhk);
+      const bx = ca * R, by = sa * R;
+      // closest point on the segment
+      const abx = bx - ax, aby = by - ay;
+      const t = Math.max(0, Math.min(1, ((x - ax) * abx + (y - ay) * aby) / (abx * abx + aby * aby)));
+      const qx = ax + abx * t, qy = ay + aby * t;
+      const dx = x - qx, dy = y - qy;
+      const dq = Math.hypot(dx, dy);
+      const penL = lwk + r - dq;
+      if (penL > 0 && dq > 1e-6) {
+        const nx = dx / dq, ny = dy / dq;
+        const wx = -w * qy, wy = w * qx;
+        const cn = dampingCoef(e, mass[i]);
+        const rvx = vx[i] - wx, rvy = vy[i] - wy;
+        const vn = rvx * nx + rvy * ny;
+        let Fn = KN * penL - cn * vn;
+        if (Fn < 0) Fn = 0;
+        const tx = -ny, ty = nx;
+        const vt = rvx * tx + rvy * ty;
+        let Ft = -cn * vt;
+        const FtMax = mu * Fn;
+        if (Ft > FtMax) Ft = FtMax;
+        if (Ft < -FtMax) Ft = -FtMax;
+        const fx = Fn * nx + Ft * tx;
+        const fy = Fn * ny + Ft * ty;
+        vx[i] += fx * dt / mass[i];
+        vy[i] += fy * dt / mass[i];
+        shellTorque += qx * (-fy) - qy * (-fx);
+        if (vn < -0.4) recordImpact(0.5 * mass[i] * vn * vn * 0.5);
+        // wear: friction power + impact component (vn<0 = approaching)
+        if (state.wearMult > 0) {
+          const wearPow = Math.abs(Ft * vt) + WEAR_IMP_F * Fn * Math.max(0, -vn);
+          const dDepth = wearPow * WEAR_K * (isBall[i] ? WEAR_BALL_F : 1) * state.wearMult * dt;
+          state.lifterWear[kk] = Math.min(1, state.lifterWear[kk] + dDepth / lh);
+        }
+      }
+    }
+  }
+
+  // --- integrate positions ---
+  for (let i = 0; i < N; i++) {
+    px[i] += vx[i] * dt;
+    py[i] += vy[i] * dt;
+    impactHeat[i] *= (1 - 1.2 * dt);
+  }
+
+  state.theta += w * dt;
+  state.time += dt;
+  // power: the motor must overcome -shellTorque (the charge reaction)
+  state.torqueEMA += ( -shellTorque - state.torqueEMA ) * Math.min(1, dt * 4);
+
+  // critical impacts: rate (1/s) and power (W/m), smoothed (tau~0.25 s, like the torque)
+  const a = Math.min(1, dt * 4);
+  state.critRateEMA += (critCountStep / dt - state.critRateEMA) * a;
+  state.critPowEMA  += (critEnergyStep / dt - state.critPowEMA) * a;
+  // age and prune the visual markers
+  if (state.critHits.length) {
+    for (const hh of state.critHits) hh.age += dt;
+    if (state.critHits.length > 240) state.critHits.splice(0, state.critHits.length - 240);
+  }
+}
+
+// ---------- Render ----------
+// Everything on the canvas is drawn with the 16 classic console colours, so the
+// simulation reads like a CGA/VGA text-mode screen.
+const CMD = {
+  black: "#000000", blue: "#000080", green: "#008000", aqua: "#008080",
+  red: "#800000", purple: "#800080", yellow: "#808000", white: "#c0c0c0",
+  gray: "#808080", lblue: "#0000ff", lgreen: "#00ff00", laqua: "#00ffff",
+  lred: "#ff0000", lpurple: "#ff00ff", lyellow: "#ffff00", bwhite: "#ffffff",
+};
+const CANVAS_FONT = '11px Consolas, "Lucida Console", monospace';
+// Speed ramp, quantised to console colours: navy -> blue -> aqua -> green -> yellow -> red.
+const SPEED_RAMP = [CMD.blue, CMD.lblue, CMD.laqua, CMD.lgreen, CMD.lyellow, CMD.lred];
+// Impact-heat ramp: cold gray -> dark red -> red -> yellow.
+const HEAT_RAMP = [CMD.gray, CMD.red, CMD.lred, CMD.lyellow];
+// Histogram ramp, low energy (abrasion) to high energy (impact fracture).
+const IMPACT_RAMP = [CMD.green, CMD.lgreen, CMD.lyellow, CMD.yellow, CMD.lred, CMD.lpurple];
+
+const canvas = document.getElementById("sim");
+const ctx = canvas.getContext("2d");
+let view = { scale: 1, cx: 0, cy: 0 };
+
+function resize() {
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const margin = 40;
+  view.scale = Math.min(w, h - 20) / 2 / (MILL.R * 1.12);
+  view.cx = w / 2;
+  view.cy = h / 2;
+}
+window.addEventListener("resize", resize);
+// On mobile the badge/HUD are in the flow: if their height changes (regime text),
+// the canvas height changes with no window resize event.
+if (typeof ResizeObserver !== "undefined") new ResizeObserver(resize).observe(canvas);
+
+function W2S(x, y) { return [view.cx + x * view.scale, view.cy - y * view.scale]; }
+
+// Console palettes have no gradients, so the speed scale steps through the ramp.
+function speedColor(v, vmax) {
+  const t = Math.min(v / vmax, 1);
+  return SPEED_RAMP[Math.min(SPEED_RAMP.length - 1, Math.floor(t * SPEED_RAMP.length))];
+}
+
+// Lifter colour: console gray when new (so it reads against the white shell),
+// stepping to red once fully worn.
+function lifterColor(wk) {
+  const r = Math.round(128 + 127 * wk);
+  const g = Math.round(128 - 128 * wk);
+  const b = Math.round(128 - 128 * wk);
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+function draw() {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  ctx.clearRect(0, 0, w, h);
+  const R = MILL.R, s = view.scale, th = state.theta;
+
+  // mill interior (flat console black — no gradients in text mode)
+  const [ox, oy] = W2S(0, 0);
+  ctx.fillStyle = CMD.black;
+  ctx.beginPath();
+  ctx.arc(ox, oy, R * s, 0, Math.PI * 2);
+  ctx.fill();
+
+  // shell
+  ctx.strokeStyle = CMD.white;
+  ctx.lineWidth = 7;
+  ctx.beginPath();
+  ctx.arc(ox, oy, R * s, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // shell rotation marks
+  ctx.strokeStyle = CMD.gray;
+  ctx.lineWidth = 3;
+  for (let k = 0; k < 8; k++) {
+    const a = th + k * Math.PI / 4;
+    const [x1, y1] = W2S(Math.cos(a) * (R + 0.02), Math.sin(a) * (R + 0.02));
+    const [x2, y2] = W2S(Math.cos(a) * (R + 0.14), Math.sin(a) * (R + 0.14));
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  }
+
+  // lifters (effective height according to wear)
+  const nL = state.nLifters, lh = state.liftH;
+  const lw = (0.18 + lh * 0.25);
+  ctx.lineCap = "round";
+  for (let k = 0; k < nL; k++) {
+    const wk = state.lifterWear[k];
+    const a = th + k * 2 * Math.PI / nL;
+    const ca = Math.cos(a), sa = Math.sin(a);
+    if (wk > 0.03) {
+      // ghost outline: the original profile, to show how much was lost
+      const [g1x, g1y] = W2S(ca * (R - lh), sa * (R - lh));
+      const [g2x, g2y] = W2S(ca * R, sa * R);
+      ctx.beginPath();
+      ctx.lineWidth = lw * 2 * s;
+      ctx.strokeStyle = "rgba(128,128,128,0.25)";
+      ctx.moveTo(g1x, g1y); ctx.lineTo(g2x, g2y);
+      ctx.stroke();
+    }
+    const lhk = lh * (1 - wk);
+    if (lhk < 0.02) continue;
+    const lwk = 0.18 + lhk * 0.25;
+    const [x1, y1] = W2S(ca * (R - lhk), sa * (R - lhk));
+    const [x2, y2] = W2S(ca * R, sa * R);
+    ctx.beginPath();
+    ctx.lineWidth = lwk * 2 * s;
+    ctx.strokeStyle = lifterColor(wk);
+    ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
+  ctx.lineCap = "butt";
+
+  // trajectories
+  if (state.trails) {
+    ctx.lineWidth = 1.4;
+    for (const tr of trailBuf) {
+      if (tr.pts.length < 2) continue;
+      ctx.strokeStyle = isBall[tr.idx] ? "rgba(192,192,192,0.40)" : "rgba(255,255,0,0.30)";
+      ctx.beginPath();
+      const [sx, sy] = W2S(tr.pts[0][0], tr.pts[0][1]);
+      ctx.moveTo(sx, sy);
+      for (let p = 1; p < tr.pts.length; p++) {
+        const [qx, qy] = W2S(tr.pts[p][0], tr.pts[p][1]);
+        ctx.lineTo(qx, qy);
+      }
+      ctx.stroke();
+    }
+  }
+
+  // particles
+  const vmax = MILL.R * omega() * 1.4 + 2;
+  const mode = state.colorMode;
+  for (let i = 0; i < N; i++) {
+    const [x, y] = W2S(px[i], py[i]);
+    const r = rad[i] * s;
+    let fill;
+    if (mode === "speed") {
+      fill = speedColor(Math.hypot(vx[i], vy[i]), vmax);
+    } else if (mode === "impact") {
+      const t = impactHeat[i];
+      fill = t > 0.04
+        ? HEAT_RAMP[Math.min(HEAT_RAMP.length - 1, 1 + Math.floor(t * (HEAT_RAMP.length - 1)))]
+        : CMD.gray;
+    } else {
+      fill = isBall[i] ? CMD.white : CMD.lyellow;
+    }
+    ctx.fillStyle = fill;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+    if (mode === "type" && isBall[i]) {
+      ctx.fillStyle = CMD.bwhite;
+      ctx.beginPath();
+      ctx.arc(x - r * 0.3, y - r * 0.3, r * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // critical impacts: a subtle mark on the shell where a ball struck the bare liner
+  // (beyond the toe). A faint ring that expands and fades (shock wave), not a
+  // distracting flash.
+  if (state.critHits.length) {
+    const FADE = 0.6; // s of visible life
+    ctx.lineWidth = 1.4;
+    for (let k = state.critHits.length - 1; k >= 0; k--) {
+      const hh = state.critHits[k];
+      const life = 1 - hh.age / FADE;
+      if (life <= 0) { state.critHits.splice(k, 1); continue; }
+      // base size from the energy (log); the ring grows as it fades
+      const eR = 0.10 + 0.05 * Math.min(3, Math.log10(1 + hh.e));
+      const [hx, hy] = W2S(hh.x, hh.y);
+      const ringR = Math.max(2, eR * s) * (1 + 1.6 * (1 - life));
+      ctx.strokeStyle = `rgba(255,0,0,${0.55 * life})`;
+      ctx.beginPath();
+      ctx.arc(hx, hy, ringR, 0, Math.PI * 2);
+      ctx.stroke();
+      // very faint centre dot
+      ctx.fillStyle = `rgba(255,255,0,${0.40 * life})`;
+      ctx.beginPath();
+      ctx.arc(hx, hy, Math.max(1, eR * s * 0.5), 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // velocity vectors
+  if (state.vectors) {
+    ctx.strokeStyle = "rgba(0,255,255,0.55)";
+    ctx.lineWidth = 1;
+    const k = 0.12 * s;
+    for (let i = 0; i < N; i += 2) {
+      const [x, y] = W2S(px[i], py[i]);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + vx[i] * k, y - vy[i] * k);
+      ctx.stroke();
+    }
+  }
+
+  // charge shoulder and toe
+  if (state.shoulderToe && N > 0) {
+    const st = computeShoulderToe();
+    if (st) {
+      drawAngleMarker(st.shoulder, "SHOULDER", CMD.lgreen);
+      drawAngleMarker(st.toe, "TOE", CMD.laqua);
+    }
+  }
+
+  // charge centre of mass (with trail and lever arm)
+  if (state.showCoM && lastCoM) {
+    // trail: shows how the kidney migrates as the regime changes
+    if (comTrail.length > 1) {
+      ctx.strokeStyle = "rgba(0,255,0,0.45)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let p = 0; p < comTrail.length; p++) {
+        const [sx, sy] = W2S(comTrail[p][0], comTrail[p][1]);
+        if (p === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+      }
+      ctx.stroke();
+    }
+    // lever arm: from the mill axis to the centre of mass
+    const [cx0, cy0] = W2S(0, 0);
+    const [cmx, cmy] = W2S(lastCoM.x, lastCoM.y);
+    ctx.strokeStyle = "rgba(0,255,0,0.6)";
+    ctx.setLineDash([5, 4]);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(cx0, cy0); ctx.lineTo(cmx, cmy); ctx.stroke();
+    ctx.setLineDash([]);
+    // marker (green disc with a cross)
+    ctx.fillStyle = CMD.lgreen;
+    ctx.strokeStyle = CMD.black;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(cmx, cmy, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(cmx - 3.2, cmy); ctx.lineTo(cmx + 3.2, cmy);
+    ctx.moveTo(cmx, cmy - 3.2); ctx.lineTo(cmx, cmy + 3.2);
+    ctx.stroke();
+    ctx.fillStyle = CMD.lgreen;
+    ctx.font = CANVAS_FONT;
+    ctx.textAlign = "left";
+    ctx.fillText("centre of mass", cmx + 9, cmy + 4);
+  }
+
+  // rotation arrow
+  ctx.strokeStyle = "rgba(255,255,0,0.75)";
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(ox, oy, R * s * 1.08, -0.5, 0.25);
+  ctx.stroke();
+  const aTip = 0.25;
+  const tipX = ox + Math.cos(aTip) * R * s * 1.08;
+  const tipY = oy + Math.sin(aTip) * R * s * 1.08;
+  ctx.fillStyle = "rgba(255,255,0,0.75)";
+  ctx.beginPath();
+  ctx.moveTo(tipX, tipY);
+  ctx.lineTo(tipX - 10, tipY - 4);
+  ctx.lineTo(tipX - 3, tipY - 11);
+  ctx.fill();
+}
+
+function drawAngleMarker(ang, label, color) {
+  const R = MILL.R, s = view.scale;
+  const [x, y] = W2S(Math.cos(ang) * R * 1.0, Math.sin(ang) * R * 1.0);
+  const [x2, y2] = W2S(Math.cos(ang) * R * 1.18, Math.sin(ang) * R * 1.18);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x2, y2); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = color;
+  ctx.font = CANVAS_FONT;
+  ctx.textAlign = Math.cos(ang) > 0 ? "left" : "right";
+  ctx.fillText(label, x2 + (Math.cos(ang) > 0 ? 4 : -4), y2 + 4);
+}
+
+// shoulder/toe: the extreme angles where particles sit against the shell
+function computeShoulderToe() {
+  const R = MILL.R;
+  const bins = new Float32Array(72);
+  let any = false;
+  for (let i = 0; i < N; i++) {
+    const d = Math.hypot(px[i], py[i]);
+    if (d > R - rad[i] * 3.5) {
+      let a = Math.atan2(py[i], px[i]);
+      if (a < 0) a += 2 * Math.PI;
+      bins[Math.floor(a / (2 * Math.PI) * 72) % 72]++;
+      any = true;
+    }
+  }
+  if (!any) return null;
+  // find the largest angular gap (the zone with no charge against the shell)
+  let bestGapLen = 0, bestGapStart = 0, runLen = 0, runStart = 0;
+  for (let k = 0; k < 144; k++) {
+    const b = bins[k % 72];
+    if (b < 1) {
+      if (runLen === 0) runStart = k;
+      runLen++;
+      if (runLen > bestGapLen) { bestGapLen = runLen; bestGapStart = runStart; }
+    } else runLen = 0;
+  }
+  if (bestGapLen < 6 || bestGapLen > 70) return null;
+  const a0 = (bestGapStart % 72) / 72 * 2 * Math.PI;            // gap start = shoulder
+  const a1 = ((bestGapStart + bestGapLen) % 72) / 72 * 2 * Math.PI; // gap end = toe
+  return { shoulder: a0, toe: a1 };
+}
+
+// ---------- Charts ----------
+function drawPowerChart() {
+  const c = document.getElementById("chartPower");
+  const g = c.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  if (c.width !== c.clientWidth * dpr) { c.width = c.clientWidth * dpr; c.height = c.clientHeight * dpr; }
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const w = c.clientWidth, h = c.clientHeight;
+  g.clearRect(0, 0, w, h);
+  const hist = state.powerHist;
+  if (hist.length < 2) return;
+  const max = Math.max(...hist, 1);
+  g.strokeStyle = CMD.laqua;
+  g.lineWidth = 1.5;
+  g.beginPath();
+  for (let i = 0; i < hist.length; i++) {
+    const x = i / (hist.length - 1) * w;
+    const y = h - 4 - (hist[i] / max) * (h - 10);
+    if (i === 0) g.moveTo(x, y); else g.lineTo(x, y);
+  }
+  g.stroke();
+  g.fillStyle = "rgba(0,128,128,0.35)";
+  g.lineTo(w, h); g.lineTo(0, h);
+  g.fill();
+  g.fillStyle = CMD.gray;
+  g.font = '10px Consolas, "Lucida Console", monospace';
+  g.textAlign = "right";
+  g.fillText(`max ${max.toFixed(0)} kW/m`, w - 4, 11);
+}
+
+function drawImpactChart() {
+  const c = document.getElementById("chartImpact");
+  const g = c.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  if (c.width !== c.clientWidth * dpr) { c.width = c.clientWidth * dpr; c.height = c.clientHeight * dpr; }
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const w = c.clientWidth, h = c.clientHeight;
+  g.clearRect(0, 0, w, h);
+  const bins = state.impactBins;
+  const max = Math.max(...bins, 1);
+  const bw = w / bins.length;
+  for (let i = 0; i < bins.length; i++) {
+    const t = i / (bins.length - 1);
+    const bh = bins[i] / max * (h - 12);
+    g.fillStyle = IMPACT_RAMP[Math.min(IMPACT_RAMP.length - 1, Math.floor(t * IMPACT_RAMP.length))];
+    g.fillRect(i * bw + 1, h - bh, bw - 2, bh);
+  }
+  g.fillStyle = CMD.gray;
+  g.font = '10px Consolas, "Lucida Console", monospace';
+  g.textAlign = "left";  g.fillText("0.5 J", 2, 11);
+  g.textAlign = "right"; g.fillText("30 kJ", w - 2, 11);
+}
+
+function drawWearChart() {
+  const c = document.getElementById("chartWear");
+  const g = c.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  if (c.width !== c.clientWidth * dpr) { c.width = c.clientWidth * dpr; c.height = c.clientHeight * dpr; }
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const w = c.clientWidth, h = c.clientHeight;
+  g.clearRect(0, 0, w, h);
+  const nL = state.nLifters;
+  if (nL === 0) return;
+  const bw = w / nL;
+  for (let k = 0; k < nL; k++) {
+    const wk = state.lifterWear[k];
+    // bar = remaining lifter height; what was lost stays as a gap on top
+    const bh = (1 - wk) * (h - 4);
+    g.fillStyle = lifterColor(wk);
+    g.fillRect(k * bw + 1, h - 2 - bh, Math.max(bw - 2, 1), bh);
+  }
+}
+
+// wear: metric and teaching note according to the mean level
+function updateWearUI() {
+  const nL = state.nLifters;
+  let sum = 0, mx = 0;
+  for (let k = 0; k < nL; k++) {
+    sum += state.lifterWear[k];
+    if (state.lifterWear[k] > mx) mx = state.lifterWear[k];
+  }
+  const avg = nL > 0 ? sum / nL : 0;
+  document.getElementById("vWearAvg").textContent =
+    nL > 0 ? `${(avg * 100).toFixed(0)} % · ${(mx * 100).toFixed(0)} %` : "—";
+  const note = document.getElementById("wearNote");
+  if (avg < 0.02) { note.style.display = "none"; return; }
+  note.style.display = "block";
+  if (avg < 0.3) {
+    note.textContent = "The profile is rounding off, but the lifters still raise the charge almost as well as new ones.";
+  } else if (avg < 0.7) {
+    note.textContent = "Moderate wear: the shoulder drops and the cataract shortens — less impact breakage (check the spectrum). The mill still draws power, but grinds worse.";
+  } else {
+    note.textContent = "Lifters almost flat: the charge slides against the shell. Power drawn with no useful grinding — time to reline.";
+  }
+}
+
+// ---------- Regime ----------
+const REGIMES = [
+  { max: 50, t: "Slipping / incipient cascading",
+    d: "The charge slips against the shell and is barely lifted. Low-energy abrasion dominates. Raise the speed or fit taller lifters." },
+  { max: 70, t: "Cascading",
+    d: "The charge rises to the shoulder and rolls over itself. Grinding by abrasion and attrition dominates — good for a fine product, with less liner wear." },
+  { max: 90, t: "Cataracting",
+    d: "Particles are thrown into free flight and land on the toe of the charge. Impact breakage dominates. The aim is to make sure the impacts land on the charge and not on the liner." },
+  { max: 100, t: "Extreme cataracting → risk of liner impact",
+    d: "The charge is thrown further and the impacts start hitting the bare shell: accelerated liner damage and ball consumption." },
+  { max: 999, t: "Centrifuging",
+    d: "Above the critical speed: centrifugal force pins the charge to the shell and grinding stops. The mill draws power without grinding." },
+];
+
+function updateRegime() {
+  const r = REGIMES.find(r => state.speedPct <= r.max);
+  document.getElementById("regimeTitle").textContent = r.t;
+  document.getElementById("regimeDesc").textContent = r.d;
+}
+
+// ---------- UI ----------
+function bindSlider(id, valId, fmt, key, rebuild) {
+  const el = document.getElementById(id);
+  const lab = document.getElementById(valId);
+  el.addEventListener("input", () => {
+    state[key] = parseFloat(el.value);
+    lab.textContent = fmt(state[key]);
+    if (rebuild) buildCharge();
+    if (key === "speedPct") { updateRegime(); clearPresetActive(); }
+    updateHud();
+  });
+  lab.textContent = fmt(parseFloat(el.value));
+}
+
+bindSlider("sSpeed", "vSpeed", v => v + " %", "speedPct", false);
+bindSlider("sFill", "vFill", v => v + " %", "fillPct", true);
+bindSlider("sBalls", "vBalls", v => v + " %", "ballPct", true);
+bindSlider("sSize", "vSize", v => v + " %", "sizePct", true);
+bindSlider("sRhoOre", "vRhoOre", v => v + " kg/m³", "rhoOre", true);
+bindSlider("sRhoBall", "vRhoBall", v => v + " kg/m³", "rhoBall", true);
+bindSlider("sLifters", "vLifters", v => v, "nLifters", false);
+bindSlider("sLiftH", "vLiftH", v => v.toFixed(2) + " m", "liftH", false);
+bindSlider("sWear", "vWear", v => v === 0 ? "Off" : "×" + v, "wearMult", false);
+bindSlider("sMu", "vMu", v => v.toFixed(2), "mu", false);
+bindSlider("sRest", "vRest", v => v.toFixed(2), "rest", false);
+
+document.getElementById("colorMode").addEventListener("change", e => {
+  state.colorMode = e.target.value;
+  updateLegend();
+});
+document.getElementById("tTrails").addEventListener("change", e => {
+  state.trails = e.target.checked;
+  for (const tr of trailBuf) tr.pts = [];
+});
+document.getElementById("tVectors").addEventListener("change", e => state.vectors = e.target.checked);
+document.getElementById("tShoulder").addEventListener("change", e => state.shoulderToe = e.target.checked);
+document.getElementById("tCoM").addEventListener("change", e => {
+  state.showCoM = e.target.checked;
+  if (!state.showCoM) comTrail = [];
+});
+
+// beginner / advanced mode: hides or shows the controls marked .adv
+document.querySelectorAll("button.mode").forEach(btn => {
+  btn.addEventListener("click", () => {
+    state.advanced = btn.dataset.mode === "advanced";
+    document.body.classList.toggle("mode-beginner", !state.advanced);
+    document.querySelectorAll("button.mode").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+  });
+});
+
+document.getElementById("btnPause").addEventListener("click", function () {
+  state.paused = !state.paused;
+  this.textContent = state.paused ? "> Resume" : "|| Pause";
+});
+document.getElementById("btnReset").addEventListener("click", buildCharge);
+// relining = brand new lifters; the charge is left untouched
+document.getElementById("btnRelining").addEventListener("click", () => {
+  state.lifterWear.fill(0);
+  updateWearUI();
+});
+
+const PRESETS = {
+  slipping:     { speedPct: 38,  nLifters: 8,  liftH: 0.15 },
+  cascading:    { speedPct: 62,  nLifters: 16, liftH: 0.35 },
+  cataracting:  { speedPct: 80,  nLifters: 16, liftH: 0.45 },
+  centrifuging: { speedPct: 115, nLifters: 16, liftH: 0.35 },
+};
+document.querySelectorAll("button.preset").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const p = PRESETS[btn.dataset.preset];
+    state.speedPct = p.speedPct; state.nLifters = p.nLifters; state.liftH = p.liftH;
+    syncSlider("sSpeed", "vSpeed", p.speedPct, v => v + " %");
+    syncSlider("sLifters", "vLifters", p.nLifters, v => v);
+    syncSlider("sLiftH", "vLiftH", p.liftH, v => v.toFixed(2) + " m");
+    clearPresetActive();
+    btn.classList.add("active");
+    updateRegime();
+    updateHud();   // keep the rpm / % critical readout in step with the preset
+  });
+});
+function syncSlider(id, valId, v, fmt) {
+  document.getElementById(id).value = v;
+  document.getElementById(valId).textContent = fmt(v);
+}
+function clearPresetActive() {
+  document.querySelectorAll("button.preset").forEach(b => b.classList.remove("active"));
+}
+
+function updateLegend() {
+  const el = document.getElementById("legend");
+  if (state.colorMode === "type") {
+    el.innerHTML = '<span><span class="dot" style="background:#ffff00"></span>Ore</span>' +
+                   '<span><span class="dot" style="background:#c0c0c0"></span>Steel ball</span>';
+  } else if (state.colorMode === "speed") {
+    el.innerHTML = '<span><span class="dot" style="background:#000080"></span>Slow</span>' +
+                   '<span><span class="dot" style="background:#00ff00"></span>Medium</span>' +
+                   '<span><span class="dot" style="background:#ff0000"></span>Fast</span>';
+  } else {
+    el.innerHTML = '<span><span class="dot" style="background:#808080"></span>No impacts</span>' +
+                   '<span><span class="dot" style="background:#ffff00"></span>Recent high-energy impact</span>';
+  }
+}
+
+function updateHud() {
+  const rpm = state.speedPct / 100 * MILL.Nc;
+  document.getElementById("hudRpm").textContent = rpm.toFixed(1);
+  document.getElementById("hudNc").textContent = state.speedPct + " %";
+}
+
+// ---------- Main loop ----------
+let lastT = performance.now();
+let fpsEMA = 60, frameCount = 0, sampleAccum = 0;
+
+function loop(now) {
+  const dtFrame = Math.min((now - lastT) / 1000, 0.05);
+  lastT = now;
+  fpsEMA += (1 / Math.max(dtFrame, 1e-3) - fpsEMA) * 0.05;
+
+  if (!state.paused) {
+    // FIXED, safe physics step: if a frame runs late (mouse movement, GC, repaint…),
+    // we run more substeps instead of enlarging dt. That way dt never exceeds the
+    // validated value (~1.67 ms) and particles do not blow up from instability of the
+    // explicit integrator with a high KN.
+    const FIXED_DT = (1 / 60) / SUBSTEPS;
+    const nSub = Math.max(1, Math.ceil(dtFrame / FIXED_DT));
+    const dt = dtFrame / nSub;
+    for (let s = 0; s < nSub; s++) physicsStep(dt);
+
+    // trajectories
+    if (state.trails) {
+      for (const tr of trailBuf) {
+        tr.pts.push([px[tr.idx], py[tr.idx]]);
+        if (tr.pts.length > 45) tr.pts.shift();
+      }
+    }
+
+    // charge centre of mass + its trail
+    lastCoM = centerOfMass();
+    if (lastCoM) {
+      comTrail.push([lastCoM.x, lastCoM.y]);
+      if (comTrail.length > 150) comTrail.shift();
+    }
+
+    // power
+    sampleAccum += dtFrame;
+    if (sampleAccum > 0.12) {
+      sampleAccum = 0;
+      const P = Math.max(0, state.torqueEMA * omega()) / 1000; // kW per metre
+      state.powerHist.push(P);
+      if (state.powerHist.length > 220) state.powerHist.shift();
+      document.getElementById("hudPower").textContent = P.toFixed(0);
+      const cr = state.critRateEMA;
+      document.getElementById("hudCrit").textContent = cr < 1 ? cr.toFixed(1) : cr.toFixed(0);
+      // decay the impact histogram
+      for (let i = 0; i < state.impactBins.length; i++) state.impactBins[i] *= 0.985;
+    }
+  }
+
+  draw();
+  if (++frameCount % 6 === 0) {
+    drawPowerChart();
+    drawImpactChart();
+    drawWearChart();
+    updateWearUI();
+    // Centre-of-mass HUD: distance to the axis and angle from the vertical
+    // (atan2 with +x = the rising side of the shell) ⇒ dynamic angle of repose.
+    if (lastCoM) {
+      const off = Math.hypot(lastCoM.x, lastCoM.y);
+      const ang = Math.atan2(lastCoM.x, -lastCoM.y) * 180 / Math.PI;
+      document.getElementById("hudCoM").textContent = `${off.toFixed(2)} m · ${ang.toFixed(0)}°`;
+    }
+    document.getElementById("hudFps").textContent = fpsEMA.toFixed(0);
+  }
+  requestAnimationFrame(loop);
+}
+
+// ---------- Start ----------
+document.body.classList.add("mode-beginner"); // starts in beginner mode
+resize();
+buildCharge();
+updateRegime();
+updateLegend();
+updateHud();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
