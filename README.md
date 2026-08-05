@@ -81,7 +81,31 @@ npm run typecheck      # tsc --noEmit
 
 ## Deploying
 
-### 1. Supabase
+### Vercel (Supabase not required)
+
+The console renders completely with no environment variables at all — it falls
+back to the bundled catalogue and reports that in the status bar. So the fastest
+path is to deploy first and wire Supabase up later, or never.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FJeffercopter%2FComps)
+
+Or from the dashboard: **Add New → Project → import `Jeffercopter/Comps`**.
+Vercel detects Next.js on its own; accept every default and deploy. Set the
+production branch under Settings → Git if you want it tracking a branch other
+than `main`.
+
+From the CLI:
+
+```bash
+npx vercel link
+npx vercel --prod
+```
+
+No region is pinned in `vercel.json`, because pinning one is restricted to Pro
+and Enterprise plans and will fail a Hobby deploy. On a paid plan, add
+`"regions": ["syd1"]` to put the functions next to the audience.
+
+### 1. Supabase (optional)
 
 Create a project, then in the SQL editor run [`supabase/schema.sql`](supabase/schema.sql).
 It creates:
@@ -102,18 +126,20 @@ npm run seed
 The service role key is server-side only. Keep it out of the repo and out of any
 `NEXT_PUBLIC_*` variable.
 
-### 2. Vercel
+### 2. Point the deployment at it
 
 ```bash
-npx vercel link
 npx vercel env add NEXT_PUBLIC_SUPABASE_URL
 npx vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
 npx vercel --prod
 ```
 
-Or import the repository at vercel.com and add the same two variables under
-Project → Settings → Environment Variables. `vercel.json` pins the build to the
-Sydney region so the Supabase round trip stays local to the audience.
+Or add the same two variables under Project → Settings → Environment Variables
+and redeploy. Only the two `NEXT_PUBLIC_*` values belong on Vercel — the service
+role key is for the local seed script and nothing else.
+
+Run `status` in the console afterwards to confirm it flipped from
+`bundled seed (local)` to `supabase (live)`.
 
 ---
 
