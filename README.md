@@ -125,6 +125,11 @@ scaled up.
 - **Shoulder and toe** of the charge, detected automatically
 - **Wear profile per lifter** (bars of remaining height) with a teaching note
   based on the level
+- Ore drawn as grey faceted rock — a dodecahedron reads in silhouette as a
+  ten-sided outline, so each particle is a jittered decagon with its pentagonal
+  face suggested inside it, tumbling at a rate that scales with its speed.
+  Steel balls stay round, so the two species read apart at a glance. The facets
+  are render-only: contact still uses the circumscribed disc.
 - Colour modes: type, speed, recent impact energy
 - Trajectories and velocity vectors
 

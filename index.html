@@ -581,6 +581,7 @@ function omega() { return state.speedPct / 100 * MILL.omegaC; }
 // ---------- Particles (struct-of-arrays) ----------
 let N = 0;
 let px, py, vx, vy, rad, mass, isBall, impactHeat;
+let rockAng, rockSpin, rockTmpl;   // per-rock orientation, tumble rate and outline
 let trailBuf = [];   // trajectories of a subset
 let comTrail = [];   // trail of the charge centre of mass
 let lastCoM = null;  // last computed centre of mass {x, y}
@@ -636,6 +637,8 @@ function buildCharge() {
   vx = new Float32Array(N); vy = new Float32Array(N);
   rad = new Float32Array(N); mass = new Float32Array(N);
   isBall = new Uint8Array(N); impactHeat = new Float32Array(N);
+  rockAng = new Float32Array(N); rockSpin = new Float32Array(N);
+  rockTmpl = new Uint8Array(N);
 
   // seed on a grid inside the lower half-circle, with jitter
   const cell = rBall * 2.05;
@@ -657,6 +660,9 @@ function buildCharge() {
       rad[i] = r;
       mass[i] = (ball ? state.rhoBall : state.rhoOre) * Math.PI * r * r;
       isBall[i] = ball ? 1 : 0;
+      rockAng[i] = Math.random() * Math.PI * 2;
+      rockSpin[i] = (Math.random() < 0.5 ? -1 : 1) * (0.5 + Math.random() * 0.9);
+      rockTmpl[i] = Math.floor(Math.random() * ROCK_TEMPLATES.length);
       i++;
     }
   }
@@ -969,6 +975,25 @@ const HEAT_RAMP = [CMD.gray, CMD.red, CMD.lred, CMD.lyellow];
 // Histogram ramp, low energy (abrasion) to high energy (impact fracture).
 const IMPACT_RAMP = [CMD.green, CMD.lgreen, CMD.lyellow, CMD.yellow, CMD.lred, CMD.lpurple];
 
+// Ore is drawn as faceted rock rather than a disc: a dodecahedron reads in
+// silhouette as a ten-sided outline, so each rock is a jittered decagon with the
+// pentagonal face suggested inside it. A handful of pre-baked templates gives
+// every rock its own outline without carrying a vertex list per particle.
+// NOTE: this is the render only — contact still uses the circumscribed disc, so
+// the physics is unchanged by the facets.
+const ROCK_GREY = "#8c8c8c";
+const ROCK_EDGE = "rgba(0,0,0,0.5)";
+const ROCK_FACET = "rgba(0,0,0,0.3)";
+const ROCK_TEMPLATES = (function () {
+  const list = [];
+  for (let t = 0; t < 8; t++) {
+    const v = [];
+    for (let k = 0; k < 10; k++) v.push(0.88 + Math.random() * 0.2);
+    list.push(v);
+  }
+  return list;
+})();
+
 const canvas = document.getElementById("sim");
 const ctx = canvas.getContext("2d");
 let view = { scale: 1, cx: 0, cy: 0 };
@@ -990,6 +1015,36 @@ window.addEventListener("resize", resize);
 if (typeof ResizeObserver !== "undefined") new ResizeObserver(resize).observe(canvas);
 
 function W2S(x, y) { return [view.cx + x * view.scale, view.cy - y * view.scale]; }
+
+// One rock: a jittered decagon, edged, with the pentagonal face drawn inside it
+// once the particle is big enough on screen for the facets to read.
+function drawRock(x, y, r, ang, tmpl, fill) {
+  const n = tmpl.length;
+  ctx.fillStyle = fill;
+  ctx.beginPath();
+  for (let k = 0; k < n; k++) {
+    const a = ang + k * (2 * Math.PI / n);
+    const rr = r * tmpl[k];
+    const vx0 = x + Math.cos(a) * rr, vy0 = y + Math.sin(a) * rr;
+    if (k === 0) ctx.moveTo(vx0, vy0); else ctx.lineTo(vx0, vy0);
+  }
+  ctx.closePath();
+  ctx.fill();
+  if (r < 3) return;
+  ctx.strokeStyle = ROCK_EDGE;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  if (r < 5.5) return;
+  ctx.strokeStyle = ROCK_FACET;
+  ctx.beginPath();
+  for (let k = 0; k < 5; k++) {
+    const a = ang + 0.33 + k * (2 * Math.PI / 5);
+    const vx0 = x + Math.cos(a) * r * 0.5, vy0 = y + Math.sin(a) * r * 0.5;
+    if (k === 0) ctx.moveTo(vx0, vy0); else ctx.lineTo(vx0, vy0);
+  }
+  ctx.closePath();
+  ctx.stroke();
+}
 
 // Fill a world-space polygon (used for the lifter bars), optionally edged.
 function fillPoly(pts, fill, stroke) {
@@ -1083,7 +1138,7 @@ function draw() {
     ctx.lineWidth = 1.4;
     for (const tr of trailBuf) {
       if (tr.pts.length < 2) continue;
-      ctx.strokeStyle = isBall[tr.idx] ? "rgba(192,192,192,0.40)" : "rgba(255,255,0,0.30)";
+      ctx.strokeStyle = isBall[tr.idx] ? "rgba(192,192,192,0.40)" : "rgba(140,140,140,0.34)";
       ctx.beginPath();
       const [sx, sy] = W2S(tr.pts[0][0], tr.pts[0][1]);
       ctx.moveTo(sx, sy);
@@ -1110,17 +1165,21 @@ function draw() {
         ? HEAT_RAMP[Math.min(HEAT_RAMP.length - 1, 1 + Math.floor(t * (HEAT_RAMP.length - 1)))]
         : CMD.gray;
     } else {
-      fill = isBall[i] ? CMD.white : CMD.lyellow;
+      fill = isBall[i] ? CMD.white : ROCK_GREY;
     }
-    ctx.fillStyle = fill;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-    if (mode === "type" && isBall[i]) {
-      ctx.fillStyle = CMD.bwhite;
+    if (isBall[i]) {
+      ctx.fillStyle = fill;
       ctx.beginPath();
-      ctx.arc(x - r * 0.3, y - r * 0.3, r * 0.35, 0, Math.PI * 2);
+      ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
+      if (mode === "type") {
+        ctx.fillStyle = CMD.bwhite;
+        ctx.beginPath();
+        ctx.arc(x - r * 0.3, y - r * 0.3, r * 0.35, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else {
+      drawRock(x, y, r, rockAng[i], ROCK_TEMPLATES[rockTmpl[i]], fill);
     }
   }
 
@@ -1507,7 +1566,7 @@ function clearPresetActive() {
 function updateLegend() {
   const el = document.getElementById("legend");
   if (state.colorMode === "type") {
-    el.innerHTML = '<span><span class="dot" style="background:#ffff00"></span>Ore</span>' +
+    el.innerHTML = '<span><span class="dot" style="background:#8c8c8c"></span>Ore (rock)</span>' +
                    '<span><span class="dot" style="background:#c0c0c0"></span>Steel ball</span>';
   } else if (state.colorMode === "speed") {
     el.innerHTML = '<span><span class="dot" style="background:#000080"></span>Slow</span>' +
@@ -1543,6 +1602,12 @@ function loop(now) {
     const nSub = Math.max(1, Math.ceil(dtFrame / FIXED_DT));
     const dt = dtFrame / nSub;
     for (let s = 0; s < nSub; s++) physicsStep(dt);
+
+    // rocks tumble as they travel: spin scales with speed, so the charge visibly
+    // rolls in the cascading regime and spins in free flight
+    for (let i = 0; i < N; i++) {
+      if (!isBall[i]) rockAng[i] += rockSpin[i] * Math.hypot(vx[i], vy[i]) * dtFrame * 0.6;
+    }
 
     // trajectories
     if (state.trails) {
