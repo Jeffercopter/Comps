@@ -68,7 +68,12 @@ Being a static file with no dependencies, it deploys in seconds:
 - **Semi-implicit Euler integration** with 10 substeps per frame
   (Δt ≈ 1.7 ms), in real time.
 - **Spatial hashing** for O(N) neighbour search.
-- **Lifters** modelled as radial capsules that rotate with the shell.
+- **Lifters** modelled as trapezoidal bars that rotate with the shell: the base
+  sits on the shell and is the wider edge, and both faces lean back by the face
+  angle, so the base half-width is `top/2 + height × tan(face)`. Contact is
+  circle-versus-convex-polygon (closest point plus outward normal, with an
+  inside case that pushes out through the shallowest face), so the face angle
+  genuinely sets where the charge is released rather than scaling a bar.
 - **Archard-type lifter wear** (abrasion from friction + impacts, with steel
   balls wearing them faster), which can be accelerated up to ×500 to see it in
   ~1–2 minutes. With a worn profile the shoulder drops and the cataract
@@ -107,7 +112,7 @@ scaled up.
 - Charge filling Jc (10–45%)
 - Ball filling Jb (0–30% of the mill)
 - Particle size
-- Number and height of lifters, live
+- Number, height, face angle (0–35°) and top width of lifters, live
 - Accelerated liner wear (×0–500) with a reline button
 - Friction μ and restitution e, live
 
@@ -123,9 +128,29 @@ scaled up.
 - Colour modes: type, speed, recent impact energy
 - Trajectories and velocity vectors
 
+## Lifter face angle
+
+The face angle is measured from the radial and is the parameter that sets the
+release point, so it is the one worth playing with. At 80% of critical speed,
+with everything else held constant:
+
+| Face angle | Shoulder | Critical impacts | What you see |
+|---|---|---|---|
+| 0° (square) | ~85° | ~16–24 /s·m | The bar carries the charge to a high shoulder and throws it past the toe onto bare liner |
+| 35° (relieved) | ~60° | ~0 /s·m | The charge rolls off the face early and lands back inside the charge |
+
+Power barely moves between the two (~4.4 vs ~4.5 MW): the face angle changes
+*where* the energy is delivered, not how much is drawn. That is the whole liner
+design argument in one slider.
+
+Wear relieves the face as well as lowering the bar — up to 20° of extra relief
+at full wear — so a worn liner releases earlier and shortens the cataract even
+before the height is gone.
+
 ## Presets
 
-`Slipping` (38% Nc) · `Cascading` (62%) · `Cataracting` (80%) · `Centrifuging` (115%)
+`Slipping` (38% Nc, 35° face) · `Cascading` (62%, 25°) · `Cataracting` (80%, 8°) ·
+`Centrifuging` (115%, 25°) — each preset carries the liner that suits the regime.
 
 ## Differences from the original
 

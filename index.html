@@ -424,6 +424,16 @@
         <input type="range" id="sLiftH" min="0.10" max="0.70" step="0.05" value="0.35">
       </div>
       <div class="ctrl">
+        <div class="row"><span>Face angle</span><span class="val" id="vFace">25°</span></div>
+        <input type="range" id="sFace" min="0" max="35" step="1" value="25">
+        <footer-note style="margin-top:2px">Measured from the radial. A square face (0°) carries the charge to a high shoulder and throws it far — fast breakage, and liner damage if the trajectory overshoots the toe. Relieving the face to 30°+ releases earlier and drops the impact point back into the charge.</footer-note>
+      </div>
+      <div class="ctrl">
+        <div class="row"><span>Lifter top width</span><span class="val" id="vLiftW">0.18 m</span></div>
+        <input type="range" id="sLiftW" min="0.08" max="0.35" step="0.01" value="0.18">
+        <footer-note style="margin-top:2px">Width at the tip. The base widens by height × tan(face angle), so the bar is a true trapezoid rather than a bar of constant width.</footer-note>
+      </div>
+      <div class="ctrl">
         <div class="row"><span>Accelerated wear</span><span class="val" id="vWear">Off</span></div>
         <input type="range" id="sWear" min="0" max="500" step="25" value="0">
       </div>
@@ -518,6 +528,7 @@ const MAX_LIFTERS = 36;
 const WEAR_K = 6e-11;
 const WEAR_IMP_F = 4;   // impacts wear more than abrasion, for the same work
 const WEAR_BALL_F = 2.5; // steel on steel wears more than ore does
+const WEAR_FACE_RELIEF = 20; // degrees the face angle relieves by at full wear
 
 // Critical impacts: balls in flight (cataracting) that strike the BARE shell, i.e.
 // they land beyond the toe of the charge with no ore bed to cushion them. These are
@@ -541,6 +552,8 @@ const state = {
   rhoBall: RHO_STEEL,  // ball density (kg/m3)
   nLifters: 16,
   liftH: 0.35,
+  faceAngle: 25,       // lifter face angle from the radial (deg): sets the release point
+  liftTop: 0.18,       // lifter top width (m); the base widens with the face angle
   wearMult: 0,                              // 0 = wear switched off
   lifterWear: new Float32Array(MAX_LIFTERS), // fraction of height lost per lifter
   mu: 0.1,
@@ -665,6 +678,83 @@ function buildCharge() {
   document.getElementById("hudN").textContent = N;
 }
 
+// ---------- Lifter geometry ----------
+// A lifter bar is a trapezoid in the mill cross-section: the base sits on the
+// shell and is the wider edge, and both faces lean back by the face angle, so
+// the tip is narrower. The face angle is what sets the release point — a square
+// face (0°) holds the charge round to a high shoulder and throws it far, while a
+// relieved face (30°+) lets the charge roll off early. That is the whole reason
+// liner designers argue about it, so it is a real geometric face here rather
+// than a parameter multiplying a capsule.
+//
+// wearOverride lets the render draw the as-new profile as a ghost behind the
+// worn one. Returns null once the bar has worn flat.
+function lifterProfile(k, th, wearOverride) {
+  const wk = wearOverride === undefined ? state.lifterWear[k] : wearOverride;
+  const h = state.liftH * (1 - wk);
+  if (h < 0.02) return null;
+  // Wear does not only lower the bar: it rounds the leading face over, so the
+  // effective face angle relieves as the profile is lost.
+  const faceDeg = Math.min(60, state.faceAngle + wk * WEAR_FACE_RELIEF);
+  const face = faceDeg * Math.PI / 180;
+  const topHalf = state.liftTop / 2;
+  const baseHalf = topHalf + h * Math.tan(face);
+  const R = MILL.R;
+  const a = th + k * 2 * Math.PI / state.nLifters;
+  const rx = Math.cos(a), ry = Math.sin(a);   // radial, outward
+  const tx = -ry, ty = rx;                    // tangential
+  const rt = R - h;                           // tip radius
+  return {
+    h: h,
+    faceDeg: faceDeg,
+    pts: [
+      [R * rx - baseHalf * tx,  R * ry - baseHalf * ty],   // base, trailing
+      [R * rx + baseHalf * tx,  R * ry + baseHalf * ty],   // base, leading
+      [rt * rx + topHalf * tx,  rt * ry + topHalf * ty],   // tip, leading
+      [rt * rx - topHalf * tx,  rt * ry - topHalf * ty],   // tip, trailing
+    ],
+  };
+}
+
+// Closest point on a convex polygon to (cx, cy), with the outward normal there.
+// sep is the signed separation: positive outside, negative when the centre has
+// gone inside the bar, which keeps deep overlaps pushing out the short way.
+function closestOnPoly(pts, cx, cy) {
+  let gx = 0, gy = 0;
+  for (let i = 0; i < pts.length; i++) { gx += pts[i][0]; gy += pts[i][1]; }
+  gx /= pts.length; gy /= pts.length;
+
+  let outside = false;
+  let bestOut = Infinity, oqx = 0, oqy = 0, onx = 0, ony = 0;
+  let bestIn = -Infinity, iqx = 0, iqy = 0, inx = 0, iny = 0;
+
+  for (let i = 0; i < pts.length; i++) {
+    const ax = pts[i][0], ay = pts[i][1];
+    const bx = pts[(i + 1) % pts.length][0], by = pts[(i + 1) % pts.length][1];
+    const ex = bx - ax, ey = by - ay;
+    const el2 = ex * ex + ey * ey;
+    const el = Math.sqrt(el2) || 1e-9;
+    let nx = ey / el, ny = -ex / el;
+    if ((ax - gx) * nx + (ay - gy) * ny < 0) { nx = -nx; ny = -ny; }  // face outward
+    const sd = (cx - ax) * nx + (cy - ay) * ny;
+    if (sd > 0) outside = true;
+    if (sd > bestIn) {                       // shallowest edge if we are inside
+      bestIn = sd; inx = nx; iny = ny;
+      iqx = cx - sd * nx; iqy = cy - sd * ny;
+    }
+    const t = Math.max(0, Math.min(1, ((cx - ax) * ex + (cy - ay) * ey) / (el2 || 1e-18)));
+    const qx = ax + ex * t, qy = ay + ey * t;
+    const dd = Math.hypot(cx - qx, cy - qy);
+    if (dd < bestOut) { bestOut = dd; oqx = qx; oqy = qy; onx = nx; ony = ny; }
+  }
+
+  if (!outside) return { qx: iqx, qy: iqy, nx: inx, ny: iny, sep: bestIn };
+  let nx = cx - oqx, ny = cy - oqy;
+  const d = Math.hypot(nx, ny);
+  if (d > 1e-9) { nx /= d; ny /= d; } else { nx = onx; ny = ony; }
+  return { qx: oqx, qy: oqy, nx: nx, ny: ny, sep: bestOut };
+}
+
 // ---------- Spatial hash ----------
 let grid = new Map();
 function hashKey(cx, cy) { return cx * 73856093 ^ cy * 19349663; }
@@ -755,7 +845,6 @@ function physicsStep(dt) {
   // --- contact with the shell and the lifters ---
   const nL = state.nLifters;
   const lh = state.liftH;
-  const lw = 0.18 + lh * 0.25;   // lifter half-width (capsule)
   const th = state.theta;
 
   for (let i = 0; i < N; i++) {
@@ -797,32 +886,21 @@ function physicsStep(dt) {
       }
     }
 
-    // lifters: radial capsules in the mill frame
-    if (nL > 0 && dist > R - lh - r - 0.3) {
+    // lifters: trapezoidal bars in the mill frame
+    if (nL > 0 && dist > R - lh - r - 0.4) {
       // particle angle in the mill frame
       const ang = Math.atan2(y, x) - th;
       const sector = 2 * Math.PI / nL;
       // nearest lifter
       const k = Math.round(ang / sector);
       const kk = ((k % nL) + nL) % nL;
-      // effective height reduced by wear; fully worn = no longer protrudes
-      const lhk = lh * (1 - state.lifterWear[kk]);
-      if (lhk < 0.02) continue;
-      const lwk = 0.18 + lhk * 0.25;
-      const la = k * sector + th; // lifter angle in the world frame
-      const ca = Math.cos(la), sa = Math.sin(la);
-      // capsule segment: from (R-lhk) to R along the radial
-      const ax = ca * (R - lhk), ay = sa * (R - lhk);
-      const bx = ca * R, by = sa * R;
-      // closest point on the segment
-      const abx = bx - ax, aby = by - ay;
-      const t = Math.max(0, Math.min(1, ((x - ax) * abx + (y - ay) * aby) / (abx * abx + aby * aby)));
-      const qx = ax + abx * t, qy = ay + aby * t;
-      const dx = x - qx, dy = y - qy;
-      const dq = Math.hypot(dx, dy);
-      const penL = lwk + r - dq;
-      if (penL > 0 && dq > 1e-6) {
-        const nx = dx / dq, ny = dy / dq;
+      const prof = lifterProfile(kk, th);
+      if (prof === null) continue;   // worn flat: no bar left to hit
+      const cp = closestOnPoly(prof.pts, x, y);
+      const qx = cp.qx, qy = cp.qy;
+      const penL = r - cp.sep;
+      if (penL > 0) {
+        const nx = cp.nx, ny = cp.ny;
         const wx = -w * qy, wy = w * qx;
         const cn = dampingCoef(e, mass[i]);
         const rvx = vx[i] - wx, rvy = vy[i] - wy;
@@ -913,15 +991,43 @@ if (typeof ResizeObserver !== "undefined") new ResizeObserver(resize).observe(ca
 
 function W2S(x, y) { return [view.cx + x * view.scale, view.cy - y * view.scale]; }
 
+// Fill a world-space polygon (used for the lifter bars), optionally edged.
+function fillPoly(pts, fill, stroke) {
+  ctx.fillStyle = fill;
+  ctx.beginPath();
+  for (let i = 0; i < pts.length; i++) {
+    const [sx, sy] = W2S(pts[i][0], pts[i][1]);
+    if (i === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+  }
+  ctx.closePath();
+  ctx.fill();
+  if (stroke) {
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+}
+
 // Console palettes have no gradients, so the speed scale steps through the ramp.
 function speedColor(v, vmax) {
   const t = Math.min(v / vmax, 1);
   return SPEED_RAMP[Math.min(SPEED_RAMP.length - 1, Math.floor(t * SPEED_RAMP.length))];
 }
 
-// Lifter colour: console gray when new (so it reads against the white shell),
-// stepping to red once fully worn.
+// Lifter colour: a fresh bar is black — mill liners are black rubber or dark
+// cast steel — warming to red as the profile is worn away. The bars carry a
+// light edge so the trapezoid still reads against the dark mill interior.
+const LIFTER_EDGE = "rgba(192,192,192,0.55)";
 function lifterColor(wk) {
+  const r = Math.round(12 + 243 * wk);
+  const g = Math.round(12 - 12 * wk);
+  const b = Math.round(16 - 16 * wk);
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+// The wear chart sits on a dark panel, so its bars keep a light-to-red ramp
+// instead of going black along with the liner itself.
+function wearBarColor(wk) {
   const r = Math.round(128 + 127 * wk);
   const g = Math.round(128 - 128 * wk);
   const b = Math.round(128 - 128 * wk);
@@ -957,36 +1063,20 @@ function draw() {
     ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
   }
 
-  // lifters (effective height according to wear)
+  // lifters: the trapezoid the physics actually collides against, so the face
+  // angle you set is the face angle you see holding the charge
   const nL = state.nLifters, lh = state.liftH;
-  const lw = (0.18 + lh * 0.25);
-  ctx.lineCap = "round";
   for (let k = 0; k < nL; k++) {
     const wk = state.lifterWear[k];
-    const a = th + k * 2 * Math.PI / nL;
-    const ca = Math.cos(a), sa = Math.sin(a);
     if (wk > 0.03) {
-      // ghost outline: the original profile, to show how much was lost
-      const [g1x, g1y] = W2S(ca * (R - lh), sa * (R - lh));
-      const [g2x, g2y] = W2S(ca * R, sa * R);
-      ctx.beginPath();
-      ctx.lineWidth = lw * 2 * s;
-      ctx.strokeStyle = "rgba(128,128,128,0.25)";
-      ctx.moveTo(g1x, g1y); ctx.lineTo(g2x, g2y);
-      ctx.stroke();
+      // ghost: the as-new profile behind the worn one, showing what was lost
+      const ghost = lifterProfile(k, th, 0);
+      if (ghost) fillPoly(ghost.pts, "rgba(128,128,128,0.22)");
     }
-    const lhk = lh * (1 - wk);
-    if (lhk < 0.02) continue;
-    const lwk = 0.18 + lhk * 0.25;
-    const [x1, y1] = W2S(ca * (R - lhk), sa * (R - lhk));
-    const [x2, y2] = W2S(ca * R, sa * R);
-    ctx.beginPath();
-    ctx.lineWidth = lwk * 2 * s;
-    ctx.strokeStyle = lifterColor(wk);
-    ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-    ctx.stroke();
+    const prof = lifterProfile(k, th);
+    if (prof === null) continue;
+    fillPoly(prof.pts, lifterColor(wk), LIFTER_EDGE);
   }
-  ctx.lineCap = "butt";
 
   // trajectories
   if (state.trails) {
@@ -1251,7 +1341,7 @@ function drawWearChart() {
     const wk = state.lifterWear[k];
     // bar = remaining lifter height; what was lost stays as a gap on top
     const bh = (1 - wk) * (h - 4);
-    g.fillStyle = lifterColor(wk);
+    g.fillStyle = wearBarColor(wk);
     g.fillRect(k * bw + 1, h - 2 - bh, Math.max(bw - 2, 1), bh);
   }
 }
@@ -1273,7 +1363,7 @@ function updateWearUI() {
   if (avg < 0.3) {
     note.textContent = "The profile is rounding off, but the lifters still raise the charge almost as well as new ones.";
   } else if (avg < 0.7) {
-    note.textContent = "Moderate wear: the shoulder drops and the cataract shortens — less impact breakage (check the spectrum). The mill still draws power, but grinds worse.";
+    note.textContent = "Moderate wear: the bars are lower and the faces have relieved, so the shoulder drops and the cataract shortens — less impact breakage (check the spectrum). The mill still draws power, but grinds worse.";
   } else {
     note.textContent = "Lifters almost flat: the charge slides against the shell. Power drawn with no useful grinding — time to reline.";
   }
@@ -1341,6 +1431,8 @@ bindSlider("sRhoOre", "vRhoOre", v => v + " kg/m³", "rhoOre", true);
 bindSlider("sRhoBall", "vRhoBall", v => v + " kg/m³", "rhoBall", true);
 bindSlider("sLifters", "vLifters", v => v, "nLifters", false);
 bindSlider("sLiftH", "vLiftH", v => v.toFixed(2) + " m", "liftH", false);
+bindSlider("sFace", "vFace", v => v + "°", "faceAngle", false);
+bindSlider("sLiftW", "vLiftW", v => v.toFixed(2) + " m", "liftTop", false);
 bindSlider("sWear", "vWear", v => v === 0 ? "Off" : "×" + v, "wearMult", false);
 bindSlider("sMu", "vMu", v => v.toFixed(2), "mu", false);
 bindSlider("sRest", "vRest", v => v.toFixed(2), "rest", false);
@@ -1381,19 +1473,23 @@ document.getElementById("btnRelining").addEventListener("click", () => {
   updateWearUI();
 });
 
+// Each preset carries a liner to match the regime: a heavily relieved face barely
+// lifts the charge, while a near-square face is what throws a cataract.
 const PRESETS = {
-  slipping:     { speedPct: 38,  nLifters: 8,  liftH: 0.15 },
-  cascading:    { speedPct: 62,  nLifters: 16, liftH: 0.35 },
-  cataracting:  { speedPct: 80,  nLifters: 16, liftH: 0.45 },
-  centrifuging: { speedPct: 115, nLifters: 16, liftH: 0.35 },
+  slipping:     { speedPct: 38,  nLifters: 8,  liftH: 0.15, faceAngle: 35 },
+  cascading:    { speedPct: 62,  nLifters: 16, liftH: 0.35, faceAngle: 25 },
+  cataracting:  { speedPct: 80,  nLifters: 16, liftH: 0.45, faceAngle: 8 },
+  centrifuging: { speedPct: 115, nLifters: 16, liftH: 0.35, faceAngle: 25 },
 };
 document.querySelectorAll("button.preset").forEach(btn => {
   btn.addEventListener("click", () => {
     const p = PRESETS[btn.dataset.preset];
     state.speedPct = p.speedPct; state.nLifters = p.nLifters; state.liftH = p.liftH;
+    state.faceAngle = p.faceAngle;
     syncSlider("sSpeed", "vSpeed", p.speedPct, v => v + " %");
     syncSlider("sLifters", "vLifters", p.nLifters, v => v);
     syncSlider("sLiftH", "vLiftH", p.liftH, v => v.toFixed(2) + " m");
+    syncSlider("sFace", "vFace", p.faceAngle, v => v + "°");
     clearPresetActive();
     btn.classList.add("active");
     updateRegime();
