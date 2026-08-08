@@ -4,7 +4,9 @@
   "private": true,
   "description": "Whitmore Australia — terminal-native product and distributorship console",
   "scripts": {
+    "predev": "node scripts/stage-mill.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/stage-mill.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

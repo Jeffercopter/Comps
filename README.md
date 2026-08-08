@@ -1,3 +1,18 @@
+# Comps
+
+Two command-line-styled mining applications, deployed together.
+
+| App | What it is | Where it lives | Deployed at |
+| --- | --- | --- | --- |
+| **WHITMORE//AU** | Terminal console for the Australian lubricant distributorship proposal | Next.js app in `app/`, `components/`, `lib/` | `/` |
+| **DEM SAG Mill** | Single-file DEM simulator of a SAG mill cross-section, CMD edition | `index.html` (zero build, opens standalone) | `/mill` |
+
+`index.html` stays a standalone, dependency-free file — open it directly or serve
+it from anything. It is also copied into `public/mill/` at build time so the one
+Vercel deployment serves both apps. Full documentation: [`docs/sag-mill.md`](docs/sag-mill.md).
+
+---
+
 # WHITMORE//AU — Distributorship Console
 
 A terminal-native website for an Australian distributorship proposal covering the
@@ -40,10 +55,10 @@ and a telemetry panel (`hud on|off`) — all persisted to `localStorage`.
 
 | Layer    | Choice                                    |
 | -------- | ----------------------------------------- |
-| Framework| Next.js 14 (App Router), React 18, TypeScript |
+| Framework| Next.js 16 (App Router), React 19, TypeScript |
 | Styling  | Tailwind CSS with CSS-variable phosphor themes |
 | Data     | Supabase (Postgres + RLS)                 |
-| Hosting  | Vercel (`syd1` region)                    |
+| Hosting  | Vercel (no region pinned — see Deploying) |
 
 ### Layout
 

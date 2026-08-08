@@ -495,6 +495,38 @@ export const COMMANDS: Command[] = [
     ),
   },
   {
+    name: 'mill',
+    usage: 'mill',
+    aliases: ['sag', 'dem'],
+    summary: 'Open the DEM SAG mill simulator deployed alongside this console.',
+    group: 'system',
+    run: () => (
+      <div className="max-w-[92ch]">
+        <Head>dem sag mill · cmd edition</Head>
+        <p className="max-w-[86ch]">
+          A second application ships from this deployment: an interactive discrete-element
+          simulation of a SAG mill cross-section — cascading, cataracting and centrifuging regimes,
+          power draw, ball charge and liner wear, with live mill geometry.
+        </p>
+        <div className="mt-2">
+          <a
+            href="/mill"
+            className="border border-phos-hot/60 px-2 py-1 text-phos-hot hover:bg-phos-hot/10"
+          >
+            ▸ launch /mill
+          </a>
+        </div>
+        <div className="mt-2 text-[12px]">
+          <Dim>
+            Relevance to this proposal: liner face angle sets where impact energy lands, and the
+            same conversation about wear rate and shut duration is the one the open gear lubricant
+            programme is sold into. Run <Cmd cmd="dragline" /> for the lubrication side.
+          </Dim>
+        </div>
+      </div>
+    ),
+  },
+  {
     name: 'matrix',
     usage: 'matrix',
     summary: 'Do not run this.',
