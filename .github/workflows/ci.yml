@@ -1,0 +1,33 @@
+name: CI
+
+# Builds the site the way a fresh Vercel deploy does: no Supabase environment
+# variables at all. The console must fall back to the bundled catalogue and
+# still build, so this is the condition worth guarding.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build without Supabase configured
+        run: npm run build

@@ -1,176 +1,173 @@
-# DEM Simulator — SAG Mill (CMD Edition)
+# Comps
 
-Interactive Discrete Element Method (DEM) simulator of the cross-section of a SAG
-mill. Built as a visual tool for explaining grinding phenomena: cascading,
-cataracting, centrifuging, the effect of the lifters, the shoulder and toe of the
-charge, and the power curve.
+Two command-line-styled mining applications, deployed together.
 
-The mill geometry is dynamic — shell diameter and grinding length are live
-controls, and everything downstream derives from them.
+| App | What it is | Where it lives | Deployed at |
+| --- | --- | --- | --- |
+| **WHITMORE//AU** | Terminal console for the Australian lubricant distributorship proposal | Next.js app in `app/`, `components/`, `lib/` | `/` |
+| **DEM SAG Mill** | Single-file DEM simulator of a SAG mill cross-section, CMD edition | `index.html` (zero build, opens standalone) | `/mill` |
 
-This is an English translation and re-skin of
-[luchoplaza/DEM_SAG](https://github.com/luchoplaza/DEM_SAG) by Luis Plaza A.
-All the interface text, in-canvas labels and source comments are in English, and
-the whole app is rendered in the classic Windows command-prompt colour scheme —
-the 16 legacy console colours on a black background, in a monospace face, with
-square borders and inverse-video selected states.
+`index.html` stays a standalone, dependency-free file — open it directly or serve
+it from anything. It is also copied into `public/mill/` at build time so the one
+Vercel deployment serves both apps. Full documentation: [`docs/sag-mill.md`](docs/sag-mill.md).
 
-**One file, zero dependencies, zero build.** Everything (physics, render, UI)
-lives in `index.html`.
+---
 
-## How to run it
+# WHITMORE//AU — Distributorship Console
 
-Either of these:
+A terminal-native website for an Australian distributorship proposal covering the
+Whitmore mining lubricant range: open gear lubricants (OGL), enclosed gearbox
+oils, extreme-pressure greases and the dragline package — organised around one
+commercial argument, **off asphaltics, onto synthetics**.
 
-```bash
-# 1. Open it directly (double-click works too)
-xdg-open index.html
+The whole site is a command console. There are no pages to click through; the
+product catalogue, the business plan, the comparison table and an interactive
+conversion model are all reached by typing.
 
-# 2. Local server
-python3 -m http.server 8000   # → http://localhost:8000
+---
+
+## Try it
+
+```
+help                 every command, grouped
+compare              asphaltic vs synthetic, dimension by dimension
+products             the full range
+spec surtac-2000     one product, full technical sheet
+dragline             the machine, point by point, with the four product lines
+roi                  interactive conversion model — move the assumptions
+plan                 the business plan, section by section
+au                   the Australian distributorship structure
+stock                stocking plan by launch priority
+sources              where the data came from, and what it is not
 ```
 
-## The palette
+`TAB` completes (to the longest common prefix, like a real shell), `↑`/`↓`
+recall history, `CTRL+L` clears, and any highlighted token in the output is
+clickable. `?cmd=compare` on the URL runs a command on load, so any view is
+linkable.
 
-Every colour in the app — panels, sliders, particles, charts, the mill itself —
-comes from the 16-colour console palette:
+Three phosphor themes (`theme amber|green|ice`), CRT emulation (`crt on|off`)
+and a telemetry panel (`hud on|off`) — all persisted to `localStorage`.
 
-| # | Name | Hex | Used for |
-|---|---|---|---|
-| 0 | Black | `#000000` | background, mill interior |
-| 7 | White | `#c0c0c0` | body text, shell, steel balls |
-| 8 | Gray | `#808080` | borders, muted text, cold particles |
-| A | Light green | `#00ff00` | centre of mass, shoulder marker |
-| B | Light aqua | `#00ffff` | headings, power curve, toe marker |
-| C | Light red | `#ff0000` | critical impacts, fully worn lifters |
-| E | Light yellow | `#ffff00` | accent, ore particles, rotation arrow |
+---
 
-Continuous gradients from the original (speed ramp, impact histogram, particle
-heat) are quantised into steps of this palette, so the render reads like a
-text-mode screen.
+## Stack
 
-## Deployment
+| Layer    | Choice                                    |
+| -------- | ----------------------------------------- |
+| Framework| Next.js 16 (App Router), React 19, TypeScript |
+| Styling  | Tailwind CSS with CSS-variable phosphor themes |
+| Data     | Supabase (Postgres + RLS)                 |
+| Hosting  | Vercel (no region pinned — see Deploying) |
 
-Being a static file with no dependencies, it deploys in seconds:
+### Layout
 
-| Platform | How |
-|---|---|
-| **GitHub Pages** | Push the repo → Settings → Pages → main branch |
-| **Netlify / Vercel** | Drag the folder onto the dashboard |
-| **Intranet / SharePoint** | Copy `index.html` to any file server |
-| **Offline** | Email the file; it opens offline in any browser |
+```
+app/                 layout, page, global CSS, icon
+components/          Console (shell), Hud, Backdrop (canvas), Roi, Enquiry, renderers
+lib/data/            product catalogue + business plan (bundled seed)
+lib/terminal/        command registry, completion, ASCII art
+lib/supabase.ts      client with automatic fallback to the bundled seed
+supabase/schema.sql  tables, RLS policies, triggers
+scripts/seed-supabase.mjs  loads the catalogue into Supabase
+```
 
-## Physics implemented
+The catalogue is fetched server-side on request (`revalidate = 3600`). If
+Supabase is unconfigured, unreachable or empty, the console serves the bundled
+seed and says so in the status bar and in `status` — it never renders empty.
 
-- **Linear spring-dashpot contact** (kn = 3×10⁶ N/m) with damping derived from
-  the coefficient of restitution.
-- **Coulomb friction** (tangential viscous, capped at μ·Fn).
-- **Semi-implicit Euler integration** with 10 substeps per frame
-  (Δt ≈ 1.7 ms), in real time.
-- **Spatial hashing** for O(N) neighbour search.
-- **Lifters** modelled as trapezoidal bars that rotate with the shell: the base
-  sits on the shell and is the wider edge, and both faces lean back by the face
-  angle, so the base half-width is `top/2 + height × tan(face)`. Contact is
-  circle-versus-convex-polygon (closest point plus outward normal, with an
-  inside case that pushes out through the shallowest face), so the face angle
-  genuinely sets where the charge is released rather than scaling a bar.
-- **Archard-type lifter wear** (abrasion from friction + impacts, with steel
-  balls wearing them faster), which can be accelerated up to ×500 to see it in
-  ~1–2 minutes. With a worn profile the shoulder drops and the cataract
-  shortens, but the power does not fall: worse grinding at the same energy cost.
-- Two species: ore (ρ = 2700 kg/m³) and steel balls (ρ = 7800 kg/m³, ~1.45× the
-  radius).
-- Real SI units; particles are at ~10× scale (and scale with the mill diameter) so
-  the simulation runs at 60 fps in the browser (up to ~2600 particles).
+---
 
-## Dynamic geometry
+## Running locally
 
-Diameter D (3–14 m) and grinding length L (1.5–14 m) are live sliders rather than
-hard-coded constants. Changing them re-derives:
+```bash
+npm install
+npm run dev            # http://localhost:3000
+```
 
-| Quantity | How it follows the geometry |
-|---|---|
-| Critical speed | Nc = 42.3/√D — a 14 m mill turns at 11.3 rpm, a 3 m mill at 24.4 rpm |
-| Charge | Rebuilt for the new mill area; Jc and Jb stay volumetric fractions |
-| Particle size | Scales with D, so the particle count — and the frame rate — stay constant |
-| View | Reframed to the new radius |
-| Power | The 2D slice gives kW per metre; L scales it to a whole-mill total in kW |
+No environment variables are required to run. Supabase is optional.
 
-Power follows D^2.5 as theory predicts (charge mass ∝ D², lever arm ∝ D, speed
-∝ D^−0.5): the default 8 m × 4 m mill at 72% Nc draws ~4.2 MW, and going to 14 m
-at the same relative speed and filling takes it to ~17 MW.
+```bash
+npm run build          # production build
+npm run typecheck      # tsc --noEmit
+```
 
-Two caveats the model makes no attempt to hide: L is a pure scale factor, since
-the simulated cross-section is identical at any length (no end effects, no axial
-transport), and critical impacts are reported per metre of slice rather than
-scaled up.
+---
 
-## Interactive variables
+## Deploying
 
-- Shell diameter D and grinding length L, live
-- Speed (% of critical, Nc = 42.3/√D), live
-- Charge filling Jc (10–45%)
-- Ball filling Jb (0–30% of the mill)
-- Particle size
-- Number, height, face angle (0–35°) and top width of lifters, live
-- Accelerated liner wear (×0–500) with a reline button
-- Friction μ and restitution e, live
+### Vercel (Supabase not required)
 
-## Outputs that explain the phenomena
+The console renders completely with no environment variables at all — it falls
+back to the bundled catalogue and reports that in the status bar. So the fastest
+path is to deploy first and wire Supabase up later, or never.
 
-- **Regime badge** with an explanation of the current phenomenon
-- **Power draw** (P = τ·ω from the reaction torque on the shell) — shows the
-  maximum around 80% Nc and the drop when centrifuging
-- **Impact energy spectrum** (log histogram) — separates abrasion from impact
-- **Shoulder and toe** of the charge, detected automatically
-- **Wear profile per lifter** (bars of remaining height) with a teaching note
-  based on the level
-- Colour modes: type, speed, recent impact energy
-- Trajectories and velocity vectors
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FJeffercopter%2FComps)
 
-## Lifter face angle
+Or from the dashboard: **Add New → Project → import `Jeffercopter/Comps`**.
+Vercel detects Next.js on its own; accept every default and deploy. Set the
+production branch under Settings → Git if you want it tracking a branch other
+than `main`.
 
-The face angle is measured from the radial and is the parameter that sets the
-release point, so it is the one worth playing with. At 80% of critical speed,
-with everything else held constant:
+From the CLI:
 
-| Face angle | Shoulder | Critical impacts | What you see |
-|---|---|---|---|
-| 0° (square) | ~85° | ~16–24 /s·m | The bar carries the charge to a high shoulder and throws it past the toe onto bare liner |
-| 35° (relieved) | ~60° | ~0 /s·m | The charge rolls off the face early and lands back inside the charge |
+```bash
+npx vercel link
+npx vercel --prod
+```
 
-Power barely moves between the two (~4.4 vs ~4.5 MW): the face angle changes
-*where* the energy is delivered, not how much is drawn. That is the whole liner
-design argument in one slider.
+No region is pinned in `vercel.json`, because pinning one is restricted to Pro
+and Enterprise plans and will fail a Hobby deploy. On a paid plan, add
+`"regions": ["syd1"]` to put the functions next to the audience.
 
-Wear relieves the face as well as lowering the bar — up to 20° of extra relief
-at full wear — so a worn liner releases earlier and shortens the cataract even
-before the height is gone.
+### 1. Supabase (optional)
 
-## Presets
+Create a project, then in the SQL editor run [`supabase/schema.sql`](supabase/schema.sql).
+It creates:
 
-`Slipping` (38% Nc, 35° face) · `Cascading` (62%, 25°) · `Cataracting` (80%, 8°) ·
-`Centrifuging` (115%, 25°) — each preset carries the liner that suits the regime.
+- `products` — public **read-only** under RLS. Writes are reserved for the
+  service role, which bypasses RLS; no anon write policy exists.
+- `enquiries` — anon **insert-only**. The public console can lodge a lead but
+  deliberately has no `select` policy, so it cannot read the lead list back.
 
-## Differences from the original
+Then load the catalogue:
 
-- All text in English (UI, regime descriptions, teaching notes, code comments).
-- Command-prompt colour scheme and monospace typography throughout, including
-  the canvas render.
-- The original's Google Analytics tag and its event-tracking calls were removed,
-  along with the `canonical` / `og:url` tags and the sitemap pointing at the
-  original deployment.
-- One behaviour fix: clicking a regime preset now refreshes the rpm / % critical
-  speed readout in the HUD (in the original those two tiles kept the previous
-  value until a slider was moved).
-- Dynamic geometry: the original was fixed at D = 8 m with power reported per
-  metre of mill length. Diameter and grinding length are now live controls and
-  the HUD reports whole-mill kW. The contact law, integrator, spatial hash and
-  wear model are unchanged — the geometry is parametrised around them, not
-  reformulated.
+```bash
+export NEXT_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co
+export SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
+npm run seed
+```
 
-## Credits
+The service role key is server-side only. Keep it out of the repo and out of any
+`NEXT_PUBLIC_*` variable.
 
-Original simulator and physics model: **Luis Plaza A.**
-([@luchoplaza](https://github.com/luchoplaza) ·
-[LinkedIn](https://www.linkedin.com/in/lplazaalvarez/)).
+### 2. Point the deployment at it
+
+```bash
+npx vercel env add NEXT_PUBLIC_SUPABASE_URL
+npx vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
+npx vercel --prod
+```
+
+Or add the same two variables under Project → Settings → Environment Variables
+and redeploy. Only the two `NEXT_PUBLIC_*` values belong on Vercel — the service
+role key is for the local seed script and nothing else.
+
+Run `status` in the console afterwards to confirm it flipped from
+`bundled seed (local)` to `supabase (live)`.
+
+---
+
+## On the data
+
+Product information was compiled from publicly indexed Whitmore product pages,
+technical data sheets and authorised distributor listings. Direct access to
+`whitmores.com` was not available from the build environment, so **figures should
+be verified against the current manufacturer technical data sheet before being
+quoted to a customer**. Run `sources` in the console for the reference list.
+
+This is an independent distributorship proposal. It is not a manufacturer
+publication and is not endorsed by Whitmore or CSW Industrials. Australian launch
+positioning, product priorities and all commercial framing are our own
+interpretation, not manufacturer claims. The ROI model is a model — every input
+is an assumption a customer should be invited to argue with.
