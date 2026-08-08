@@ -1,0 +1,96 @@
+name: Deploy to Vercel
+
+# Deploys from a GitHub runner rather than the Vercel Git integration, so the
+# deployment can be triggered and watched from here.
+#
+# Required repository secret:
+#   VERCEL_TOKEN  — https://vercel.com/account/tokens (scope: Full Account)
+#
+# Optional, to deploy into an existing Vercel project instead of creating one:
+#   VERCEL_ORG_ID, VERCEL_PROJECT_ID — from that project's .vercel/project.json
+#
+# If you would rather not mint a token at all, use the Vercel Git integration
+# instead (vercel.com/new → import this repo) and delete this workflow. Both
+# paths work; running both just means two deployments of the same commit.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Deploy to production or a preview URL
+        type: choice
+        options: [production, preview]
+        default: production
+
+concurrency:
+  group: deploy-vercel
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the token is present
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "::error::VERCEL_TOKEN is not set."
+            echo "Create a token at https://vercel.com/account/tokens, then add it under"
+            echo "Settings -> Secrets and variables -> Actions -> New repository secret,"
+            echo "named exactly VERCEL_TOKEN. Then re-run this workflow."
+            exit 1
+          fi
+
+      - name: Deploy
+        id: deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          set -o pipefail
+          FLAGS="--yes --token=$VERCEL_TOKEN"
+          if [ "${{ inputs.environment }}" = "production" ]; then
+            FLAGS="$FLAGS --prod"
+          fi
+
+          # Vercel builds the app itself; prebuild stages public/mill there too.
+          npx --yes vercel@latest deploy $FLAGS 2>&1 | tee deploy.log
+
+          URL=$(grep -oE 'https://[a-zA-Z0-9.-]*\.vercel\.app' deploy.log | tail -1)
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+      - name: Report the URL
+        run: |
+          URL="${{ steps.deploy.outputs.url }}"
+          {
+            echo "## Deployed"
+            echo ""
+            if [ -n "$URL" ]; then
+              echo "- Console: $URL"
+              echo "- SAG mill simulator: $URL/mill"
+            else
+              echo "Deployment finished but no URL was parsed from the CLI output."
+              echo "Check the Deploy step log, or the Vercel dashboard."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Smoke-test both routes
+        if: steps.deploy.outputs.url != ''
+        run: |
+          URL="${{ steps.deploy.outputs.url }}"
+          fail=0
+          for path in "" "/mill"; do
+            # A production alias can take a moment to propagate.
+            for attempt in 1 2 3 4 5; do
+              code=$(curl -sS -o /dev/null -w '%{http_code}' -L --max-time 30 "$URL$path" || echo 000)
+              [ "$code" = "200" ] && break
+              sleep 5
+            done
+            echo "$URL$path -> $code"
+            [ "$code" = "200" ] || fail=1
+          done
+          exit $fail

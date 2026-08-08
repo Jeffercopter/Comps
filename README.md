@@ -116,6 +116,17 @@ npx vercel link
 npx vercel --prod
 ```
 
+Or deploy from CI, which is useful when whoever is driving the deploy cannot
+reach `api.vercel.com` directly. Add a
+[Vercel token](https://vercel.com/account/tokens) as a repository secret named
+`VERCEL_TOKEN`, then run the **Deploy to Vercel** workflow under the Actions
+tab. It deploys, prints the URL to the job summary and smoke-tests `/` and
+`/mill`. Set `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` as well to target an
+existing project rather than creating one.
+
+Pick one path or the other. The Git integration and the workflow both work;
+running both simply deploys the same commit twice.
+
 No region is pinned in `vercel.json`, because pinning one is restricted to Pro
 and Enterprise plans and will fail a Hobby deploy. On a paid plan, add
 `"regions": ["syd1"]` to put the functions next to the audience.
