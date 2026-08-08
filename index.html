@@ -991,8 +991,8 @@ if (typeof ResizeObserver !== "undefined") new ResizeObserver(resize).observe(ca
 
 function W2S(x, y) { return [view.cx + x * view.scale, view.cy - y * view.scale]; }
 
-// Fill a world-space polygon (used for the lifter bars).
-function fillPoly(pts, fill) {
+// Fill a world-space polygon (used for the lifter bars), optionally edged.
+function fillPoly(pts, fill, stroke) {
   ctx.fillStyle = fill;
   ctx.beginPath();
   for (let i = 0; i < pts.length; i++) {
@@ -1001,6 +1001,11 @@ function fillPoly(pts, fill) {
   }
   ctx.closePath();
   ctx.fill();
+  if (stroke) {
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
 }
 
 // Console palettes have no gradients, so the speed scale steps through the ramp.
@@ -1009,9 +1014,20 @@ function speedColor(v, vmax) {
   return SPEED_RAMP[Math.min(SPEED_RAMP.length - 1, Math.floor(t * SPEED_RAMP.length))];
 }
 
-// Lifter colour: console gray when new (so it reads against the white shell),
-// stepping to red once fully worn.
+// Lifter colour: a fresh bar is black — mill liners are black rubber or dark
+// cast steel — warming to red as the profile is worn away. The bars carry a
+// light edge so the trapezoid still reads against the dark mill interior.
+const LIFTER_EDGE = "rgba(192,192,192,0.55)";
 function lifterColor(wk) {
+  const r = Math.round(12 + 243 * wk);
+  const g = Math.round(12 - 12 * wk);
+  const b = Math.round(16 - 16 * wk);
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+// The wear chart sits on a dark panel, so its bars keep a light-to-red ramp
+// instead of going black along with the liner itself.
+function wearBarColor(wk) {
   const r = Math.round(128 + 127 * wk);
   const g = Math.round(128 - 128 * wk);
   const b = Math.round(128 - 128 * wk);
@@ -1059,7 +1075,7 @@ function draw() {
     }
     const prof = lifterProfile(k, th);
     if (prof === null) continue;
-    fillPoly(prof.pts, lifterColor(wk));
+    fillPoly(prof.pts, lifterColor(wk), LIFTER_EDGE);
   }
 
   // trajectories
@@ -1325,7 +1341,7 @@ function drawWearChart() {
     const wk = state.lifterWear[k];
     // bar = remaining lifter height; what was lost stays as a gap on top
     const bh = (1 - wk) * (h - 4);
-    g.fillStyle = lifterColor(wk);
+    g.fillStyle = wearBarColor(wk);
     g.fillRect(k * bw + 1, h - 2 - bh, Math.max(bw - 2, 1), bh);
   }
 }
