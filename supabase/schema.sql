@@ -81,6 +81,43 @@ create policy "anyone may lodge an enquiry"
 -- Deliberately no select policy on enquiries: the public console can write a
 -- lead but cannot read the lead list back.
 
+-- ── vtm_runs ────────────────────────────────────────────────────────────────
+-- Audit trail for the VTM tower mill power model (/api/vtm). One row per
+-- calculation, written server-side. Insert-only for anon/authenticated: the
+-- public site can log a run but can never read the usage history back —
+-- mirroring the enquiries posture.
+create table if not exists public.vtm_runs (
+  id                uuid primary key default gen_random_uuid(),
+  user_id           uuid,
+  mode              text not null check (mode in ('frame', 'custom')),
+  family            text not null check (family in ('VTM', 'JETM')),
+  model             text,
+  units             smallint not null default 1,
+  d_m               numeric not null,
+  h_m               numeric not null,
+  s_m               numeric not null,
+  rpm               numeric not null,
+  tph               numeric,
+  se_kwht           numeric,
+  p_avg_kw          numeric not null,
+  expected_shaft_kw numeric not null,
+  created_at        timestamptz not null default now()
+);
+
+create index if not exists vtm_runs_created_idx on public.vtm_runs (created_at desc);
+create index if not exists vtm_runs_user_idx on public.vtm_runs (user_id);
+
+alter table public.vtm_runs enable row level security;
+
+drop policy if exists "anyone may log a vtm run" on public.vtm_runs;
+create policy "anyone may log a vtm run"
+  on public.vtm_runs for insert
+  to anon, authenticated
+  with check (true);
+
+-- Deliberately no select policy on vtm_runs: usage history is read with the
+-- service role only.
+
 -- ── updated_at maintenance ──────────────────────────────────────────────────
 create or replace function public.touch_updated_at()
 returns trigger

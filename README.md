@@ -6,10 +6,16 @@ Two command-line-styled mining applications, deployed together.
 | --- | --- | --- | --- |
 | **WHITMORE//AU** | Terminal console for the Australian lubricant distributorship proposal | Next.js app in `app/`, `components/`, `lib/` | `/` |
 | **DEM SAG Mill** | Single-file DEM simulator of a SAG mill cross-section, CMD edition | `index.html` (zero build, opens standalone) | `/mill` |
+| **VTM//TOWER** | Tower mill (VTM/JETM) power model — server-side calculation engine, UI shell client | `app/vtm/`, `app/api/vtm/`, `lib/vtm/` | `/vtm` |
 
 `index.html` stays a standalone, dependency-free file — open it directly or serve
 it from anything. It is also copied into `public/mill/` at build time so the one
 Vercel deployment serves both apps. Full documentation: [`docs/sag-mill.md`](docs/sag-mill.md).
+
+`/vtm` keeps its proprietary maths (calibrated coefficients + the 82-installation
+benchmark database) in server-only modules behind a serverless API route — the
+browser bundle carries the form and the renderer, nothing else. Full
+documentation: [`docs/vtm-tower-model.md`](docs/vtm-tower-model.md).
 
 ---
 
