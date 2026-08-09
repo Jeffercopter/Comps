@@ -45,12 +45,14 @@ export async function POST(req: NextRequest) {
   try {
     const result = evaluate(body)
 
-    // Audit trail: best-effort, never blocks or fails the calculation.
+    // Audit trail: best-effort — an insert failure never fails the
+    // calculation. Awaited rather than fire-and-forget because a serverless
+    // function can be frozen as soon as the response returns, which would
+    // drop an un-awaited insert.
     const supabase = getSupabase()
     if (supabase) {
-      void supabase
-        .from('vtm_runs')
-        .insert({
+      try {
+        const { error: insertError } = await supabase.from('vtm_runs').insert({
           user_id: userId,
           mode: body.mode === 'frame' ? 'frame' : 'custom',
           family: result.family,
@@ -65,9 +67,10 @@ export async function POST(req: NextRequest) {
           p_avg_kw: result.perUnit.pAvgKW,
           expected_shaft_kw: result.perUnit.expectedShaftKW,
         })
-        .then(({ error }) => {
-          if (error) console.warn('vtm_runs insert failed:', error.message)
-        })
+        if (insertError) console.warn('vtm_runs insert failed:', insertError.message)
+      } catch (logErr) {
+        console.warn('vtm_runs insert failed:', logErr)
+      }
     }
 
     return NextResponse.json(result)

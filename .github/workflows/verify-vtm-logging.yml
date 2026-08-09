@@ -1,0 +1,80 @@
+name: Verify VTM run logging
+
+# End-to-end check that /api/vtm audit logging works on the deployed site:
+#
+#   1. POSTs a marker calculation (distinctive custom geometry) to the live
+#      /api/vtm and asserts a successful model result.
+#   2. Queries vtm_runs over the direct Postgres connection and asserts a row
+#      with that marker geometry landed in the last few minutes.
+#
+# Manual trigger only, like the other Supabase workflows — the development
+# environment can reach neither the site nor the database; the runner can.
+#
+# Required repository secret: SUPABASE_DB_URL (same as apply-schema.yml).
+
+on:
+  workflow_dispatch:
+    inputs:
+      site_url:
+        description: 'Base URL of the deployed site'
+        required: true
+        default: 'https://cmdconsulting.ai'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      # Marker geometry: valid inputs, unlikely to collide with a real run.
+      MD: '4.44'
+      MH: '6.66'
+      MS: '1.11'
+      MRPM: '21.5'
+    steps:
+      - name: Verify secret is present
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$DB_URL" ]; then
+            echo "::error::SUPABASE_DB_URL secret is not set."
+            exit 1
+          fi
+
+      - name: Fire marker calculation at the live API
+        env:
+          SITE: ${{ inputs.site_url }}
+        run: |
+          body=$(printf '{"mode":"custom","family":"VTM","D":%s,"H":%s,"S":%s,"rpm":%s,"units":1}' "$MD" "$MH" "$MS" "$MRPM")
+          resp=$(curl -sS --max-time 30 -w '\n%{http_code}' -X POST "${SITE%/}/api/vtm" \
+            -H 'content-type: application/json' -d "$body")
+          code=$(echo "$resp" | tail -n1)
+          json=$(echo "$resp" | sed '$d')
+          echo "HTTP $code"
+          echo "$json"
+          if [ "$code" != "200" ]; then
+            echo "::error::POST ${SITE%/}/api/vtm returned HTTP $code — is the site URL right and the deploy live?"
+            exit 1
+          fi
+          echo "$json" | grep -q '"pAvgKW"' || { echo "::error::Response is not a model result."; exit 1; }
+
+      - name: Confirm the run was logged
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          sleep 5
+          n=$(psql "$DB_URL" -t -A --set ON_ERROR_STOP=1 -c \
+            "select count(*) from public.vtm_runs
+             where mode = 'custom' and family = 'VTM'
+               and d_m = $MD and h_m = $MH and s_m = $MS and rpm = $MRPM
+               and created_at > now() - interval '15 minutes'")
+          total=$(psql "$DB_URL" -t -A --set ON_ERROR_STOP=1 -c "select count(*) from public.vtm_runs")
+          echo "marker rows in last 15 min: $n · total vtm_runs rows: $total"
+          if [ "$n" -lt 1 ]; then
+            echo "::error::The API responded but no vtm_runs row landed. Check NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY on the Vercel deployment, and that the deploy includes the awaited-insert fix."
+            exit 1
+          fi
+          {
+            echo "### VTM run logging verified"
+            echo ""
+            echo "- Marker calculation accepted by \`${{ inputs.site_url }}/api/vtm\`"
+            echo "- Logged row found in \`vtm_runs\` ($n marker row(s), $total total rows)"
+          } >> "$GITHUB_STEP_SUMMARY"
