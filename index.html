@@ -462,6 +462,31 @@
 
 
     <div class="card">
+      <h2>Power check · empirical models</h2>
+      <div class="ctrl">
+        <div class="row"><span>DEM (this simulation)</span><span class="val" id="vDem">0 kW</span></div>
+        <div class="row"><span>Morrell (1993)</span><span class="val" id="vMorrell">—</span></div>
+        <div class="row"><span>Austin (1990)</span><span class="val" id="vAustin">—</span></div>
+        <div class="row"><span>DEM vs Morrell</span><span class="val" id="vDelta">—</span></div>
+        <div class="row"><span>Charge density</span><span class="val" id="vRhoC">—</span></div>
+      </div>
+      <div class="ctrl">
+        <div class="row"><span>Slurry solids (% by weight)</span><span class="val" id="vSlurry">100 %</span></div>
+        <input type="range" id="sSlurry" min="50" max="100" step="1" value="100">
+        <footer-note style="margin-top:2px">100% = dry, which is what the DEM simulates. Dial it down to see what the empirical models predict once slurry is carried in the charge.</footer-note>
+      </div>
+      <div class="ctrl">
+        <div class="row"><span>Discharge</span></div>
+        <select id="dischargeType">
+          <option value="grate">Grate</option>
+          <option value="overflow">Overflow</option>
+        </select>
+      </div>
+      <footer-note style="margin-top:8px">Both models are evaluated on the mill the DEM is running — same D, L, % critical, Jc, Jb and densities — as an independent reference for the torque-derived number. Cylinder only: no cone ends, since the simulated cross-section has none.</footer-note>
+      <footer-note style="margin-top:6px">Morrell tracks the DEM to within a few per cent across the range. Austin, with the constant as supplied, sits about 1.7&times; Morrell — treat it as unc­alibrated rather than as a second opinion. On overflow, Morrell applies a fixed-toe correction and drops sharply; the DEM has no slurry pool and cannot reproduce that, so compare on grate.</footer-note>
+    </div>
+
+    <div class="card">
       <h2>Charts</h2>
       <div class="chart-label">Power draw (kW, whole mill)</div>
       <canvas class="chart" id="chartPower"></canvas>
@@ -558,6 +583,8 @@ const state = {
   lifterWear: new Float32Array(MAX_LIFTERS), // fraction of height lost per lifter
   mu: 0.1,
   rest: 0.3,
+  slurrySolids: 100,        // % solids by weight for the empirical check; 100 = dry, as simulated
+  dischargeType: "grate",   // grate | overflow, for the Morrell toe correction
   theta: 0,            // shell angle
   paused: false,
   colorMode: "type",
@@ -1428,6 +1455,107 @@ function updateWearUI() {
   }
 }
 
+// ---------- Empirical power check ----------
+// Morrell (1993) and Austin (1990) evaluated on the same mill the DEM is running,
+// as an independent reference for the torque-derived number. Ported from the
+// Mill Power Calculator, with two corrections needed to make the reference
+// trustworthy (both flagged in the README):
+//   1. solids by volume divides by SG, it does not multiply by it;
+//   2. the sheet mixes a fraction into formulas written for percent.
+// The comparison is deliberately cylinder-only — no cone ends, since the
+// simulated cross-section has none — and defaults to dry, since the DEM has no
+// slurry phase. Both are stated in the panel rather than hidden.
+function empiricalPower() {
+  const D = MILL.D;                  // the simulated shell is the liner face
+  const L = MILL.L;
+  const fcs = state.speedPct / 100;
+  const Jt = state.fillPct / 100;
+  const Jb = Math.min(state.ballPct, state.fillPct) / 100;
+  const SGo = state.rhoOre / 1000;
+  const SGb = state.rhoBall / 1000;
+  const SGl = 1.0;
+  const sW = state.slurrySolids / 100;
+
+  // solids by volume from solids by weight
+  const sv = (sW / SGo) / ((sW / SGo) + (1 - sW) / SGl);
+  const slurrySG = sv * SGo + (1 - sv) * SGl;
+
+  const V = Math.PI * (D / 2) * (D / 2) * L;
+  const voidFill = 1.0;                       // slurry fills the bed voids
+  const mBalls = Jb * V * 0.6 * SGb;
+  const mOre = SGo * V * (Jt * (0.6 + 0.4 * sv * voidFill) - Jb * 0.6);
+  const mLiq = Jt * V * 0.4 * voidFill * (1 - sv) * SGl;
+  const chargeVol = (mOre / SGo + mBalls / SGb) / (0.6 + 0.4 * sv * voidFill);
+  const rhoC = chargeVol > 0 ? (mBalls + mOre + mLiq) / chargeVol : 0;   // t/m³
+
+  const R = D / 2;
+  const rpm = fcs * 30 / Math.PI * Math.sqrt(9.81 / R);
+  if (!(rpm > 0) || !(rhoC > 0)) return null;
+
+  // toe and shoulder angles
+  const tc = 0.35 * (3.364 - Jt) - fcs;
+  const t = tc < 0 ? Math.PI / 2
+                   : (2.5307 * (1.2796 - Jt)) * (1 - Math.exp(-19.42 * tc)) + Math.PI / 2;
+  const s = 1.57 - ((t - 1.57) * ((0.3386 + 0.1041 * fcs) + (1.54 - 2.5673 * fcs) * Jt));
+
+  const z = Math.pow(1 - Jt, 0.4532);
+  const ali = Math.sqrt(Math.max(0, 1 - (2 * Math.PI * Jt) / (2 * Math.PI + s - t)));
+  const rev = (2 * Math.PI + s - t) / (2 * Math.PI) * 60 / (rpm / 2);
+  const alf = rev / (Math.sqrt(Math.max(0, R * (1 + ali) * (Math.sin(s) - Math.sin(t)) / 9.81)) + rev);
+  const ri = R * Math.sqrt(Math.max(0, 1 - (2 * Math.PI * alf * Jt) / (2 * Math.PI + s - t)));
+
+  const tOver = state.dischargeType === "overflow" ? 3.395 : t;
+  let overflowCorr = 0;
+  if (state.dischargeType === "overflow" && tOver <= t) {
+    overflowCorr = (2 * Math.PI * 9.81 * L * slurrySG * rpm / 60) *
+      ((Math.pow(R, 3) / 2 * (1 - Jt)) + (Jt / 3 * Math.pow(R, 3)) -
+       (ri * ri * R * (1 - Jt) / 2) - (Jt * Math.pow(ri, 3) / 3)) *
+      (Math.sin(t) - Math.sin(tOver));
+  }
+
+  let ke = 0;
+  if (t !== Math.PI / 2) {
+    ke = L * rhoC * Math.pow(Math.PI * rpm / 60 * R / (R - z * ri), 3) *
+         (Math.pow(R - z * ri, 4) - Math.pow((1 - z) * ri, 4));
+  }
+
+  const netTheo = (Math.PI * 9.81 * L * rhoC * rpm * R / 60) *
+    (2 * Math.pow(R, 3) - 3 * z * ri * R * R + (3 * z - 2) * Math.pow(ri, 3)) /
+    (3 * (R - z * ri)) * (Math.sin(s) - Math.sin(t)) + overflowCorr + ke;
+
+  const net = netTheo * 1.26;                                   // Morrell calibration
+  const noLoad = 1.68 * Math.pow(L * Math.pow(D, 2.5) * fcs, 0.82);
+  const morrell = net + noLoad;
+
+  const austinSpeed = 1 - (0.1 / Math.pow(2, 9 - 10 * fcs));
+  const austin = Math.pow(D, 2.5) * L * (1 - Jt) * (rhoC * 1000) * fcs * austinSpeed * 0.0045;
+
+  return {
+    morrell: morrell, morrellNet: net, noLoad: noLoad, austin: austin,
+    rhoC: rhoC, shoulderDeg: s * 180 / Math.PI, toeDeg: t * 180 / Math.PI,
+  };
+}
+
+let lastDemKW = 0;   // most recent DEM power, so the panel can refresh while paused
+function updateEmpirical(demKW) {
+  if (demKW === undefined || demKW === 0) demKW = lastDemKW; else lastDemKW = demKW;
+  const e = empiricalPower();
+  const set = (id, txt) => { document.getElementById(id).textContent = txt; };
+  if (!e) {
+    set("vMorrell", "—"); set("vAustin", "—"); set("vDelta", "—"); set("vRhoC", "—");
+    return;
+  }
+  set("vMorrell", e.morrell.toFixed(0) + " kW");
+  set("vAustin", e.austin.toFixed(0) + " kW");
+  set("vRhoC", e.rhoC.toFixed(2) + " t/m³");
+  if (demKW > 0 && e.morrell > 0) {
+    const d = (demKW - e.morrell) / e.morrell * 100;
+    set("vDelta", (d >= 0 ? "+" : "") + d.toFixed(0) + " %");
+  } else {
+    set("vDelta", "—");
+  }
+}
+
 // ---------- Regime ----------
 const REGIMES = [
   { max: 50, t: "Slipping / incipient cascading",
@@ -1458,6 +1586,7 @@ function bindSlider(id, valId, fmt, key, rebuild, after) {
     if (rebuild) buildCharge();
     if (key === "speedPct") { updateRegime(); clearPresetActive(); }
     if (after) after();
+    updateEmpirical();
     updateHud();
   });
   lab.textContent = fmt(parseFloat(el.value));
@@ -1494,8 +1623,13 @@ bindSlider("sFace", "vFace", v => v + "°", "faceAngle", false);
 bindSlider("sLiftW", "vLiftW", v => v.toFixed(2) + " m", "liftTop", false);
 bindSlider("sWear", "vWear", v => v === 0 ? "Off" : "×" + v, "wearMult", false);
 bindSlider("sMu", "vMu", v => v.toFixed(2), "mu", false);
+bindSlider("sSlurry", "vSlurry", v => v + " %", "slurrySolids", false, () => updateEmpirical(0));
 bindSlider("sRest", "vRest", v => v.toFixed(2), "rest", false);
 
+document.getElementById("dischargeType").addEventListener("change", e => {
+  state.dischargeType = e.target.value;
+  updateEmpirical(0);
+});
 document.getElementById("colorMode").addEventListener("change", e => {
   state.colorMode = e.target.value;
   updateLegend();
@@ -1633,6 +1767,8 @@ function loop(now) {
       state.powerHist.push(P);
       if (state.powerHist.length > 220) state.powerHist.shift();
       document.getElementById("hudPower").textContent = P.toFixed(0);
+      document.getElementById("vDem").textContent = P.toFixed(0) + " kW";
+      updateEmpirical(P);
       const cr = state.critRateEMA;
       document.getElementById("hudCrit").textContent = cr < 1 ? cr.toFixed(1) : cr.toFixed(0);
       // decay the impact histogram
@@ -1666,6 +1802,7 @@ updateRegime();
 updateLegend();
 updateHud();
 updateGeometryReadout();
+updateEmpirical(0);
 requestAnimationFrame(loop);
 </script>
 </body>
