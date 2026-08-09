@@ -125,8 +125,55 @@ scaled up.
 - **Shoulder and toe** of the charge, detected automatically
 - **Wear profile per lifter** (bars of remaining height) with a teaching note
   based on the level
+- Ore drawn as grey faceted rock — a dodecahedron reads in silhouette as a
+  ten-sided outline, so each particle is a jittered decagon with its pentagonal
+  face suggested inside it, tumbling at a rate that scales with its speed.
+  Steel balls stay round, so the two species read apart at a glance. The facets
+  are render-only: contact still uses the circumscribed disc.
 - Colour modes: type, speed, recent impact energy
 - Trajectories and velocity vectors
+
+## Empirical power check
+
+The DEM power comes from the reaction torque on the shell, which is only as good
+as the contact model. So the panel also evaluates two published empirical models
+on the same mill — same D, L, % critical, Jc, Jb and densities — as an
+independent reference:
+
+| Case | DEM | Morrell (1993) | Δ |
+|---|---|---|---|
+| 8 m × 4 m, 72% Nc, Jc 30 / Jb 15, dry | 4406 kW | 4521 kW | −3% |
+| 12 m × 6 m, 78% Nc, Jc 25 / Jb 15, dry | 19 739 kW | 19 229 kW | +3% |
+| 12 m × 6 m, as above, 60% solids | 18 121 kW | 17 470 kW | +4% |
+
+Morrell tracks the DEM to within a few per cent across the range, which is a
+genuine cross-check: two unrelated routes to the same number.
+
+Ported from the Mill Power Calculator, with **two corrections** without which
+the reference is wrong:
+
+1. **Solids by volume divides by SG, it does not multiply by it.** The source has
+   `(s·SGo)/(s·SGo + (1−s)·SGl)`, which returns 0.80 for 60% solids by weight at
+   SG 2.65; the correct volume fraction is 0.36.
+2. **Fraction/percent mixing.** `solidsByVolume` is computed as a fraction but
+   then fed to slurry-SG and mass formulas written for percent, so slurry SG came
+   out as 1.005 instead of 1.60.
+
+Two caveats stated in the panel rather than hidden:
+
+- **Austin (1990)**, with the constant as supplied, sits about 1.7× Morrell
+  across the whole range. It is carried as-ported but should be treated as
+  uncalibrated, not as a second opinion.
+- **Overflow discharge** applies a fixed-toe correction in Morrell and drops the
+  prediction sharply. The DEM has no slurry pool and cannot reproduce that, so
+  the comparison is only meaningful on grate.
+
+The comparison is cylinder-only (no cone ends) and defaults to dry, both matching
+what the simulation models. A slurry-solids slider shows what the empirical
+models predict once slurry is carried.
+
+Model source: Morrell, S. (1993), *The prediction of power draw in wet tumbling
+mills*, PhD thesis, University of Queensland.
 
 ## Lifter face angle
 
