@@ -1,4 +1,4 @@
 Touch this file (any change) and push to request a "Verify VTM run logging"
 workflow run against the default site URL. See verify-vtm-logging.yml.
 
-request: 001 — verify logging on https://cmdconsulting.ai after domain go-live
+request: 002 — secret added, verify logging on https://cmdconsulting.ai
