@@ -20,6 +20,17 @@ name: Verify VTM run logging
 # those out of any usage reporting.
 #
 # Required repository secret: SUPABASE_DB_URL (same as apply-schema.yml).
+#
+# When the deployment sets VTM_REQUIRE_AUTH=1, the API answers 401 to
+# anonymous posts. The workflow then signs in as a dedicated verifier user
+# and retries with the JWT, which needs four more repository secrets:
+#   SUPABASE_URL           https://<project-ref>.supabase.co
+#   SUPABASE_ANON_KEY      the anon (public) key from Settings → API
+#   VTM_VERIFY_EMAIL       email of a Supabase Auth user provisioned for this
+#   VTM_VERIFY_PASSWORD    that user's password
+# Create the user in the Supabase dashboard: Authentication → Users →
+# Add user (auto-confirm). Without these secrets, a 401 fails the run with
+# instructions rather than passing silently.
 
 on:
   workflow_dispatch:
@@ -54,11 +65,39 @@ jobs:
       - name: Fire marker calculation at the live API
         env:
           SITE: ${{ env.SITE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          VERIFY_EMAIL: ${{ secrets.VTM_VERIFY_EMAIL }}
+          VERIFY_PASSWORD: ${{ secrets.VTM_VERIFY_PASSWORD }}
         run: |
           body=$(printf '{"mode":"custom","family":"VTM","D":%s,"H":%s,"S":%s,"rpm":%s,"units":1}' "$MD" "$MH" "$MS" "$MRPM")
-          resp=$(curl -sS --max-time 30 -w '\n%{http_code}' -X POST "${SITE%/}/api/vtm" \
-            -H 'content-type: application/json' -d "$body")
+          post() {
+            curl -sS --max-time 30 -w '\n%{http_code}' -X POST "${SITE%/}/api/vtm" \
+              -H 'content-type: application/json' \
+              ${TOKEN:+-H "authorization: Bearer $TOKEN"} \
+              -d "$body"
+          }
+          resp=$(post)
           code=$(echo "$resp" | tail -n1)
+
+          if [ "$code" = "401" ]; then
+            echo "API is licence-gated (401) — signing in as the verifier user."
+            if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ] || [ -z "$VERIFY_EMAIL" ] || [ -z "$VERIFY_PASSWORD" ]; then
+              echo "::error::VTM_REQUIRE_AUTH is on but verifier secrets are missing. Add SUPABASE_URL, SUPABASE_ANON_KEY, VTM_VERIFY_EMAIL and VTM_VERIFY_PASSWORD (see workflow header)."
+              exit 1
+            fi
+            TOKEN=$(curl -sS --max-time 30 "$SUPABASE_URL/auth/v1/token?grant_type=password" \
+              -H "apikey: $SUPABASE_ANON_KEY" -H 'content-type: application/json' \
+              -d "{\"email\":\"$VERIFY_EMAIL\",\"password\":\"$VERIFY_PASSWORD\"}" \
+              | jq -r '.access_token // empty')
+            if [ -z "$TOKEN" ]; then
+              echo "::error::Verifier sign-in failed — check VTM_VERIFY_EMAIL / VTM_VERIFY_PASSWORD and that the user exists (confirmed) in Supabase Auth."
+              exit 1
+            fi
+            resp=$(post)
+            code=$(echo "$resp" | tail -n1)
+          fi
+
           json=$(echo "$resp" | sed '$d')
           echo "HTTP $code"
           echo "$json"

@@ -6,8 +6,11 @@
 // It contains no model maths: view-source and the JS bundle reveal layout
 // only. See docs/vtm-tower-model.md.
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import type { Session } from '@supabase/supabase-js'
 import { Box, Dim, Err, Head, Kv, Meter } from '@/components/ui'
+import VtmAuth from '@/components/VtmAuth'
+import { getBrowserSupabase } from '@/lib/supabase-browser'
 
 interface Frame {
   model: string
@@ -145,7 +148,22 @@ function Toggle<T extends string>({
   )
 }
 
-export default function VtmTool({ frames }: { frames: Frame[] }) {
+export default function VtmTool({
+  frames,
+  authRequired = false,
+}: {
+  frames: Frame[]
+  authRequired?: boolean
+}) {
+  const [session, setSession] = useState<Session | null>(null)
+  useEffect(() => {
+    const supabase = getBrowserSupabase()
+    if (!supabase) return
+    void supabase.auth.getSession().then(({ data }) => setSession(data.session))
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => setSession(s))
+    return () => sub.subscription.unsubscribe()
+  }, [])
+
   const [family, setFamily] = useState<'VTM' | 'JETM'>('VTM')
   const [mode, setMode] = useState<'frame' | 'custom'>('frame')
   const familyFrames = useMemo(() => frames.filter((f) => f.type === family), [frames, family])
@@ -178,12 +196,18 @@ export default function VtmTool({ frames }: { frames: Frame[] }) {
       if (mode === 'frame') body.model = selectedFrame?.model
       else Object.assign(body, { D, H, S, rpm })
       if (withDuty) Object.assign(body, { tph, seKwht })
+      const supabase = getBrowserSupabase()
+      const token = supabase ? (await supabase.auth.getSession()).data.session?.access_token : undefined
       const res = await fetch('/api/vtm', {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: {
+          'content-type': 'application/json',
+          ...(token ? { authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify(body),
       })
       const data = (await res.json()) as EvaluateResult & { error?: string }
+      if (res.status === 401) throw new Error(data.error ?? 'sign-in required — use the panel above')
       if (!res.ok) throw new Error(data.error ?? `request failed (${res.status})`)
       setResult(data)
     } catch (err) {
@@ -211,6 +235,10 @@ export default function VtmTool({ frames }: { frames: Frame[] }) {
             formulas — <span className="text-phos">numbers out, nothing in</span>.
           </div>
         </header>
+
+        <Box title="Access">
+          <VtmAuth session={session} authRequired={authRequired} />
+        </Box>
 
         <Box title="Configuration">
           <div className="space-y-3">
@@ -294,10 +322,10 @@ export default function VtmTool({ frames }: { frames: Frame[] }) {
             <button
               type="button"
               onClick={run}
-              disabled={busy}
+              disabled={busy || (authRequired && !session)}
               className="border border-phos/60 px-4 py-1 text-phos-hot uppercase tracking-widest hover:bg-phos/10 disabled:opacity-50"
             >
-              {busy ? 'Computing…' : 'Run model'}
+              {busy ? 'Computing…' : authRequired && !session ? 'Sign in to run' : 'Run model'}
             </button>
             {error ? <Err>ERR: {error}</Err> : null}
           </div>

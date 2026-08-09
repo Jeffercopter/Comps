@@ -85,11 +85,21 @@ Inputs are range-validated server-side; out-of-range values return `400`.
 - Every run is logged to Supabase `vtm_runs` (insert-only under RLS; no select
   policy — usage history is service-role only). Logging is best-effort and
   never blocks a calculation; without Supabase configured the tool still works.
-- If the request carries a Supabase JWT (`Authorization: Bearer <token>`), it
-  is verified via Supabase Auth and the user id is attached to the log row.
-- Set `VTM_REQUIRE_AUTH=1` on the deployment to make a valid sign-in
-  mandatory (licence-gated posture). Default is open access with anonymous
-  logging.
+- The `/vtm` page has a sign-in panel (`components/VtmAuth.tsx`) — password
+  sign-in against Supabase Auth via a browser client that persists the session
+  (`lib/supabase-browser.ts`). The session JWT is attached to every
+  calculation request; the API verifies it and attributes the log row to the
+  user id. There is deliberately no self-signup UI — provision accounts in
+  the Supabase dashboard (Authentication → Users → Add user) and disable
+  public signups in Supabase Auth settings to enforce that server-side.
+- Set `VTM_REQUIRE_AUTH=1` on the deployment (and redeploy) to make sign-in
+  mandatory: the API returns 401 to anonymous requests and the UI disables
+  the run button until signed in. Default is open access — the sign-in panel
+  is then optional and merely attributes runs.
+- The daily verification workflow handles the gate: on a 401 it signs in as a
+  dedicated verifier user (secrets `SUPABASE_URL`, `SUPABASE_ANON_KEY`,
+  `VTM_VERIFY_EMAIL`, `VTM_VERIFY_PASSWORD` — see the workflow header) and
+  retries with the JWT.
 
 ## Files
 
