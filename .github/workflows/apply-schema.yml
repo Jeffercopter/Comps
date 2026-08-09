@@ -1,0 +1,63 @@
+name: Apply Supabase schema
+
+# Runs supabase/schema.sql against the project database — creates or updates
+# the products, enquiries and vtm_runs tables, indexes and RLS policies. The
+# schema is idempotent (create if not exists / drop policy if exists), so
+# re-running is safe and this is the supported way to pick up schema additions
+# such as the vtm_runs audit table.
+#
+# This exists for the same reason as seed-supabase.yml: the environment the
+# site is developed in cannot reach Supabase — the runner can. Manual trigger
+# only: it never fires on push, so it cannot surprise a production database.
+#
+# Required repository secret (Settings → Secrets and variables → Actions):
+#   SUPABASE_DB_URL   the Postgres connection string from the Supabase
+#                     dashboard (Connect → Direct connection), e.g.
+#                     postgresql://postgres:<password>@db.<ref>.supabase.co:5432/postgres
+#
+# This is a database superuser credential. Keep it in Actions secrets only —
+# never in the repo, and never in any NEXT_PUBLIC_* variable.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "apply" to confirm running schema.sql against the database'
+        required: true
+        default: ''
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check confirmation
+        if: inputs.confirm != 'apply'
+        run: |
+          echo "::error::Confirmation not given. Re-run and type 'apply' in the input."
+          exit 1
+
+      - name: Verify secret is present
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$DB_URL" ]; then
+            echo "::error::SUPABASE_DB_URL secret is not set. Add it under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          echo "Secret present."
+
+      - uses: actions/checkout@v4
+
+      - name: Apply schema.sql
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: psql "$DB_URL" --set ON_ERROR_STOP=1 --file supabase/schema.sql
+
+      - name: Verify vtm_runs table
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          psql "$DB_URL" --set ON_ERROR_STOP=1 -c "\d public.vtm_runs" > /dev/null
+          echo "### Supabase schema applied" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`vtm_runs\` exists — /api/vtm run logging is active." >> "$GITHUB_STEP_SUMMARY"
