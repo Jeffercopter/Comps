@@ -1,4 +1,0 @@
-Touch this file (any change) and push to request a "Verify VTM run logging"
-workflow run against the default site URL. See verify-vtm-logging.yml.
-
-request: 004 — secret moved to repository secrets, verify

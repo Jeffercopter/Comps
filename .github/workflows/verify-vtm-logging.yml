@@ -11,9 +11,13 @@ name: Verify VTM run logging
 # site nor the database — the runner can:
 #
 #   * workflow_dispatch — run it from the Actions tab, with a site_url input.
-#   * push touching .github/verify-now — lets an agent session (which can push
-#     but is not permitted to dispatch workflows) request a verification by
-#     committing to that marker file on any branch. Uses the default site URL.
+#   * a daily schedule — continuous verification with no clicks; a logging
+#     regression on the live site turns this workflow red within a day.
+#     (Push-triggered runs were tried and abandoned: runs triggered by an
+#     agent integration's pushes execute without repository secrets.)
+#
+# Each run inserts one marker row into vtm_runs (d_m=4.44, s_m=1.11); filter
+# those out of any usage reporting.
 #
 # Required repository secret: SUPABASE_DB_URL (same as apply-schema.yml).
 
@@ -24,8 +28,8 @@ on:
         description: 'Base URL of the deployed site'
         required: true
         default: 'https://cmdconsulting.ai'
-  push:
-    paths: ['.github/verify-now']
+  schedule:
+    - cron: '0 21 * * *' # daily, 21:00 UTC ≈ 07:00 AEST
 
 jobs:
   verify:
