@@ -1,0 +1,17 @@
+node_modules/
+.next/
+out/
+build/
+.DS_Store
+*.pem
+npm-debug.log*
+yarn-error.log*
+.env
+.env*.local
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+# staged from the repo-root index.html by scripts/stage-mill.mjs
+public/mill/
+

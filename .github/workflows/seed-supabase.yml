@@ -1,0 +1,70 @@
+name: Seed Supabase
+
+# Loads the bundled product catalogue into a Supabase project.
+#
+# This exists because the environment the site was developed in cannot reach
+# Supabase — the runner can. Add the two secrets below, then run this from the
+# Actions tab. Manual trigger only: it never fires on push, so it cannot
+# surprise a production catalogue.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   SUPABASE_URL               https://<project-ref>.supabase.co
+#   SUPABASE_SERVICE_ROLE_KEY  the service_role key from Settings → API
+#
+# The service role key bypasses RLS. Keep it in Actions secrets only — never in
+# a NEXT_PUBLIC_* variable, and never in the repo.
+#
+# Run supabase/schema.sql in the Supabase SQL editor before the first seed.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "seed" to confirm the upsert'
+        required: true
+        default: ''
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check confirmation
+        if: inputs.confirm != 'seed'
+        run: |
+          echo "::error::Confirmation not given. Re-run and type 'seed' in the input."
+          exit 1
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Verify secrets are present
+        env:
+          URL: ${{ secrets.SUPABASE_URL }}
+          KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          missing=0
+          if [ -z "$URL" ]; then echo "::error::SUPABASE_URL secret is not set."; missing=1; fi
+          if [ -z "$KEY" ]; then echo "::error::SUPABASE_SERVICE_ROLE_KEY secret is not set."; missing=1; fi
+          if [ "$missing" -ne 0 ]; then
+            echo "Add them under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          echo "Both secrets present."
+
+      - run: npm ci
+
+      - name: Seed catalogue
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run seed
+
+      - name: Summary
+        run: |
+          echo "### Supabase seed complete" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Run \`status\` in the console — the catalogue source should now read \`supabase (live)\`." >> "$GITHUB_STEP_SUMMARY"

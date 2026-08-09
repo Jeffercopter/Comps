@@ -1,0 +1,131 @@
+name: Verify VTM run logging
+
+# End-to-end check that /api/vtm audit logging works on the deployed site:
+#
+#   1. POSTs a marker calculation (distinctive custom geometry) to the live
+#      /api/vtm and asserts a successful model result.
+#   2. Queries vtm_runs over the direct Postgres connection and asserts a row
+#      with that marker geometry landed in the last few minutes.
+#
+# Two triggers, because the development environment can reach neither the
+# site nor the database — the runner can:
+#
+#   * workflow_dispatch — run it from the Actions tab, with a site_url input.
+#   * a daily schedule — continuous verification with no clicks; a logging
+#     regression on the live site turns this workflow red within a day.
+#     (Push-triggered runs were tried and abandoned: runs triggered by an
+#     agent integration's pushes execute without repository secrets.)
+#
+# Each run inserts one marker row into vtm_runs (d_m=4.44, s_m=1.11); filter
+# those out of any usage reporting.
+#
+# Required repository secret: SUPABASE_DB_URL (same as apply-schema.yml).
+#
+# When the deployment sets VTM_REQUIRE_AUTH=1, the API answers 401 to
+# anonymous posts. The workflow then signs in as a dedicated verifier user
+# and retries with the JWT, which needs four more repository secrets:
+#   SUPABASE_URL           https://<project-ref>.supabase.co
+#   SUPABASE_ANON_KEY      the anon (public) key from Settings → API
+#   VTM_VERIFY_EMAIL       email of a Supabase Auth user provisioned for this
+#   VTM_VERIFY_PASSWORD    that user's password
+# Create the user in the Supabase dashboard: Authentication → Users →
+# Add user (auto-confirm). Without these secrets, a 401 fails the run with
+# instructions rather than passing silently.
+
+on:
+  workflow_dispatch:
+    inputs:
+      site_url:
+        description: 'Base URL of the deployed site'
+        required: true
+        default: 'https://cmdconsulting.ai'
+  schedule:
+    - cron: '0 21 * * *' # daily, 21:00 UTC ≈ 07:00 AEST
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      SITE_URL: ${{ inputs.site_url || 'https://cmdconsulting.ai' }}
+      # Marker geometry: valid inputs, unlikely to collide with a real run.
+      MD: '4.44'
+      MH: '6.66'
+      MS: '1.11'
+      MRPM: '21.5'
+    steps:
+      - name: Verify secret is present
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$DB_URL" ]; then
+            echo "::error::SUPABASE_DB_URL secret is not set."
+            exit 1
+          fi
+
+      - name: Fire marker calculation at the live API
+        env:
+          SITE: ${{ env.SITE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          VERIFY_EMAIL: ${{ secrets.VTM_VERIFY_EMAIL }}
+          VERIFY_PASSWORD: ${{ secrets.VTM_VERIFY_PASSWORD }}
+        run: |
+          body=$(printf '{"mode":"custom","family":"VTM","D":%s,"H":%s,"S":%s,"rpm":%s,"units":1}' "$MD" "$MH" "$MS" "$MRPM")
+          post() {
+            curl -sS --max-time 30 -w '\n%{http_code}' -X POST "${SITE%/}/api/vtm" \
+              -H 'content-type: application/json' \
+              ${TOKEN:+-H "authorization: Bearer $TOKEN"} \
+              -d "$body"
+          }
+          resp=$(post)
+          code=$(echo "$resp" | tail -n1)
+
+          if [ "$code" = "401" ]; then
+            echo "API is licence-gated (401) — signing in as the verifier user."
+            if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ] || [ -z "$VERIFY_EMAIL" ] || [ -z "$VERIFY_PASSWORD" ]; then
+              echo "::error::VTM_REQUIRE_AUTH is on but verifier secrets are missing. Add SUPABASE_URL, SUPABASE_ANON_KEY, VTM_VERIFY_EMAIL and VTM_VERIFY_PASSWORD (see workflow header)."
+              exit 1
+            fi
+            TOKEN=$(curl -sS --max-time 30 "$SUPABASE_URL/auth/v1/token?grant_type=password" \
+              -H "apikey: $SUPABASE_ANON_KEY" -H 'content-type: application/json' \
+              -d "{\"email\":\"$VERIFY_EMAIL\",\"password\":\"$VERIFY_PASSWORD\"}" \
+              | jq -r '.access_token // empty')
+            if [ -z "$TOKEN" ]; then
+              echo "::error::Verifier sign-in failed — check VTM_VERIFY_EMAIL / VTM_VERIFY_PASSWORD and that the user exists (confirmed) in Supabase Auth."
+              exit 1
+            fi
+            resp=$(post)
+            code=$(echo "$resp" | tail -n1)
+          fi
+
+          json=$(echo "$resp" | sed '$d')
+          echo "HTTP $code"
+          echo "$json"
+          if [ "$code" != "200" ]; then
+            echo "::error::POST ${SITE%/}/api/vtm returned HTTP $code — is the site URL right and the deploy live?"
+            exit 1
+          fi
+          echo "$json" | grep -q '"pAvgKW"' || { echo "::error::Response is not a model result."; exit 1; }
+
+      - name: Confirm the run was logged
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          sleep 5
+          n=$(psql "$DB_URL" -t -A --set ON_ERROR_STOP=1 -c \
+            "select count(*) from public.vtm_runs
+             where mode = 'custom' and family = 'VTM'
+               and d_m = $MD and h_m = $MH and s_m = $MS and rpm = $MRPM
+               and created_at > now() - interval '15 minutes'")
+          total=$(psql "$DB_URL" -t -A --set ON_ERROR_STOP=1 -c "select count(*) from public.vtm_runs")
+          echo "marker rows in last 15 min: $n · total vtm_runs rows: $total"
+          if [ "$n" -lt 1 ]; then
+            echo "::error::The API responded but no vtm_runs row landed. Check NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY on the Vercel deployment, and that the deploy includes the awaited-insert fix."
+            exit 1
+          fi
+          {
+            echo "### VTM run logging verified"
+            echo ""
+            echo "- Marker calculation accepted by \`${{ env.SITE_URL }}/api/vtm\`"
+            echo "- Logged row found in \`vtm_runs\` ($n marker row(s), $total total rows)"
+          } >> "$GITHUB_STEP_SUMMARY"
