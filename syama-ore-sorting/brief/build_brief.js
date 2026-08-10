@@ -68,7 +68,7 @@ const doc = new Document({
       font: FONT, size: 26, bold: true, color: "FFFFFF" })],
     shading: { type: ShadingType.CLEAR, fill: NAVY, color: "auto" },
     spacing: { after: 0, line: 300 }, indent: { left: 60 } }),
-  new Paragraph({ children: [new TextRun({ text: "Assessment of the business case and recommendation on STEINERT ore sorting",
+  new Paragraph({ children: [new TextRun({ text: "Assessment of the business case and recommendation on pebble ore sorting",
       font: FONT, size: 17, color: "FFFFFF" })],
     shading: { type: ShadingType.CLEAR, fill: STEEL, color: "auto" },
     spacing: { after: 100, line: 250 }, indent: { left: 60 } }),
@@ -89,8 +89,8 @@ const doc = new Document({
     + "close before any capital is committed.", { after: 70 }),
   bullet("Gate 1 (commercial, no cost, ~4 weeks) — confirm that comminution, not the roaster/flotation "
     + "circuit or ore supply, is the binding constraint on the converted line post-SSCP, and that ore exists to fill it.", {b:false}),
-  bullet("Gate 2 (technical, ~US$60–150 k, ~3 months) — a bulk XRT/sensor test on 2–5 t of Syama scats. "
-    + "A 2.23× mass contrast is not proof of a detectable sensor contrast."),
+  bullet("Gate 2 (technical) — STARK Phase 2 mill pebble test campaign on 2–5 t of Syama scats, sensor "
+    + "selection open. A 2.23× mass contrast is not proof of a detectable sensor contrast."),
   txt("Do not order a sorter until both gates pass. The downside case is not marginal — it is a "
     + "materially negative NPV plus permanent gold loss to the waste dump.", { i:true, after: 40 }),
 
@@ -164,6 +164,11 @@ const doc = new Document({
     + "under US$1 M because the gold lost outruns the extra mass rejected. There is no sorter setting that "
     + "rescues a poor contrast.", { after: 40 }),
 
+  txt("Against STARK's published gold case — 570 t/h at 1.5 g/t, NPV US$79 M on US$8 M — Syama matches the "
+    + "NPV per tonne only because it is run at US$4,000/oz; on the benchmark's own price basis it sits well "
+    + "below. It frees 4.3% of mill feed against the \u201Cup to 15%\u201D headline: a quarter of the prize.",
+    { after: 40 }),
+
   H("5.  Why Gate 1 is the real risk"),
   txt("Public disclosure points away from comminution being the constraint. Sulphide stockpiles were drawn "
     + "down through 2025 to maintain throughput — a mill short of ore, not short of capacity. The SSCP is "
@@ -174,7 +179,8 @@ const doc = new Document({
 
   H("6.  Risks and adjacent opportunity"),
   bullet("Refractory gold — reject grades must be confirmed by fire assay and diagnostic leach, not sensor "
-    + "response. Gold is locked in sulphides and XRT sees density, not gold."),
+    + "response. XRT sees density, not gold, and sensor selection across colour, NIR, XRT, XRF and EM "
+    + "is itself an open question."),
   bullet("Sulphidic rejects — geochemical/ARD characterisation is required before a new reject stream is "
     + "sent to a waste dump; this can carry its own closure cost."),
   bullet("Mali country risk — supply chain and spares disrupted through 2026, and single-sorter redundancy "
@@ -186,22 +192,19 @@ const doc = new Document({
 
   H("7.  Next steps"),
   table([8,40,26,13,13], [
-    [{t:"#",al:AlignmentType.LEFT},{t:"Action",al:AlignmentType.LEFT},{t:"Owner",al:AlignmentType.LEFT},{t:"Cost"},{t:"Duration"}],
-    [{t:"1",al:AlignmentType.LEFT},{t:"Constraint audit of the converted line post-SSCP; confirm spare ore at reserve grade",al:AlignmentType.LEFT},{t:"Site metallurgy / planning",al:AlignmentType.LEFT},{t:"nil"},{t:"4 weeks"}],
-    [{t:"2",al:AlignmentType.LEFT},{t:"Survey and assay the scat stream — tonnage, size distribution, grade by size, lithology split",al:AlignmentType.LEFT},{t:"Site metallurgy",al:AlignmentType.LEFT},{t:"<$20 k"},{t:"4 weeks"}],
-    [{t:"3",al:AlignmentType.LEFT},{t:"Bulk XRT/sensor amenability test, 2–5 t, scats + coarse ROM",al:AlignmentType.LEFT},{t:"STEINERT test centre",al:AlignmentType.LEFT},{t:"$60–150 k"},{t:"3 months"}],
-    [{t:"4",al:AlignmentType.LEFT},{t:"ARD / geochemical characterisation of the reject stream",al:AlignmentType.LEFT},{t:"Environmental",al:AlignmentType.LEFT},{t:"<$30 k"},{t:"2 months"}],
-    [{t:"5",al:AlignmentType.LEFT},{t:"Re-run this model on measured sorter response; decide on capital",al:AlignmentType.LEFT},{t:"Study team",al:AlignmentType.LEFT},{t:"nil"},{t:"2 weeks"}],
-  ]),
-
-  txt("Model: Syama_Pebble_Sorting_Simulation.xlsx (Dashboard · MB Base · MB Sort · NPV · Sensitivity). "
-    + "All costs in US$. Where Syama site data was unavailable, ratios and unit rates are carried from the "
-    + "2024 African gold mine study: dilution 11.9%, scat load 16.4% of new feed, sorter duty 90/90, "
-    + "US$7.69/t mining-dump-G&A on rejects, US$0.45/t sorting, 7,370 h/a, 8% discount, 10-year life. Syama's "
-    + "own values are retained for ROM grade, recovery, gold price and the measured scat grade. The 11.9% "
-    + "dilution is the one carry-over we would question — a sublevel cave typically runs higher, and "
-    + "dilution drives the back-solved contrast (Sensitivity table E).",
-    { i:true, size:14, before: 100 }),
+    [{t:"#",al:AlignmentType.LEFT},{t:"Action (STARK phased approach)",al:AlignmentType.LEFT},{t:"Owner",al:AlignmentType.LEFT},{t:"Cost"},{t:"Duration"}],
+    [{t:"1",al:AlignmentType.LEFT},{t:"Constraint audit + Phase 1 desktop study: is comminution binding post-SSCP, is there ore to fill it, and close out mass balance, PSDs, bond indices",al:AlignmentType.LEFT},{t:"Site metallurgy / STARK",al:AlignmentType.LEFT},{t:"<$20 k"},{t:"4 weeks"}],
+    [{t:"2",al:AlignmentType.LEFT},{t:"Phase 2 mill pebble test campaign — 2–5 t, hardness and sortability by rock type",al:AlignmentType.LEFT},{t:"STARK (OEM-agnostic)",al:AlignmentType.LEFT},{t:"$60–150 k"},{t:"3 months"}],
+    [{t:"3",al:AlignmentType.LEFT},{t:"Phase 3 online analyser — scan-only sorter in circuit, no ejection, no gold at risk",al:AlignmentType.LEFT},{t:"STARK / site",al:AlignmentType.LEFT},{t:"tbc"},{t:"3–6 months"}],
+    [{t:"—",al:AlignmentType.LEFT},{t:"ARD characterisation of the reject stream",al:AlignmentType.LEFT},{t:"Environmental",al:AlignmentType.LEFT},{t:"<$30 k"},{t:"2 months"}],
+    [{t:"4",al:AlignmentType.LEFT},{t:"Re-run this model on measured response; decide on Phase 4 capital",al:AlignmentType.LEFT},{t:"Study team",al:AlignmentType.LEFT},{t:"nil"},{t:"2 weeks"}],
+  ]),  txt("Model: Syama_Pebble_Sorting_Simulation.xlsx. All costs in US$. Where Syama site data was "
+    + "unavailable, ratios and unit rates are carried from the 2024 African gold mine study: dilution 11.9%, "
+    + "scat load 16.4% of new feed, sorter duty 90/90, US$7.69/t mining-dump-G&A on rejects, US$0.45/t "
+    + "sorting, 7,370 h/a, 8% discount, 10-year life. Syama's own ROM grade, recovery, gold price and "
+    + "measured scat grade are retained. The 11.9% dilution is the one carry-over we would question — "
+    + "STARK's own gold benchmark uses 15%, and dilution drives the contrast (Sensitivity table E).",
+    { i:true, size:14, before: 70 }),
   ]}]
 });
 

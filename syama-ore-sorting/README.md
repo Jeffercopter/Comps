@@ -133,6 +133,37 @@ higher, and dilution drives the back-solved contrast. Sensitivity table E spans 
 Sorter duty stays flagged `TEST WORK REQUIRED` — a 2.23× mass contrast is not evidence of a
 detectable sensor contrast.
 
+## Conformance with the STARK / CMD mill pebble deck (SR261704 D17-001 Rev00)
+
+Checked against the STARK Resources / CMD Consulting *Mill Optimisation Through Ore Sorting*
+deck. Conforms on method and positioning:
+
+- Sorter sits on the pebble / recirculating-waste stream (deck slide 7)
+- Value framed as mill capacity release, not recovery ("free up to 15% mill capacity")
+- US$0.45/t sorting OPEX matches the deck exactly
+- The three sensitivity levers (ore grade, dilution/heterogeneity, sorter recovery) are the
+  deck's own
+- Coarse-ROM dilution rejection, recommended here as the adjacent target, is one of the
+  deck's three sorter positions
+
+Corrections made after reviewing the deck:
+
+- The vendor is **STARK Resources**, which is explicitly **OEM-agnostic** (sensor and vendor
+  selection is its stated IP). Earlier drafts wrongly named STEINERT and presumed XRT; the
+  documents now leave sensor selection open across colour, NIR, XRT, XRF and EM.
+- Next steps realigned to STARK's four-phase approach. **Phase 3 — a scan-only online
+  analyser in circuit, no ejection** — was missing and has been added; it is the right
+  de-risking step for a case this sensitive to reject grade, since no gold is at risk.
+
+Benchmark cross-check against the deck's published gold case (570 t/h, 1.5 g/t, 15% dilution,
+84% recovery, NPV US$79 M, CAPEX US$8 M): Syama matches it on NPV per tonne of throughput only
+because it is run at US$4,000/oz — on the benchmark's own price basis it sits well below. Syama
+frees ~4.3% of mill feed against the deck's "up to 15%" headline, about a quarter of the
+available prize. Both are the contrast problem showing through.
+
+Note the deck's gold benchmark carries **15% dilution** against the 11.9% carried into this
+model, reinforcing that 11.9% is the assumption most worth revisiting.
+
 ## Public sources used for Syama parameters
 
 - Syama plant configuration and Sulphide Conversion Project scope (secondary crusher, pebble

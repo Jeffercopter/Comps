@@ -1,5 +1,5 @@
 """Syama pebble (SAG scat) sorting simulation.
-Engine replicates the STEINERT Sukari SR241558 workbook logic, re-parameterised
+Engine replicates the reference study workbook logic, re-parameterised
 for the Syama converted (ex-oxide) SAG line post Sulphide Conversion Project."""
 G_PER_OZ = 31.1035
 
