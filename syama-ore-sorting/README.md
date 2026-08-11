@@ -56,6 +56,8 @@ brief/
   build_letter.js                 docx-js source, built on the CMD style kit
   styles/cmd_docx_styles_final.js CMD Consulting DOCX style kit
   styles/cmd_logo.jpg             CMD logo (JPEG RGB — the kit rejects RGBA PNG)
+tool/
+  syama_pebble_sorting.html       live interactive model, CMD HTML house style
 model/
   Syama_Pebble_Sorting_Simulation.xlsx   the updated case
   build_workbook.py               generates the workbook
@@ -103,6 +105,30 @@ The letter is addressed to Daniel Millar, Principal Metallurgist, Resolute Minin
 
 The workbook has been verified two ways: recalculated in LibreOffice Calc, and evaluated
 cell-by-cell with the `formulas` package. Both agree with `engine.py` to three decimals.
+
+## Interactive tool
+
+`tool/syama_pebble_sorting.html` is the same model as a single self-contained page, built on the
+CMD Consulting HTML Styles Kit v2.0 — its palette, Nunito/Fira Code pairing, gradient navbar,
+section cards, sliders, hero result card and pill badges. Fourteen live inputs drive the NPV,
+mass balance, comparison cards and two sensitivity charts.
+
+Two departures from the kit, both forced by the artifact sandbox's content security policy,
+which blocks external hosts:
+
+- The kit's Google Fonts `<link>` cannot load, so Nunito and Fira Code are inlined as woff2
+  data URIs (~75 KB total). Both are variable fonts, so one file per family covers every weight.
+- The PptxGenJS export button (kit §6.11) is omitted rather than shipped broken — the library
+  cannot be fetched from a CDN and was not vendored.
+
+The navbar mark is a drawn SVG globe in CMD blue and green; the kit specifies an SVG logo and
+only a raster JPEG was supplied, which would have shown as a white box on the gradient.
+
+The page solves the deportment and the Goal Seek uplift in closed form rather than by iteration,
+so it recalculates instantly. Verified against `engine.py` to within 0.03% on thirteen metrics,
+and checked in Chromium for console errors, horizontal overflow and the impossible-input guard
+(a scat grade at or above the undiluted ore grade cannot arise from preferential waste
+reporting, and the page says so instead of drawing nonsense).
 
 ## Calibration and Goal Seek
 
