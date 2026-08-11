@@ -1,0 +1,172 @@
+// Syama SAG pebble (scat) ore sorting — covering letter
+// Built on the CMD Consulting DOCX Style Kit.
+const fs = require("fs");
+const CMD = require("./styles/cmd_docx_styles_final");
+const { AlignmentType, Paragraph, TextRun, Table, TableRow, WidthType, BorderStyle } = CMD;
+// letter runs a little tighter than the report template
+CMD.documentStyles.default.document.paragraph.spacing.line = 258;
+CMD.documentStyles.paragraphStyles.forEach(st => {
+  if (st.id === "Heading2") st.paragraph.spacing = { before: 130, after: 100 };
+});
+
+CMD.loadLogo(__dirname + "/styles/cmd_logo.jpg");
+
+const C = CMD.COLORS, F = CMD.FONTS, S = CMD.SIZES;
+
+const RED_TINT = "F7E4E4";                 // single semantic accent for the downside case
+const W = 9360;                            // US Letter less 1" margins each side
+
+// letter-specific helpers ---------------------------------------------------
+const line = (t, o = {}) => new Paragraph({
+  keepNext: o.keep, keepLines: true,
+  spacing: { before: o.before || 0, after: o.after ?? 0, line: 260 },
+  children: [new TextRun({ text: t, font: F.BODY, size: o.size || S.BODY,
+    bold: o.b, italics: o.i, color: o.c || C.DARK })] });
+
+const subject = (t) => new Paragraph({
+  spacing: { before: 240, after: 200 },
+  border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: C.SECONDARY, space: 10 } },
+  children: [new TextRun({ text: t, font: F.HEADING, size: S.H1, bold: true, color: C.PRIMARY })] });
+
+const table = (headers, widths, rows) => new Table({
+  width: { size: widths.reduce((a, b) => a + b, 0), type: WidthType.DXA },
+  columnWidths: widths,
+  rows: [ new TableRow({ tableHeader: true,
+            children: widths.map((w, i) => CMD.hCell(headers[i], w)) }),
+    ...rows.map((r, ri) => new TableRow({ cantSplit: true,
+      children: r.map((cell, ci) => {
+        const c = typeof cell === "object" ? cell : { t: String(cell) };
+        return CMD.dCell(c.t, widths[ci], {
+          fill: c.fill || (ri % 2 === 1 ? C.LIGHT_GREY : undefined),
+          bold: c.b || ci === 0,
+          align: ci === 0 ? AlignmentType.LEFT : AlignmentType.RIGHT });
+      }) })) ] });
+
+// ---------------------------------------------------------------------------
+const doc = new CMD.Document({
+  styles: CMD.documentStyles,
+  numbering: CMD.numbering,
+  sections: [{
+    properties: { page: { size: { width: 12240, height: 15840 },
+                    margin: { top: 1440, right: 1440, bottom: 900, left: 1440 } } },
+    headers: { default: CMD.buildHeader() },
+    footers: { default: CMD.buildFooter() },
+    children: [
+
+      line("5 August 2026", { after: 240, c: C.SLATE }),
+
+      line("Daniel Millar (Pr. Eng)", { b: true }),
+      line("Principal Metallurgist", { c: C.SLATE }),
+      line("Resolute Mining Limited"),
+      line("2nd Floor, 14 Waterloo Place"),
+      line("London SW1Y 4AR, United Kingdom", { after: 230 }),
+
+      line("Dear Daniel,", { after: 0 }),
+
+      subject("Syama SAG pebble (scat) ore sorting — assessment and recommendation"),
+
+      CMD.p("Thank you for providing the scat assay data. We have completed the assessment "
+      + "you requested: updating the pebble sorting business case for Syama and testing "
+      + "whether STARK ore sorting is worth pursuing on your SAG scat stream. The "
+      + "opportunity is real but conditional, and the next spend should be on test work "
+      + "rather than on plant."),
+
+      CMD.p("The work builds on a 2024 African gold mine pebble sorting study, which rejects "
+      + "barren scat mass, reduces the circulating load and refills the freed SAG capacity "
+      + "with ROM. We re-parameterised it for the converted (ex-oxide) SAG line, carrying "
+      + "that study's ratios and unit rates across wherever Syama site data was not "
+      + "available. The engine transfers unmodified; the material property that made the "
+      + "reference case work does not."),
+
+      CMD.h2("Principal finding"),
+
+      CMD.pRuns([
+        CMD.bold("Your measured scat grade of 2.0 g/t Au is the pivotal number. "),
+        CMD.text("The reference scats assayed 0.55 g/t against a 1.57 g/t ROM — barren "
+        + "material, discardable almost for free. Syama's run at 83% of ROM grade, giving a "
+        + "back-solved waste-to-ore contrast of only 2.23× against 8.91×. Barely a quarter of "
+        + "the scat stream is barren dilution — a hard ceiling on what any sorter can reject."),
+      ]),
+
+      CMD.caption("Table 1: Syama scats vs the 2024 African gold mine study"),
+      table(["Parameter", "Reference study", "Syama"], [4560, 2400, 2400], [
+        ["ROM / scat grade (g/t Au)", "1.57 / 0.55", { t: "2.40 / 2.00", b: true, fill: C.BLUE_TINT }],
+        ["Scat grade as % of ROM", "35%", { t: "83%", b: true, fill: C.BLUE_TINT }],
+        ["Heterogeneity contrast", "8.91×", { t: "2.23×", b: true, fill: C.BLUE_TINT }],
+        ["Barren mass available in scats", "~69%", { t: "~27%", b: true, fill: C.BLUE_TINT }],
+        ["Reject grade at 90/90 duty (g/t)", "0.151", { t: "0.782", b: true, fill: C.BLUE_TINT }],
+      ]),
+
+      CMD.p("Every rejected tonne is therefore expensive. At 0.78 g/t the reject stream holds "
+      + "some US$75 per tonne of recoverable gold against the US$7.69 it avoids — nearly ten "
+      + "dollars of gold discarded for every dollar saved.", { after: 140 }),
+
+      CMD.h2("Economics"),
+
+      CMD.p("Your scats already recirculate and the SSCP is installing a pebble crusher for "
+      + "this stream, so no gold is being lost today. The case is throughput debottlenecking, "
+      + "not recovery, and turns on whether the freed SAG capacity can be refilled with ore."),
+
+      CMD.caption("Table 2: Outcomes at the reference 90/90 sorter duty, US$4.1 M capital"),
+      table(["Scenario", "Net US$/a", "NPV @ 8%"], [4560, 2400, 2400], [
+        ["Freed capacity refilled at 2.4 g/t", "+9.34 M",
+         { t: "+55.2 M", b: true, fill: C.GREEN_TINT }],
+        ["Breakeven (40% capture)", "+0.63 M",
+         { t: "0", b: true, fill: C.LIGHT_GREY }],
+        ["No spare ore — ROM feed held flat", "−5.17 M",
+         { t: "−36.9 M", b: true, fill: RED_TINT }],
+      ]),
+
+      CMD.p("The upside is genuine, with a payback near five months, but the downside is "
+      + "equally real: a plant that cannot fill the capacity it frees destroys value and sends "
+      + "gold to the dump. Price is not the swing factor.", { after: 140 }),
+
+      CMD.h2("Recommendation"),
+
+      CMD.pRuns([
+        CMD.bold("We recommend a conditional go: fund the test work, not the plant. "),
+        CMD.text("Two gates should close before any capital is committed."),
+      ], { after: 140 }),
+
+      CMD.numberedBold("Constraint audit — ",
+        "confirm that comminution, rather than the roaster or ore supply, binds the "
+        + "converted line, and that ore exists at reserve grade to fill it. The published "
+        + "record points the other way. No cost, about four weeks."),
+      CMD.numberedBold("Bulk sensor test — ",
+        "the STARK Phase 2 mill pebble campaign, 2 to 5 tonnes, sensor selection left open. "
+        + "A 2.23× mass contrast is not evidence of a detectable sensor contrast, and Syama's "
+        + "gold is refractory, so reject grades need fire assay. Roughly US$60,000 to "
+        + "US$150,000, about three months.", { after: 150 }),
+
+      CMD.h2("Related considerations"),
+
+      CMD.bullet("We would scope coarse-ROM dilution rejection into the same campaign; cave "
+      + "dilution across some 2.6 Mt/a offers far more heterogeneity than the scats do."),
+      CMD.bullet("A sulphidic reject stream will need acid rock drainage characterisation "
+      + "before dumping, carrying its own closure cost."),
+      CMD.bullet("Given the sensitivity to reject grade, we would not skip STARK Phase 3: a "
+      + "scan-only analyser in circuit measures the real particle population with no gold at "
+      + "risk before any ejection is committed.", { after: 140 }),
+
+      CMD.p("Reference-study figures are flagged on the model Dashboard. Its 11.9% dilution is "
+      + "the one we would question — STARK's own gold benchmark uses 15%. We would welcome the "
+      + "chance to refine these with your team.", { after: 160 }),
+
+      line("Yours sincerely,", { after: 150, keep: true }),
+      line("Mike Daniel", { b: true, keep: true }),
+      line("CMD Consulting Pty Ltd", { c: C.SLATE, after: 150, keep: true }),
+
+      new Paragraph({ spacing: { before: 0, after: 0 }, keepLines: true,
+        border: { top: { style: BorderStyle.SINGLE, size: 4, color: C.BORDER, space: 8 } },
+        children: [
+          new TextRun({ text: "Enclosures:  ", font: F.BODY, size: S.CAPTION, bold: true, color: C.SLATE }),
+          new TextRun({ text: "decision brief;  Syama_Pebble_Sorting_Simulation.xlsx",
+            font: F.BODY, size: S.CAPTION, color: C.SLATE })] }),
+    ],
+  }],
+});
+
+CMD.Packer.toBuffer(doc).then(b => {
+  fs.writeFileSync(__dirname + "/Syama_Ore_Sorting_Letter.docx", b);
+  console.log("written");
+});
