@@ -6,7 +6,7 @@ Two command-line-styled mining applications, deployed together.
 | --- | --- | --- | --- |
 | **WHITMORE//AU** | Terminal console for the Australian lubricant distributorship proposal | Next.js app in `app/`, `components/`, `lib/` | `/` |
 | **DEM SAG Mill** | Single-file DEM simulator of a SAG mill cross-section, CMD edition | `index.html` (zero build, opens standalone) | `/mill` |
-| **eHPCC DEM** | 3D discrete element model of the eHPCC: gyrating element, media, breakage | `ehpcc.html` (zero build, opens standalone) | `/ehpcc` |
+| **eHPCC DEM** | 3D discrete element model of the eHPCC: co-rotating offset bodies, media, breakage, air classification | `ehpcc.html` (zero build, opens standalone) | `/ehpcc` |
 | **VTM//TOWER** | Tower mill (VTM/JETM) power model — server-side calculation engine, UI shell client | `app/vtm/`, `app/api/vtm/`, `lib/vtm/` | `/vtm` |
 
 `index.html` and `ehpcc.html` stay standalone, dependency-free files — open either

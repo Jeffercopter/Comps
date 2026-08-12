@@ -101,7 +101,7 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 <header class="bb">
   <div class="bbi">
     <span class="brand-text">cmd consulting</span>
-    <span class="brand-sub" id="simstat">ehpcc dem model v1.0 · initialising</span>
+    <span class="brand-sub" id="simstat">ehpcc dem model v2.0 · initialising</span>
   </div>
 </header>
 
@@ -110,50 +110,51 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
   <div class="card">
     <h2><span class="dot"></span>Machine</h2>
     <div class="ctrl">
-      <div class="row"><span>Eccentric speed</span><span class="val" id="vRpm">400 rpm</span></div>
-      <input type="range" id="sRpm" min="0" max="700" step="10" value="400">
-      <div class="hint">Gyration rate of the grinding element. The closed side sweeps the annulus once per revolution, so every part of the charge is compressed once per turn.</div>
+      <div class="row"><span>Rotation speed</span><span class="val" id="vRpm">420 rpm</span></div>
+      <input type="range" id="sRpm" min="0" max="900" step="10" value="420">
+      <div class="hint">Receptacle and grinding element turn together at this speed, same direction, about their own parallel axes. Speed sets the centrifugal field confining the bed — not the compression cycle, which the offset sets.</div>
     </div>
     <div class="ctrl">
-      <div class="row"><span>Gap (closed side)</span><span class="val" id="vGap">18 mm</span></div>
-      <input type="range" id="sGap" min="6" max="45" step="1" value="18">
-      <div class="hint">Minimum clearance between element and vessel wall. Sets the compression ratio on the bed and the top size that can pass to discharge.</div>
+      <div class="row"><span>Gap</span><span class="val" id="vGap">8 mm</span></div>
+      <input type="range" id="sGap" min="6" max="28" step="1" value="8">
+      <div class="hint">Clearance between the two surfaces in the compression zone. The bed is several particles thick here, so this is not a crusher setting: it is how much charge the zone squeezes at once. Anything coarser than the local clearance cannot pass the zone unbroken.</div>
     </div>
     <div class="ctrl">
-      <div class="row"><span>Eccentricity</span><span class="val" id="vEcc">12 mm</span></div>
-      <input type="range" id="sEcc" min="2" max="20" step="1" value="12">
-      <div class="hint">Throw of the eccentric bush. The annulus opens to gap + 2 × eccentricity on the far side. Throw sets how hard the bed is squeezed each revolution; the discharge size is set by the gap.</div>
+      <div class="row"><span>Offset D</span><span class="val" id="vEcc">10 mm</span></div>
+      <input type="range" id="sEcc" min="0" max="20" step="1" value="10">
+      <div class="hint">Displacement of the element axis B from the receptacle axis A. Nothing gyrates: the offset makes the annulus converge into a zone fixed in space, and it is the whole source of relative motion — the surfaces slip past each other at ω × D, the rolling penetration of the element into the bed. At D = 0 the annulus is uniform: the surfaces still shear past each other, because they sit at different radii, but there is no compression zone and the duty drops to attrition.</div>
+    </div>
+    <div class="ctrl">
+      <div class="row"><span>Process air</span><span class="val" id="vAir">20 m/s · 6.4 mm cut</span></div>
+      <input type="range" id="sAir" min="0" max="34" step="1" value="20">
+      <div class="hint">Air swept up the chamber. Product leaves by classification, not by a screen: anything whose terminal velocity is below the air velocity is lifted out of the decompression zone, everything coarser is thrown back to the wall.</div>
     </div>
   </div>
 
   <div class="card">
     <h2><span class="dot"></span>Feed &amp; charge</h2>
     <div class="ctrl">
-      <div class="row"><span>Feed rate</span><span class="val" id="vFeed">12 /s</span></div>
-      <input type="range" id="sFeed" min="0" max="60" step="1" value="12">
+      <div class="row"><span>Feed rate</span><span class="val" id="vFeed">8 /s</span></div>
+      <input type="range" id="sFeed" min="0" max="40" step="1" value="8">
+      <div class="hint">Deliberately matched to the power this chamber develops. Push it well past that and the machine chokes — the bed builds, the annulus packs and product stops, exactly as it would on site.</div>
     </div>
     <div class="ctrl">
-      <div class="row"><span>Feed top size</span><span class="val" id="vTop">30 mm</span></div>
-      <input type="range" id="sTop" min="10" max="45" step="1" value="30">
+      <div class="row"><span>Feed top size</span><span class="val" id="vTop">18 mm</span></div>
+      <input type="range" id="sTop" min="8" max="36" step="1" value="18">
     </div>
     <div class="ctrl">
-      <div class="row"><span>Grinding media</span><span class="val" id="vMedia">26 × Ø14</span></div>
+      <div class="row"><span>Grinding media</span><span class="val" id="vMedia">26 × Ø5</span></div>
       <input type="range" id="sMedia" min="0" max="60" step="1" value="26">
-      <div class="hint">Ø14 mm steel media, as drawn (part 170). Media transmit the element pressure into the ore bed — that is the eHPCC's difference from a plain eccentric crusher.</div>
+      <div class="hint">Ø5 mm steel media (part 170). Media ride with the centrifuged bed and transmit the element pressure into it, so breakage is bed-on-bed and autogenous rather than steel-on-rock nipping.</div>
     </div>
   </div>
 
   <div class="card">
     <h2><span class="dot"></span>Ore</h2>
     <div class="ctrl">
-      <div class="row"><span>Breakage energy E<sub>cs</sub></span><span class="val" id="vEcs">0.08 kWh/t</span></div>
-      <input type="range" id="sEcs" min="0.02" max="1" step="0.02" value="0.08">
-      <div class="hint">Specific energy a particle must absorb before it fractures, quoted at 30 mm and scaled with size. Breakage is capped by the energy the drive actually delivers, so the working range here sits below a real ore Ecs — this chamber develops tens of watts, not the tens of kilowatts of a full-size machine. Raise it and the mill chokes: the bed builds and product stops.</div>
-    </div>
-    <div class="ctrl">
-      <div class="row"><span>Product cut size</span><span class="val" id="vFines">6 mm</span></div>
-      <input type="range" id="sFines" min="3" max="12" step="0.5" value="6">
-      <div class="hint">Fragments below this leave the model as fines rather than being tracked individually — the standard DEM cut-off that keeps the particle count bounded.</div>
+      <div class="row"><span>Breakage energy E<sub>cs</sub></span><span class="val" id="vEcs">0.25 kWh/t</span></div>
+      <input type="range" id="sEcs" min="0.05" max="1.5" step="0.05" value="0.25">
+      <div class="hint">Specific energy a particle must absorb before it fractures, quoted at 30 mm and scaled with size. Breakage is capped by the energy the drive actually delivers, so the working range here sits below a real ore Ecs — this chamber develops tens of watts, not the tens of kilowatts of a full-size machine. Raise it and the chamber chokes: the bed builds and product stops.</div>
     </div>
   </div>
 
@@ -162,10 +163,12 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
     <div class="kpi">
       <div class="k good"><div class="kv" id="kThru">0.0</div><div class="kl">t/h product</div></div>
       <div class="k"><div class="kv" id="kP80">—</div><div class="kl">product P80</div></div>
-      <div class="k"><div class="kv" id="kPower">0.0</div><div class="kl">kW at element</div></div>
+      <div class="k"><div class="kv" id="kPower">0.0</div><div class="kl">kW at the drive</div></div>
       <div class="k"><div class="kv" id="kBrk">0</div><div class="kl">breakages /s</div></div>
       <div class="k"><div class="kv" id="kN">0</div><div class="kl">particles</div></div>
       <div class="k"><div class="kv" id="kHold">0.0</div><div class="kl">kg hold-up</div></div>
+      <div class="k warn"><div class="kv" id="kG">0 g</div><div class="kl">field at the wall</div></div>
+      <div class="k"><div class="kv" id="kSlip">0.00</div><div class="kl">m/s ω × D slip</div></div>
     </div>
     <div class="hint" style="margin-top:10px">Product size distribution (mass % passing)</div>
     <canvas id="psd"></canvas>
@@ -180,7 +183,7 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
   <div class="card">
     <h2><span class="dot"></span>View</h2>
     <div class="toggle-row"><span>Cutaway section</span>
-      <label class="sw"><input type="checkbox" id="tCut"><span class="sl"></span></label></div>
+      <label class="sw"><input type="checkbox" id="tCut" checked><span class="sl"></span></label></div>
     <div class="toggle-row"><span>Show media</span>
       <label class="sw"><input type="checkbox" id="tMedia" checked><span class="sl"></span></label></div>
     <div class="toggle-row"><span>Colour by stress</span>
@@ -193,12 +196,13 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 
   <div class="card">
     <div class="hint">
-      Discrete element model of the eHPCC drawn in the assembly viewer: Ø300 mm charge vessel
-      (110/111), gyrating grinding element (120) on the eccentric bush (161), Ø14 media (170) and
-      the annular outlet under the protector ring (166). Contacts are linear spring–dashpot with
-      Coulomb friction; particles fracture on accumulated specific energy and are replaced by a
-      mass-conserving progeny. Indicative model for showing how speed, gap and eccentricity move
-      the duty — not a performance guarantee.
+      Discrete element model of the eHPCC, after US&nbsp;10,421,075 <em>Grinding apparatus having a
+      rotating receptacle and grinding element</em>. Ø300&nbsp;mm conical receptacle (110/111) and
+      grinding element (120) rotate at the same speed about parallel, stationary axes offset by D;
+      the eccentric <em>zone</em> that results stands still while the centrifuged charge is carried
+      through it once per revolution. Ø14&nbsp;mm media (170) ride in the bed, breakage is autogenous
+      and energy-limited, and product leaves by air classification. Indicative model for showing how
+      speed, gap, offset and air move the duty — not a performance guarantee.
     </div>
   </div>
 </div>
@@ -1260,103 +1264,152 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 "use strict";
 /* ═══════════════════════════════════════════════════════════════════════
    eHPCC — 3D discrete element model
-   Geometry taken from the assembly viewer (mm in the CAD, metres here).
+   Eccentric High Pressure Centrifugal Comminution, after US 10,421,075
+   "Grinding apparatus having a rotating receptacle and grinding element".
+
+   The kinematics are the whole point of the machine and are easy to get
+   wrong. This is NOT a gyratory: nothing orbits. The receptacle (110)
+   rotates about its own stationary axis A, and the grinding element (120)
+   rotates about its own axis B — synchronously, same direction, both axes
+   parallel and static. Because the axes are offset by D, the annulus
+   between them converges to a compression zone that stands still in the
+   lab frame while the charge is carried through it once per revolution.
+
+   Two consequences fall out of that and drive everything else:
+     · the annulus is only gap + D(1 − cos φ) wide, so it converges to a
+       compression zone that is fixed in space — the charge is carried
+       through it once a revolution, and the element's rolling penetration
+       into the bed there goes as ω × D;
+     · the whole charge is centrifuged against the receptacle wall, so the
+       bed is confined by many g rather than by its own weight.
    ═══════════════════════════════════════════════════════════════════════ */
 
-// ---------- machine geometry (m) ----------
+// ---------- machine geometry (m; the drawing is in mm) ----------
 const MACH = {
-  Rv: 0.150,          // vessel inner wall radius (part 110/111)
-  yFloor: 0.083,      // chamber floor, top of the protector ring (166)
-  yRim: 0.168,        // vessel rim / feed level (110 top)
-  yChute: 0.206,      // top of the feed chute (136)
-  rChute: 0.080,      // feed chute inner radius
-  yHop: 0.240,        // feed hopper mouth
-  rHop: 0.038,        // hopper mouth radius
-  capK: 2.5,          // slope of the distributor cap on top of the element
-  slotIn: 0.106,      // protector ring (166) inner radius — the media shelf
-  slotOut: 0.140,     // protector ring outer radius
-  taper: 0.22,        // element cone taper: dr/dy, wider at the bottom. Kept well
-                      // inside atan(mu) so the nip grips instead of spitting feed back up.
-  yElemBot: 0.083,    // element bottom sits on the discharge lip: the narrowest
-                      // annulus is exactly at the outlet, as in any gyratory
-  yElemTop: 0.176,    // element cone top
-  mediaD: 0.014,      // Ø14 grinding media (170)
+  /* Ø220 chamber rather than the Ø300 of the drawing. A discrete element
+     model has a particle budget — a few hundred grains if it is to run live
+     in a browser — and the bed has to be thicker than the working clearance
+     or the grinding element never touches it and the machine does nothing.
+     Ø300 with 900 grains gives a bed a few millimetres deep in a 16 mm
+     annulus: geometrically faithful and functionally dead. */
+  Rc: 0.110,          // receptacle inner wall (110/111) at the floor
+  yFloor: 0.096,      // chamber floor
+  yRim: 0.156,        // chamber rim
+  taper: 0.02,        // conical chamber, opening upward, but barely — about
+                      // 1°. At thirty g the wall reaction is thirty times the
+                      // charge's weight, so even a few degrees of taper
+                      // dominates gravity: tip it in and the bed is driven
+                      // into the bottom corner and packs solid, tip it out and
+                      // the bed climbs the wall and spills over the lip.
+                      // Near-vertical is the only stable choice, and it leaves
+                      // gravity to do what the patent describes — settle the
+                      // coarse to the outer and lower limits
+  yHop: 0.260,        // feed chute mouth
+  rHop: 0.028,
+  capH: 0.024,        // distributor cap on the element crown
+  mediaD: 0.005,      // Ø5 grinding media (170)
 };
 
 const G = 9.81;
-const RHO_ORE = 2700, RHO_STEEL = 7800;
-// Contacts are resolved with sequential impulses rather than penalty springs.
-// A stiff penalty contact on 6 mm rock needs a step near 3e-5 s, which runs the
-// model at a few per cent of real time; impulses stay stable at 1/240 s, so the
-// machine turns at its actual rpm on screen.
-const REST = 0.12;            // restitution, rock on steel
-const MU = 0.45;              // Coulomb friction
-const ITER = 8;               // solver iterations per substep
-const BAUM = 0.25, SLOP = 1e-4;   // positional bias: fraction of penetration, and its dead band
-const DT = 1 / 240, SUBSTEPS = 4;  // 1/60 s of machine time per frame
-const NMAX = 2200;
-const ECS_J = 3600;   // 1 kWh/t = 3600 J/kg
+const RHO_ORE = 2700, RHO_STEEL = 7800, RHO_AIR = 1.2, CD = 0.47;
+const REST = 0.12, MU = 0.45;
+const ITER = 8, BAUM = 0.25, SLOP = 1e-4;
+const DT = 1 / 360, SUBSTEPS = 6;      // 1/60 s of machine time per frame
+const NMAX = 1100;
+const ECS_J = 3600;                    // 1 kWh/t = 3600 J/kg
+const DFLOOR = 2.0;                    // damage floor, in multiples of the confining load
 
 const state = {
-  rpm: 400, gap: 0.018, ecc: 0.012,
-  feedRate: 12, topSize: 0.030, nMedia: 26,
-  ecs: 0.08, fines: 0.006,
-  running: true, cutaway: false, showMedia: true, byStress: true,
+  rpm: 420,
+  gap: 0.008,          // clearance in the compression zone
+  offset: 0.010,       // D: receptacle axis A to element axis B
+  air: 20,             // process air velocity up the chamber (m/s)
+  feedRate: 8, topSize: 0.018, nMedia: 26,
+  ecs: 0.25,
+  running: true, cutaway: true, showMedia: true, byStress: true,
   phase: 0, simTime: 0,
-  // rolling outputs
   prodMass: 0, prodWindow: [], brkWindow: [], psd: [],
   powerEMA: 0, thruEMA: 0, brkEMA: 0,
 };
 
-/* Element as a surface of revolution: a crushing cone that widens downward, and
-   above it the distributor cap that spreads incoming feed out into the annulus.
-   Returns the radius and its slope dR/dy, which the contact needs — a cone has
-   an outward normal tilted by its own taper, not a purely radial one. */
-function elemSurf(y) {
-  const rBot = MACH.Rv - state.ecc - state.gap;         // closed-side clearance = gap
-  const rTop = rBot - (MACH.yElemTop - MACH.yFloor) * MACH.taper;
-  if (y <= MACH.yElemTop) {
-    return { r: rBot - (y - MACH.yFloor) * MACH.taper, s: -MACH.taper };
-  }
-  const r = rTop - (y - MACH.yElemTop) * MACH.capK;     // distributor cap
-  return { r: r, s: -MACH.capK };
-}
-function elemRadius(y) { return Math.max(0.004, elemSurf(y).r); }
-function elemApex() {
-  const rTop = (MACH.Rv - state.ecc - state.gap) - (MACH.yElemTop - MACH.yFloor) * MACH.taper;
-  return MACH.yElemTop + Math.max(0, rTop) / MACH.capK;
-}
-// Feed hopper above the rim: a funnel that narrows upward, so material sliding
-// off the cap runs down its wall into the annulus rather than off a shelf.
-function hopSurf(y) {
-  const k = (MACH.rHop - MACH.Rv) / (MACH.yHop - MACH.yRim);   // negative
-  return { r: MACH.Rv + (y - MACH.yRim) * k, s: k };
-}
 function omega() { return state.rpm * 2 * Math.PI / 60; }
-// pure gyration: the element orbits without spinning (the four drive pins, 163,
-// hold its angular position), so every point on it shares one velocity
-function elemCentre() { return [state.ecc * Math.cos(state.phase), state.ecc * Math.sin(state.phase)]; }
-function elemVel() {
-  const w = omega();
-  return [-state.ecc * w * Math.sin(state.phase), 0, state.ecc * w * Math.cos(state.phase)];
+
+/* Surfaces of revolution. The receptacle wall and the element wall share a
+   taper — the patent's nip angle never exceeds 5°, so in the meridional
+   plane the two walls are effectively parallel and the convergence comes
+   from the offset alone. */
+function chamberSurf(y) {
+  return { r: MACH.Rc + (y - MACH.yFloor) * MACH.taper, s: MACH.taper };
+}
+function elemSurf(y) {
+  const c = chamberSurf(y);
+  return { r: c.r - state.gap - state.offset, s: c.s };
+}
+/* Feed chute: a plain pipe stopping short of the crown. It has to stop short —
+   run it down to the rim as a funnel and the feed is delivered to the middle
+   of the chamber, which is solid element, not to the annulus. */
+function hopSurf() { return { r: MACH.rHop, s: 0 }; }
+const Y_CHUTE = MACH.yRim + MACH.capH + 0.010;   // bottom of the chute, clear of the crown
+const Y_EXIT = 0.310;                           // classifier plane, above the chute mouth
+
+/* Housing above the rim. It flares out from the chamber lip rather than
+   standing off it, so anything the distributor cap throws over the rim slides
+   back in instead of falling down the outside of the machine and out of the
+   model. */
+const HOUSE_FLARE = 0.030;
+function houseSurf(y) {
+  const base = chamberSurf(MACH.yRim).r;
+  const t = Math.min(1, Math.max(0, (y - MACH.yRim) / HOUSE_FLARE));
+  return { r: base + HOUSE_FLARE * t, s: t < 1 ? 1 : 0 };
 }
 
-// ---------- particles (struct of arrays) ----------
+/* The distributor cap. Feed lands on the element crown and is thrown out into
+   the annulus by it — this is the only way material gets from the axis, where
+   the chute delivers it, to the wall, where the machine works. */
+function capSurf(re) {
+  const eTop = Math.max(0.01, elemSurf(MACH.yRim).r);
+  if (re >= eTop) return null;
+  return { y: MACH.yRim + MACH.capH * (1 - re / eTop), s: -MACH.capH / eTop };
+}
+// g-force the charge feels at the receptacle wall
+function gForce() { const w = omega(); return w * w * MACH.Rc / G; }
+
+/* Local width of the annulus at azimuth φ. With both axes fixed and offset by
+   D, this is gap + D(1 − cos φ): the tightest point of the whole chamber is
+   the single line at φ = 0, and it does not move. That standing convergence
+   is the eccentric zone the machine works in. */
+function annulusAt(phi) { return state.gap + state.offset * (1 - Math.cos(phi)); }
+
+/* Classification. There is no screen and no grate on this machine: product
+   leaves because the process air can carry it and nothing else can. So the
+   product cut is a terminal-velocity cut, and the air velocity sets it —
+   d = 3 Cd ρa v² / (4 ρs g). Turning the air up coarsens the product; turning
+   it down holds everything in the chamber for another pass. */
+function termV(i) {
+  const rho = isMedia[i] ? RHO_STEEL : RHO_ORE;
+  return Math.sqrt(8 * rho * G * rad[i] / (3 * CD * RHO_AIR));
+}
+function cutSize() {
+  const v = state.air;
+  return Math.max(0.003, 3 * CD * RHO_AIR * v * v / (4 * RHO_ORE * G));
+}
+
+// ---------- particles ----------
 let N = 0;
 const cap = NMAX + 64;
 const px = new Float64Array(cap), py = new Float64Array(cap), pz = new Float64Array(cap);
 const vx = new Float64Array(cap), vy = new Float64Array(cap), vz = new Float64Array(cap);
 const rad = new Float64Array(cap), mass = new Float64Array(cap);
-const dmg = new Float32Array(cap);        // absorbed specific energy, J/kg
+const dmg = new Float32Array(cap);
 const isMedia = new Uint8Array(cap);
 
 function sphereMass(r, rho) { return rho * 4 / 3 * Math.PI * r * r * r; }
 
-function addParticle(x, y, z, r, media, vx0, vy0, vz0) {
+function addParticle(x, y, z, r, media, ux, uy, uz) {
   if (N >= NMAX) return -1;
   const i = N++;
   px[i] = x; py[i] = y; pz[i] = z;
-  vx[i] = vx0 || 0; vy[i] = vy0 || 0; vz[i] = vz0 || 0;
+  vx[i] = ux || 0; vy[i] = uy || 0; vz[i] = uz || 0;
   rad[i] = r; mass[i] = sphereMass(r, media ? RHO_STEEL : RHO_ORE);
   dmg[i] = 0; isMedia[i] = media ? 1 : 0;
   return i;
@@ -1374,24 +1427,45 @@ function seedCharge() {
   N = 0;
   state.prodMass = 0; state.prodWindow = []; state.brkWindow = []; state.psd = [];
   state.powerEMA = 0; state.thruEMA = 0; state.brkEMA = 0; state.simTime = 0;
-  // Seed strictly into the annulus between element and wall. A particle started
-  // inside the element is squeezed out of the bottom unbroken and shows up in the
-  // product at full feed size, which quietly poisons the size distribution.
+  // Seed into the annulus between element and receptacle, already turning with
+  // the chamber so the charge does not have to be spun up from rest.
+  const w = omega();
+  /* Rejection sampling, and it matters. Dropping spheres into the annulus
+     without checking gives a pile of interpenetrating grains, and a contact
+     solver handed that starts by trying to blow it apart — the charge
+     collapses into the bottom corner in a heap the solver can never separate,
+     and every reading after that is meaningless. */
   const place = (r, media) => {
-    for (let tries = 0; tries < 24; tries++) {
-      const y = MACH.yFloor + 0.008 + Math.random() * 0.062;
-      const lo = elemRadius(y) + state.ecc + r + 0.002;
-      const hi = MACH.Rv - r - 0.002;
+    for (let t = 0; t < 60; t++) {
+      const y = MACH.yFloor + r + Math.random() * (MACH.yRim - MACH.yFloor - 2 * r);
+      const a = Math.random() * Math.PI * 2;
+      /* The band is measured at this azimuth, not at the tightest point of
+         the annulus. Use the tightest and nothing wider than the gap can ever
+         be seeded — which quietly leaves the machine with no grinding media
+         at all whenever the gap is set near the media size. */
+      const lo = elemSurf(y).r + state.offset * Math.cos(a) + r + 0.001;
+      const hi = chamberSurf(y).r - r - 0.001;
       if (lo >= hi) continue;
       const rr = lo + Math.random() * (hi - lo);
-      const a = Math.random() * Math.PI * 2;
-      addParticle(Math.cos(a) * rr, y, Math.sin(a) * rr, r, media);
-      return;
+      const x = Math.cos(a) * rr, z = Math.sin(a) * rr;
+      let clash = false;
+      for (let j = 0; j < N; j++) {
+        const dx = px[j] - x, dy = py[j] - y, dz = pz[j] - z;
+        const sm = rad[j] + r;
+        if (dx * dx + dy * dy + dz * dz < sm * sm) { clash = true; break; }
+      }
+      if (clash) continue;
+      addParticle(x, y, z, r, media, -w * z, 0, w * x);
+      return true;
     }
+    return false;
   };
-  const rm = MACH.mediaD / 2;
-  for (let k = 0; k < state.nMedia; k++) place(rm, 1);
-  for (let k = 0; k < 110; k++) place((0.62 + Math.random() * 0.38) * state.topSize / 2, 0);
+  for (let k = 0; k < state.nMedia; k++) place(MACH.mediaD / 2, 1);
+  // fill until the annulus stops accepting grains — the charge finds its own level
+  let misses = 0;
+  while (N < state.nMedia + 240 && misses < 40) {
+    if (place((0.55 + Math.random() * 0.45) * state.topSize / 2, 0)) misses = 0; else misses++;
+  }
 }
 
 // ---------- feed ----------
@@ -1403,41 +1477,82 @@ function feed(dt) {
     if (N >= NMAX) { feedAccum = 0; break; }
     const a = Math.random() * Math.PI * 2;
     const rr = Math.random() * (MACH.rHop - 0.012);
-    // top size with a spread, so the feed is a distribution rather than one size
     const d = state.topSize * (0.45 + 0.55 * Math.pow(Math.random(), 0.7));
-    addParticle(Math.cos(a) * rr, MACH.yHop - 0.008, Math.sin(a) * rr, d / 2, 0, 0, -0.4, 0);
+    const x = Math.cos(a) * rr, y = MACH.yHop - 0.012, z = Math.sin(a) * rr;
+    let clash = false;
+    for (let j = 0; j < N && !clash; j++) {
+      if (py[j] < y - 0.06) continue;
+      const dx = px[j] - x, dy = py[j] - y, dz = pz[j] - z, sm = rad[j] + d / 2;
+      if (dx * dx + dy * dy + dz * dz < sm * sm) clash = true;
+    }
+    if (clash) { feedAccum = 0; break; }      // chute is backed up
+    addParticle(x, y, z, d / 2, 0, 0, -0.4, 0);
   }
 }
 
 // ---------- breakage ----------
-// Absorbed specific energy drives fracture. On breaking, the parent is replaced
-// by a mass-conserving progeny: one large fragment plus a tail of smaller ones,
-// which is the shape a single-particle breakage test gives at modest Ecs.
+function breakThreshold(i) {
+  const d = 2 * rad[i];
+  return state.ecs * ECS_J * Math.pow(0.030 / Math.max(d, 1e-4), 0.5);
+}
 const brkQueue = [];
-function breakParticle(i) {
-  const r0 = rad[i], m0 = mass[i];
+function absorb(i, E) {
+  if (isMedia[i]) return;
+  dmg[i] += E / mass[i];
+  if (dmg[i] > breakThreshold(i)) brkQueue.push(i);
+}
+
+/* Autogenous bed breakage: the parent is replaced by a mass-conserving
+   progeny — one surviving lump and a tail of fines, which is the shape a
+   confined-bed compression gives. */
+function breakParticle(i, dmax) {
+  const r0 = rad[i], m0 = mass[i], d0 = 2 * r0;
   const x = px[i], y = py[i], z = pz[i];
   const ux = vx[i], uy = vy[i], uz = vz[i];
   removeParticle(i);
-  const fracs = [0.52, 0.21, 0.12, 0.08, 0.07];   // mass fractions of the progeny
-  const minR = state.fines / 2;
-  let finesMass = 0;
+
+  /* Progeny: one surviving lump and a tail, the shape a confined-bed
+     compression gives.
+
+     The fragment count is capped hard at six, and a nip may only take about a
+     third off the diameter in one event. Both bounds exist for the same
+     reason: the progeny have to be placed inside the parent's own footprint,
+     so a break into forty fragments hands the contact solver an
+     interpenetrating cluster it cannot separate — one such break seeds
+     another, and within a second or two the whole charge is a heap in the
+     bottom corner and every reading is fiction. A real nip does not reduce
+     to the setting in one pass either; the grain goes round again. */
+  const dLim = dmax && isFinite(dmax) ? Math.max(dmax, 0.66 * d0) : Infinity;
+  const fTop = isFinite(dLim) ? Math.min(1, Math.pow(dLim / d0, 3)) : 1;
+  const fracs = [];
+  let left = 1;
+  for (let k = 0; k < 4 && left > 1e-3; k++) {
+    const want = k === 0 ? 0.46 : 0.55 + 0.25 * Math.random();
+    const f = Math.min(fTop, left, k === 0 ? Math.max(0.46, 0) : left * want);
+    fracs.push(Math.min(f, left));
+    left -= fracs[fracs.length - 1];
+  }
+  if (left > 1e-3) fracs.push(left);
+
+  const minR = cutSize() / 2;
+  const room = Math.max(0, r0);
   for (let k = 0; k < fracs.length; k++) {
     const m = m0 * fracs[k];
     const r = Math.cbrt(m / (RHO_ORE * 4 / 3 * Math.PI));
-    if (r < minR) { finesMass += m; recordProduct(2 * r, m); continue; }
-    // scatter the fragments inside the parent's footprint, with a spall velocity
+    if (r < minR) { recordProduct(2 * r, m); continue; }
     const a = Math.random() * Math.PI * 2, b = Math.acos(2 * Math.random() - 1);
-    const s = (r0 - r) * 0.8 * Math.random();
     const sx = Math.sin(b) * Math.cos(a), sy = Math.cos(b), sz = Math.sin(b) * Math.sin(a);
-    const spall = 0.25 + Math.random() * 0.35;
-    addParticle(x + sx * s, y + sy * s, z + sz * s, r, 0,
+    // fragments are spread a little wider than the parent's own footprint:
+    // the progeny volumes add up to the parent's, so they cannot all fit
+    // inside it, and a cluster born interpenetrating never fully separates
+    const off = Math.max(0, room - r) * 1.5 + r * 0.15;
+    const spall = 0.2 + Math.random() * 0.3;
+    addParticle(x + sx * off, y + sy * off, z + sz * off, r, 0,
                 ux + sx * spall, uy + sy * spall, uz + sz * spall);
   }
   state.brkWindow.push(state.simTime);
 }
 
-// ---------- product ----------
 function recordProduct(d, m) {
   state.prodMass += m;
   state.prodWindow.push([state.simTime, m]);
@@ -1445,18 +1560,23 @@ function recordProduct(d, m) {
   if (state.psd.length > 4000) state.psd.splice(0, state.psd.length - 4000);
 }
 
-// ---------- neighbour list (rebuilt once per frame, with a skin) ----------
-let nbrHead = null, nbrNext = null, pairs = new Int32Array(1 << 18), nPairs = 0;
-const SKIN = 0.006;
+// ---------- neighbour list ----------
+let pairs = new Int32Array(1 << 21), nPairs = 0;
+const SKIN = 0.005;
 function buildPairs() {
   let maxR = 0;
   for (let i = 0; i < N; i++) if (rad[i] > maxR) maxR = rad[i];
-  const cell = 2 * maxR + SKIN;
-  const inv = 1 / cell;
+  const cell = 2 * maxR + SKIN, inv = 1 / cell;
+  /* Exact cell key, not a hash. The chamber is a third of a metre across and
+     the cell is millimetres, so the index fits in a few bits per axis and a
+     packed integer is collision-free. An XOR hash here quietly returns the
+     same bucket for two different offsets and pairs get counted twice, which
+     is expensive and, once the contact buffer fills, silently drops the wall
+     contacts that drive the whole machine. */
+  const key3 = (a, b, c) => (a + 512) + (b + 512) * 1024 + (c + 512) * 1048576;
   const map = new Map();
   for (let i = 0; i < N; i++) {
-    const cx = Math.floor(px[i] * inv), cy = Math.floor(py[i] * inv), cz = Math.floor(pz[i] * inv);
-    const key = cx * 73856093 ^ cy * 19349663 ^ cz * 83492791;
+    const key = key3(Math.floor(px[i] * inv), Math.floor(py[i] * inv), Math.floor(pz[i] * inv));
     let arr = map.get(key);
     if (!arr) { arr = []; map.set(key, arr); }
     arr.push(i);
@@ -1465,14 +1585,14 @@ function buildPairs() {
   for (let i = 0; i < N; i++) {
     const cx = Math.floor(px[i] * inv), cy = Math.floor(py[i] * inv), cz = Math.floor(pz[i] * inv);
     for (let ox = -1; ox <= 1; ox++) for (let oy = -1; oy <= 1; oy++) for (let oz = -1; oz <= 1; oz++) {
-      const arr = map.get((cx + ox) * 73856093 ^ (cy + oy) * 19349663 ^ (cz + oz) * 83492791);
+      const arr = map.get(key3(cx + ox, cy + oy, cz + oz));
       if (!arr) continue;
       for (let a = 0; a < arr.length; a++) {
         const j = arr[a];
         if (j <= i) continue;
         const dx = px[j] - px[i], dy = py[j] - py[i], dz = pz[j] - pz[i];
-        const s = rad[i] + rad[j] + SKIN;
-        if (dx * dx + dy * dy + dz * dz > s * s) continue;
+        const sm = rad[i] + rad[j] + SKIN;
+        if (dx * dx + dy * dy + dz * dz > sm * sm) continue;
         if (nPairs * 2 + 2 >= pairs.length) return;
         pairs[nPairs * 2] = i; pairs[nPairs * 2 + 1] = j; nPairs++;
       }
@@ -1480,63 +1600,106 @@ function buildPairs() {
   }
 }
 
-// ---------- physics ----------
-// absorbed energy → damage; a contact that both squeezes and slides does work on
-// the particle, and that work is what eventually fractures it
-/* Fracture threshold in J/kg. Ecs is quoted at a 30 mm reference size and scaled
-   with a size exponent: fine particles are genuinely harder to break per unit
-   mass than coarse ones, which is what stops a specific-energy criterion from
-   cascading the whole charge down to the cut size. */
-function breakThreshold(i) {
-  const d = 2 * rad[i];
-  return state.ecs * ECS_J * Math.pow(0.030 / Math.max(d, 1e-4), 0.5);
-}
-function absorb(i, E) {
-  if (isMedia[i]) return;
-  dmg[i] += E / mass[i];
-  if (dmg[i] > breakThreshold(i)) brkQueue.push(i);
-}
-
-/* Contact arrays, rebuilt each substep.
-   b < 0 marks a boundary contact: -1 vessel wall, -2 floor, -3 grinding element.
-   Boundaries are infinite mass; the element carries a prescribed velocity, so a
-   contact against it injects momentum exactly as the eccentric drive would. */
-const CMAX = 1 << 16;
+/* ---------- contacts ----------
+   b >= 0 is another particle; b < 0 is a driven or static surface, and the
+   surface velocity at the contact point is stored with the contact. Both
+   the receptacle and the element are driven, so both inject momentum and
+   both do work on the charge. */
+const CMAX = 1 << 19;
 const cA = new Int32Array(CMAX), cB = new Int32Array(CMAX);
 const cNx = new Float64Array(CMAX), cNy = new Float64Array(CMAX), cNz = new Float64Array(CMAX);
 const cPen = new Float64Array(CMAX), cJn = new Float64Array(CMAX), cVn0 = new Float64Array(CMAX);
-const cWk = new Float64Array(CMAX);   // work the element put into this contact
-const cNew = new Uint8Array(CMAX);    // 1 if this contact formed this substep
-/* Contact persistence. A collision may only pay its kinetic energy into damage
-   once — charging it every substep turns the chatter of a resting bed into an
-   unlimited energy supply and fractures the whole charge for free. Pair flags
-   are stable within a frame because the neighbour list, breakage and discharge
-   all happen at frame boundaries. */
-let wasPair = new Uint8Array(1 << 17), nowPair = new Uint8Array(1 << 17);
-let wasBnd = new Uint8Array(cap * 3), nowBnd = new Uint8Array(cap * 3);
-const B_WALL = 0, B_FLOOR = 1, B_ELEM = 2;
+const cWk = new Float64Array(CMAX);
+const cSx = new Float64Array(CMAX), cSy = new Float64Array(CMAX), cSz = new Float64Array(CMAX);
+const cJt = new Float64Array(CMAX), cVt0 = new Float64Array(CMAX);
+const cTx = new Float64Array(CMAX), cTy = new Float64Array(CMAX), cTz = new Float64Array(CMAX);
 let nC = 0;
 
-function addContact(i, b, nx, ny, nz, pen, slot, pairIdx) {
+const B_PART = 0, B_RECEPTACLE = -1, B_ELEMENT = -2, B_STATIC = -3;
+
+function addContact(i, b, nx, ny, nz, pen, sx, sy, sz) {
   if (nC >= CMAX) return;
   const k = nC++;
-  if (b >= 0) { cNew[k] = wasPair[pairIdx] ? 0 : 1; nowPair[pairIdx] = 1; }
-  else { const q = i * 3 + slot; cNew[k] = wasBnd[q] ? 0 : 1; nowBnd[q] = 1; }
   cA[k] = i; cB[k] = b; cNx[k] = nx; cNy[k] = ny; cNz[k] = nz;
-  cPen[k] = pen; cJn[k] = 0; cWk[k] = 0;
-  // approach speed before the solve, kept for the energy that goes into damage
-  let rvx = vx[i], rvy = vy[i], rvz = vz[i];
-  if (b >= 0) { rvx -= vx[b]; rvy -= vy[b]; rvz -= vz[b]; }
-  else if (b === -3) { const ev = elemVel(); rvx -= ev[0]; rvy -= ev[1]; rvz -= ev[2]; }
+  cPen[k] = pen; cJn[k] = 0; cWk[k] = 0; cJt[k] = 0; cVt0[k] = 0;
+  cSx[k] = sx || 0; cSy[k] = sy || 0; cSz[k] = sz || 0;
+  let rvx, rvy, rvz;
+  if (b >= 0) { rvx = vx[i] - vx[b]; rvy = vy[i] - vy[b]; rvz = vz[i] - vz[b]; }
+  else { rvx = vx[i] - cSx[k]; rvy = vy[i] - cSy[k]; rvz = vz[i] - cSz[k]; }
   cVn0[k] = rvx * nx + rvy * ny + rvz * nz;
 }
 
 function buildContacts() {
   nC = 0;
-  nowPair.fill(0, 0, Math.max(1, nPairs));
-  nowBnd.fill(0, 0, N * 3);
-  const [ex, ez] = elemCentre();
+  const w = omega();
+  const D = state.offset;
 
+  for (let i = 0; i < N; i++) {
+    const r = rad[i], x = px[i], y = py[i], z = pz[i];
+    const rr = Math.hypot(x, z);
+
+    // receptacle wall — rotates about A at the origin, so its surface velocity
+    // at the contact point is ω ẑ × p
+    if (y < MACH.yRim && rr > 1e-9) {
+      const c = chamberSurf(y);
+      if (rr + r > c.r) {
+        const inv = 1 / Math.hypot(1, c.s);
+        addContact(i, B_RECEPTACLE, -x / rr * inv, c.s * inv, -z / rr * inv,
+                   Math.min(rr + r - c.r, r), -w * z, 0, w * x);
+      }
+    }
+    // receptacle floor, also driven
+    if (y - r < MACH.yFloor) {
+      addContact(i, B_RECEPTACLE, 0, 1, 0, MACH.yFloor - (y - r), -w * z, 0, w * x);
+    }
+    // grinding element — rotates about its own axis B, offset by D. Its axis
+    // does not move: the compression zone stands still in the lab frame.
+    if (y < MACH.yRim) {
+      const dxe = x - D, dze = z;
+      const re = Math.hypot(dxe, dze);
+      const e = elemSurf(y);
+      if (e.r > 0 && re < e.r + r && re > 1e-9) {
+        const inv = 1 / Math.hypot(1, e.s);
+        const pen = Math.min(e.r + r - re, r);
+        addContact(i, B_ELEMENT, dxe / re * inv, -e.s * inv, dze / re * inv, pen,
+                   -w * dze, 0, w * dxe);
+      }
+    }
+    // element crown: the distributor cap, driven with the element
+    if (y > MACH.yRim - r && y < MACH.yRim + MACH.capH + r) {
+      const dxe = x - D, dze = z;
+      const re = Math.hypot(dxe, dze);
+      const cap = capSurf(re);
+      if (cap && y - r < cap.y) {
+        const inv = 1 / Math.hypot(1, cap.s);
+        const ux = re > 1e-9 ? dxe / re : 1, uz = re > 1e-9 ? dze / re : 0;
+        addContact(i, B_ELEMENT, -cap.s * ux * inv, inv, -cap.s * uz * inv,
+                   Math.min(cap.y - (y - r), r), -w * dze, 0, w * dxe);
+      }
+    }
+    /* Static housing above the rim. Without it anything thrown over the lip
+       leaves radially and never comes back — the chamber quietly bleeds its
+       charge into empty space. */
+    if (y >= MACH.yRim && y < Y_EXIT && rr > 1e-9) {
+      const h = houseSurf(y);
+      if (rr + r > h.r) {
+        const inv = 1 / Math.hypot(1, h.s);
+        addContact(i, B_STATIC, -x / rr * inv, h.s * inv, -z / rr * inv,
+                   Math.min(rr + r - h.r, r));
+      }
+    }
+    // stationary feed chute
+    if (y > Y_CHUTE && y < MACH.yHop && rr > 1e-9) {
+      const h = hopSurf();
+      if (rr + r > h.r) {
+        addContact(i, B_STATIC, -x / rr, 0, -z / rr, rr + r - h.r);
+      }
+    }
+  }
+  /* Particle contacts last, deliberately. The boundary contacts are what the
+     machine is: drop one and a grain is no longer driven, centrifuged or
+     ground. If the buffer ever runs short it is a rock-on-rock contact that
+     goes, never a wall. */
   for (let p = 0; p < nPairs; p++) {
     const i = pairs[p * 2], j = pairs[p * 2 + 1];
     const dx = px[j] - px[i], dy = py[j] - py[i], dz = pz[j] - pz[i];
@@ -1544,58 +1707,12 @@ function buildContacts() {
     const d2 = dx * dx + dy * dy + dz * dz;
     if (d2 >= rs * rs || d2 < 1e-18) continue;
     const d = Math.sqrt(d2);
-    addContact(i, j, dx / d, dy / d, dz / d, rs - d, 0, p);
-  }
-
-  for (let i = 0; i < N; i++) {
-    const r = rad[i];
-    const rr = Math.hypot(px[i], pz[i]);
-
-    // vessel wall — normal points inward, into the chamber
-    if (rr + r > MACH.Rv && rr > 1e-9 && py[i] < MACH.yRim) {
-      addContact(i, -1, -px[i] / rr, 0, -pz[i] / rr, rr + r - MACH.Rv, B_WALL, 0);
-    }
-    // feed hopper above the rim (funnel wall, pushes material inward and down)
-    if (py[i] > MACH.yRim && py[i] < MACH.yHop && rr > 1e-9) {
-      const h = hopSurf(py[i]);
-      if (rr + r > h.r) {
-        const inv = 1 / Math.hypot(1, h.s);
-        addContact(i, -1, -px[i] / rr * inv, h.s * inv, -pz[i] / rr * inv, rr + r - h.r, B_WALL, 0);
-      }
-    }
-    // Discharge: the outlet under the protector ring (166) passes what is finer
-    // than the setting and holds back the rest, so the gap governs product size
-    // while the nip above does the crushing. Media never pass — the ring is there
-    // to keep them in the chamber.
-    if (py[i] - r < MACH.yFloor) {
-      const passes = !isMedia[i] && 2 * r <= state.gap;
-      if (!passes) addContact(i, -2, 0, 1, 0, MACH.yFloor - (py[i] - r), B_FLOOR, 0);
-    }
-    // grinding element: crushing cone plus distributor cap, about the orbiting axis
-    if (py[i] < elemApex() && py[i] > MACH.yElemBot) {
-      const dxe = px[i] - ex, dze = pz[i] - ez;
-      const re = Math.hypot(dxe, dze);
-      const su = elemSurf(py[i]);
-      if (su.r > 0 && re < su.r + r && re > 1e-9) {
-        // outward normal of a cone: radial component 1, vertical -dR/dy
-        const inv = 1 / Math.hypot(1, su.s);
-        // deep interpenetration only happens on a slider jump; ease it out rather
-        // than firing the particle across the chamber
-        const pen = Math.min(su.r + r - re, r);
-        addContact(i, -3, dxe / re * inv, -su.s * inv, dze / re * inv, pen, B_ELEM, 0);
-      }
-    }
+    addContact(i, j, dx / d, dy / d, dz / d, rs - d);
   }
 }
 
-function swapPersistence() {
-  let t = wasPair; wasPair = nowPair; nowPair = t;
-  t = wasBnd; wasBnd = nowBnd; nowBnd = t;
-}
-
-let stepPowerAccum = 0;
+let stepPowerAccum = 0, stepDiss = 0;
 function solveContacts(dt) {
-  const ev = elemVel();
   const invDt = 1 / dt;
   for (let it = 0; it < ITER; it++) {
     for (let k = 0; k < nC; k++) {
@@ -1605,11 +1722,8 @@ function solveContacts(dt) {
       const mj = b >= 0 ? 1 / mass[b] : 0;
       let rvx, rvy, rvz;
       if (b >= 0) { rvx = vx[i] - vx[b]; rvy = vy[i] - vy[b]; rvz = vz[i] - vz[b]; }
-      else if (b === -3) { rvx = vx[i] - ev[0]; rvy = vy[i] - ev[1]; rvz = vz[i] - ev[2]; }
-      else { rvx = vx[i]; rvy = vy[i]; rvz = vz[i]; }
+      else { rvx = vx[i] - cSx[k]; rvy = vy[i] - cSy[k]; rvz = vz[i] - cSz[k]; }
       const vn = rvx * nx + rvy * ny + rvz * nz;
-
-      // Baumgarte push-out plus restitution on genuine impacts only
       const bias = BAUM * invDt * Math.max(0, cPen[k] - SLOP);
       const rest = cVn0[k] < -0.4 ? REST * -cVn0[k] : 0;
       let lam = -(vn + rest - bias) / (mi + mj);
@@ -1619,51 +1733,75 @@ function solveContacts(dt) {
       if (lam !== 0) {
         vx[i] += lam * nx * mi; vy[i] += lam * ny * mi; vz[i] += lam * nz * mi;
         if (b >= 0) { vx[b] -= lam * nx * mj; vy[b] -= lam * ny * mj; vz[b] -= lam * nz * mj; }
-        if (b === -3) {
-          const dw = lam * (nx * ev[0] + ny * ev[1] + nz * ev[2]);   // work in this iteration
-          cWk[k] += dw;
-          stepPowerAccum += dw * invDt;
+        else {
+          // work the driven surface does on the charge, and the drive power it costs
+          stepPowerAccum += lam * (nx * cSx[k] + ny * cSy[k] + nz * cSz[k]) * invDt;
         }
       }
-
-      // friction, clamped by the normal impulse accumulated so far
       if (b >= 0) { rvx = vx[i] - vx[b]; rvy = vy[i] - vy[b]; rvz = vz[i] - vz[b]; }
-      else if (b === -3) { rvx = vx[i] - ev[0]; rvy = vy[i] - ev[1]; rvz = vz[i] - ev[2]; }
-      else { rvx = vx[i]; rvy = vy[i]; rvz = vz[i]; }
+      else { rvx = vx[i] - cSx[k]; rvy = vy[i] - cSy[k]; rvz = vz[i] - cSz[k]; }
       const vn2 = rvx * nx + rvy * ny + rvz * nz;
-      let tx = rvx - vn2 * nx, ty = rvy - vn2 * ny, tz = rvz - vn2 * nz;
-      const tv = Math.hypot(tx, ty, tz);
-      if (tv > 1e-7) {
-        tx /= tv; ty /= tv; tz /= tv;
-        const jt = Math.max(-MU * cJn[k], Math.min(MU * cJn[k], -tv / (mi + mj)));
-        vx[i] += jt * tx * mi; vy[i] += jt * ty * mi; vz[i] += jt * tz * mi;
-        if (b >= 0) { vx[b] -= jt * tx * mj; vy[b] -= jt * ty * mj; vz[b] -= jt * tz * mj; }
+
+      /* The friction tangent is locked on the first iteration. Recomputing it
+         every pass makes the accumulated tangential impulse meaningless, and
+         that impulse is exactly what the slip-work accounting below needs. */
+      if (it === 0) {
+        const ax = rvx - vn2 * nx, ay = rvy - vn2 * ny, az = rvz - vn2 * nz;
+        const tvm = Math.hypot(ax, ay, az);
+        if (tvm > 1e-7) { cTx[k] = ax / tvm; cTy[k] = ay / tvm; cTz[k] = az / tvm; cVt0[k] = tvm; }
+        else { cTx[k] = 0; cTy[k] = 0; cTz[k] = 0; cVt0[k] = 0; }
+      }
+      const tx = cTx[k], ty = cTy[k], tz = cTz[k];
+      if (cVt0[k] > 0) {
+        const vt = rvx * tx + rvy * ty + rvz * tz;
+        const cap = MU * cJn[k];
+        const oldT = cJt[k];
+        cJt[k] = Math.max(-cap, Math.min(cap, oldT - vt / (mi + mj)));
+        const jt = cJt[k] - oldT;
+        if (jt !== 0) {
+          vx[i] += jt * tx * mi; vy[i] += jt * ty * mi; vz[i] += jt * tz * mi;
+          if (b >= 0) { vx[b] -= jt * tx * mj; vy[b] -= jt * ty * mj; vz[b] -= jt * tz * mj; }
+          else stepPowerAccum += Math.max(0, jt * (tx * cSx[k] + ty * cSy[k] + tz * cSz[k])) * invDt;
+        }
       }
     }
   }
 
-  /* Energy into the particles.
-     Two things matter here. The accumulated impulse is not usable as an energy
-     proxy on its own — most of it is Baumgarte correction, which is bookkeeping,
-     not work. And the charge is only allowed to absorb what actually entered the
-     machine this step: the work the eccentric did against the charge, plus the
-     potential energy the falling charge gave up. Without that ceiling the bed
-     chatter of a dense charge acts as an unlimited energy supply and grinds
-     everything to the cut size for free — which is exactly what it did before
-     this budget was imposed. */
+  /* Energy into the particles: what each contact actually dissipated —
+     frictional slip work plus the inelastic loss of any impact. Capped again
+     by what entered the machine, the drive work plus the potential energy the
+     charge gave up. Contact impulse alone is not a usable proxy — most of it
+     is Baumgarte correction, which is bookkeeping rather than work, and
+     charging it grinds the whole charge on an energy budget the drive never
+     supplied. */
+  const w = omega();
+  const gField = G + w * w * MACH.Rc;
   let want = 0;
   for (let k = 0; k < nC; k++) {
     const i = cA[k], b = cB[k];
     const mEff = b >= 0 ? mass[i] * mass[b] / (mass[i] + mass[b]) : mass[i];
-    let E = 0;
-    if (cVn0[k] < -0.3) E += 0.5 * mEff * cVn0[k] * cVn0[k];
-    if (b === -3 && cWk[k] > 0) E += cWk[k];
-    cWk[k] = E;                       // reuse the slot: proposed energy for this contact
+    const inv = 1 / mass[i] + (b >= 0 ? 1 / mass[b] : 0);
+    /* Damage floor. Holding the bed against the centrifugal field costs about
+       m·g_field per particle, and a contact carrying only that is doing no
+       comminution — it is the bed standing still. Only load above it damages
+       anything, which is why turning the offset down to nothing turns the
+       breakage off instead of merely slowing it. */
+    if (cJn[k] * invDt < DFLOOR * mass[i] * gField) { cWk[k] = 0; continue; }
+    /* Frictional slip work: the tangential impulse times the slip it rubbed
+       through. This, not the surface work, is what comminutes — a particle
+       riding with the wall slips at nothing and takes no damage, while one
+       squeezed in the converging annulus carries the full normal load across
+       the ω × D slip and takes the lot. Breakage localises to the eccentric
+       zone on its own, without being told to. */
+    const jt = Math.abs(cJt[k]);
+    let E = jt * Math.max(0, cVt0[k] - 0.5 * jt * inv);
+    if (cVn0[k] < -0.3) E += 0.5 * mEff * cVn0[k] * cVn0[k] * (1 - REST * REST);
+    cWk[k] = E;
     want += E;
   }
   if (want > 0) {
-    let budget = Math.max(0, stepPowerAccum) * dt;              // drive input
-    for (let i = 0; i < N; i++) budget += mass[i] * G * Math.max(0, -vy[i]) * dt;   // gravity
+    let budget = Math.max(0, stepPowerAccum) * dt;
+    for (let i = 0; i < N; i++) budget += mass[i] * G * Math.max(0, -vy[i]) * dt;
     const scale = Math.min(1, budget / want);
     if (scale > 0) {
       for (let k = 0; k < nC; k++) {
@@ -1673,62 +1811,179 @@ function solveContacts(dt) {
         if (b >= 0) { absorb(i, E * 0.5); absorb(b, E * 0.5); } else absorb(i, E);
       }
     }
-    state.energyIn = (state.energyIn || 0) + Math.min(want, budget);
-  }
+    stepDiss = want * scale * invDt;
+  } else stepDiss = 0;
 }
 
 let stepPower = 0;
 function physicsStep(dt) {
-  const w = omega();
-  state.phase += w * dt;
+  state.phase += omega() * dt;
   state.simTime += dt;
   stepPowerAccum = 0;
 
-  for (let i = 0; i < N; i++) vy[i] -= G * dt;
+  /* Gravity, and the process air that classifies the product. Drag is
+     quadratic, so the cut is a terminal-velocity cut: fines are carried up
+     and out of the chamber against centrifugal and gravitational forces
+     while the coarse fraction stays at the outer and lower limits. */
+  const air = state.air;
+  for (let i = 0; i < N; i++) {
+    vy[i] -= G * dt;
+    const dv = air - vy[i];
+    const F = 0.5 * RHO_AIR * CD * Math.PI * rad[i] * rad[i] * dv * Math.abs(dv);
+    vy[i] += F / mass[i] * dt;
+  }
 
   buildContacts();
   solveContacts(dt);
-  stepPower = stepPowerAccum;
+  /* The number worth quoting is the power the charge dissipates — the sum of
+     the slip and impact losses above. Instantaneous shaft power in a solver
+     like this is dominated by the impulse that merely holds the bed in its
+     circular path, which does no work at all, so it reads high and means
+     nothing. Dissipated power is what turns into comminution and heat. */
+  stepPower = stepDiss;
 
-  for (let i = 0; i < N; i++) { px[i] += vx[i] * dt; py[i] += vy[i] * dt; pz[i] += vz[i] * dt; }
-  swapPersistence();
+  /* Nothing in this chamber can outrun the surfaces that drive it by much.
+     The clamp only ever fires on a particle wedged where the solver cannot
+     separate it, and without it one pinched grain can throw the charge. */
+  const vCap = Math.max(6, 2 * omega() * MACH.Rc);
+  for (let i = 0; i < N; i++) {
+    const s = Math.hypot(vx[i], vy[i], vz[i]);
+    if (s > vCap) { const f = vCap / s; vx[i] *= f; vy[i] *= f; vz[i] *= f; }
+    px[i] += vx[i] * dt; py[i] += vy[i] * dt; pz[i] += vz[i] * dt;
+  }
+  contain();
 }
 
-/* Housekeeping runs once per frame, not per substep: removing or splitting a
-   particle renumbers the arrays, which would invalidate the neighbour list and
-   the contact persistence the substeps rely on. */
-function houseKeeping() {
-  // anti-tunnelling: anything too coarse for the setting that slipped below the
-  // outlet goes back on the lip rather than counting as product it cannot fit
+/* Containment. The surfaces here move at metres per second and a substep is
+   milliseconds, so a fast grain can cross a wall between two contact solves
+   and be gone. Rather than pay for a much smaller step, a grain that has
+   travelled more than half its own radius past a surface is put back just
+   inside it — still overlapping, so the contact solver keeps the contact and
+   does the physics. It fires only on tunnelling; ordinary contact is left
+   entirely alone. */
+const TUNNEL = 0.5, RESEAT = 0.1;
+
+function contain() {
+  const D = state.offset;
   for (let i = 0; i < N; i++) {
-    if (!isMedia[i] && 2 * rad[i] <= state.gap) continue;
-    if (py[i] < MACH.yFloor - rad[i] * 0.5) {
-      py[i] = MACH.yFloor + rad[i];
+    const r = rad[i];
+
+    // never let anything end up inside the crown
+    if (py[i] > MACH.yRim - r && py[i] < MACH.yRim + MACH.capH) {
+      const cap = capSurf(Math.hypot(px[i] - D, pz[i]));
+      if (cap && py[i] < cap.y + r - TUNNEL * r) {
+        py[i] = cap.y + r * (1 - RESEAT);
+        if (vy[i] < 0) vy[i] = 0;
+      }
+    }
+    if (py[i] >= MACH.yRim) {
+      if (py[i] < Y_EXIT) {
+        const h = houseSurf(py[i]).r;
+        const rr = Math.hypot(px[i], pz[i]);
+        if (rr > h - r + TUNNEL * r && rr > 1e-9) {
+          const f = (h - r * (1 - RESEAT)) / rr;
+          px[i] *= f; pz[i] *= f;
+        }
+      }
+      continue;
+    }
+
+    if (py[i] < MACH.yFloor + r - TUNNEL * r) {
+      py[i] = MACH.yFloor + r * (1 - RESEAT);
       if (vy[i] < 0) vy[i] = 0;
     }
+    const e = elemSurf(py[i]).r;
+    const dxe = px[i] - D, dze = pz[i];
+    const re = Math.hypot(dxe, dze);
+    if (e > 0 && re < e + r - TUNNEL * r) {
+      const t = e + r * (1 - RESEAT);
+      if (re > 1e-9) { const f = t / re; px[i] = D + dxe * f; pz[i] = dze * f; }
+      else { px[i] = D + t; pz[i] = 0; }
+    }
+    const c = chamberSurf(py[i]).r;
+    const rr = Math.hypot(px[i], pz[i]);
+    if (rr > c - r + TUNNEL * r && rr > 1e-9) {
+      const f = (c - r * (1 - RESEAT)) / rr;
+      px[i] *= f; pz[i] *= f;
+    }
   }
+}
+
+function houseKeeping() {
+  const cut = cutSize();
+  // pass 1 — discharge, classification and losses (indices move, so nothing
+  // may be queued for later here)
   for (let i = N - 1; i >= 0; i--) {
-    if (py[i] < MACH.yFloor - 0.05) {
-      if (!isMedia[i]) recordProduct(2 * rad[i], mass[i]);
+    if (!isFinite(py[i]) || py[i] < MACH.yFloor - 0.08 ||
+        Math.hypot(px[i], pz[i]) > 0.40) { removeParticle(i); continue; }
+
+    /* Discharge is a classification, not a screen. A particle reaching the
+       riser leaves only if the air can actually carry it — otherwise it is
+       thrown back into the chamber, which is what stops the machine passing
+       coarse material just because it bounced high. */
+    if (py[i] > Y_EXIT) {
+      if (!isMedia[i] && termV(i) < state.air) {
+        recordProduct(2 * rad[i], mass[i]);
+        removeParticle(i);
+      } else {
+        py[i] = Y_EXIT;
+        if (vy[i] > 0) vy[i] = -0.3 * vy[i];
+      }
+      continue;
+    }
+
+    if (!isMedia[i] && 2 * rad[i] < cut) {
+      recordProduct(2 * rad[i], mass[i]);      // below the tracked size
       removeParticle(i);
-    } else if (!isMedia[i] && 2 * rad[i] < state.fines) {
-      recordProduct(2 * rad[i], mass[i]);
-      removeParticle(i);
-    } else if (py[i] > MACH.yHop + 0.15 || !isFinite(py[i])) {
-      removeParticle(i);                                   // anything thrown clear
+      continue;
+    }
+
+  }
+
+  /* Pass 2 — the nip. Nothing can occupy a space narrower than itself, and at
+     azimuth φ the annulus is only gap + D(1 − cos φ) wide, so anything the
+     rotation carries into the converging side is either reduced to fit or
+     pushed out. Rock breaks, to a top size the clearance sets; a steel medium
+     cannot, so it floats round to the open side of the annulus, which is the
+     real machine letting the element ride out on its mounting. This is the
+     one hard geometric constraint in the model and it is not energy-capped:
+     the throughput limit on it is transport, since a particle has to be
+     carried into the zone before it can be nipped. */
+  const nip = [];
+  for (let i = 0; i < N; i++) {
+    if (py[i] >= MACH.yRim) continue;
+    const clear = annulusAt(Math.atan2(pz[i], px[i]));
+    if (2 * rad[i] <= clear + 1e-4) continue;
+    if (isMedia[i]) {
+      const rr = chamberSurf(py[i]).r - rad[i] - 0.001;
+      const j = (Math.random() - 0.5) * 0.6;
+      px[i] = -rr * Math.cos(j); pz[i] = rr * Math.sin(j);
+    } else if (2 * rad[i] > cut) {
+      nip.push(i, clear);
     }
   }
-  if (brkQueue.length) {
-    brkQueue.sort((a, b) => b - a);
-    let last = -1;
-    for (const i of brkQueue) {
-      if (i === last || i >= N || isMedia[i]) continue;
-      last = i;
-      breakParticle(i);
-    }
+
+  if (brkQueue.length || nip.length) {
+    const dmax = new Map();
+    for (let k = 0; k < nip.length; k += 2) dmax.set(nip[k], nip[k + 1]);
+    for (const i of brkQueue) if (!dmax.has(i)) dmax.set(i, Infinity);
     brkQueue.length = 0;
+    /* At most a few breaks a frame. Every break drops a cluster of fragments
+       into the space one grain used to occupy, and the solver needs a handful
+       of steps to open each one up; let a hundred happen at once and the
+       charge turns to porridge. The rest keep their damage and break next
+       frame, so nothing is lost but the timing. */
+    const order = [...dmax.keys()].sort((a, b) => b - a);
+    let done = 0;
+    for (const i of order) {
+      if (i >= N || isMedia[i]) continue;
+      /* Out of particle budget: hold the break rather than discharge the
+         fragments unground. Counting them as product would flatter the model
+         at exactly the moment the machine is choked. */
+      if (N >= NMAX - 6 || done++ >= 4) { if (dmax.get(i) === Infinity) brkQueue.push(i); continue; }
+      breakParticle(i, dmax.get(i));
+    }
   }
-  wasPair.fill(0); wasBnd.fill(0);      // indices changed: start contacts fresh
 }
 
 /* ═══════════════════════════ rendering ═══════════════════════════════ */
@@ -1740,9 +1995,9 @@ renderer.localClippingEnabled = true;
 renderer.setClearColor(0xf4f6fb);
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(38, 1, 0.02, 20);
-camera.position.set(0.50, 0.33, 0.50);
+camera.position.set(0.31, 0.25, 0.31);
 const controls = new THREE.OrbitControls(camera, canvas);
-controls.target.set(0, 0.125, 0);
+controls.target.set(0, 0.135, 0);
 controls.enableDamping = true;
 controls.dampingFactor = 0.09;
 controls.minDistance = 0.18;
@@ -1753,76 +2008,72 @@ const d1 = new THREE.DirectionalLight(0xffffff, 0.62); d1.position.set(0.9, 1.3,
 const d2 = new THREE.DirectionalLight(0xdfe4f2, 0.28); d2.position.set(-1.1, 0.6, -0.9);
 scene.add(d1, d2);
 
-// cutaway plane, the same idea as the assembly viewer's clipping
-const clip = [new THREE.Plane(new THREE.Vector3(0, 0, -1), 1)];   // constant 1 = no cut
+const clip = [new THREE.Plane(new THREE.Vector3(0, 0, -1), state.cutaway ? 0 : 1)];
 const shellMat = (color, opacity) => new THREE.MeshStandardMaterial({
   color, metalness: 0.25, roughness: 0.55, transparent: opacity < 1, opacity,
-  depthWrite: false,          // otherwise the glass shells hide the charge inside
-  side: THREE.DoubleSide, clippingPlanes: clip, clipShadows: true,
+  depthWrite: false, side: THREE.DoubleSide, clippingPlanes: clip,
 });
 
-// vessel
-const vessel = new THREE.Mesh(
-  new THREE.CylinderGeometry(MACH.Rv, MACH.Rv, MACH.yRim - MACH.yFloor, 64, 1, true),
-  shellMat(0x6670b8, 0.26));
-vessel.position.y = (MACH.yRim + MACH.yFloor) / 2;
-scene.add(vessel);
-// rim and lip rings, so the vessel reads as a body rather than a haze
-for (const y of [MACH.yFloor, MACH.yRim]) {
-  const t = new THREE.Mesh(new THREE.TorusGeometry(MACH.Rv, 0.0022, 8, 72),
-    new THREE.MeshStandardMaterial({ color: 0x4e57a6, metalness: 0.4, roughness: 0.45, clippingPlanes: clip }));
-  t.rotation.x = Math.PI / 2; t.position.y = y;
-  scene.add(t);
-}
-
-// floor with the annular outlet cut out of it
-const shelf = new THREE.RingGeometry(MACH.slotIn, MACH.slotOut, 48);
-shelf.rotateX(-Math.PI / 2);
-const shelfMesh = new THREE.Mesh(shelf, shellMat(0x4e57a6, 0.5));
-shelfMesh.position.y = MACH.yFloor;
-scene.add(shelfMesh);
-
-// protector ring around the outlet
-const ring = new THREE.Mesh(
-  new THREE.TorusGeometry((MACH.slotIn + MACH.slotOut) / 2, 0.004, 8, 48),
-  shellMat(0x4c2566, 1));
-ring.rotation.x = Math.PI / 2; ring.position.y = MACH.yFloor - 0.005;
-scene.add(ring);
-
-// feed hopper
-const chute = new THREE.Mesh(
-  new THREE.CylinderGeometry(MACH.rHop, MACH.Rv, MACH.yHop - MACH.yRim, 48, 1, true),
-  shellMat(0x9aa3c4, 0.16));
-chute.position.y = (MACH.yHop + MACH.yRim) / 2;
-scene.add(chute);
-
-// grinding element — rebuilt whenever the gap or eccentricity changes
-let element = null;
-function buildElement() {
-  if (element) {
-    scene.remove(element);
-    element.traverse(o => { if (o.geometry) o.geometry.dispose(); });
+let receptacle = null, element = null;
+function buildBodies() {
+  for (const g of [receptacle, element]) {
+    if (g) { scene.remove(g); g.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }
   }
-  const h = MACH.yElemTop - MACH.yElemBot;
-  const rBot = elemRadius(MACH.yElemBot), rTop = elemRadius(MACH.yElemTop);
-  const mat = new THREE.MeshStandardMaterial({
-    color: 0x4c2566, metalness: 0.55, roughness: 0.35, clippingPlanes: clip });
+  const h = MACH.yRim - MACH.yFloor;
+
+  // receptacle: conical bowl, wider at the bottom, with ribs so its rotation reads
+  receptacle = new THREE.Group();
+  const cTop = chamberSurf(MACH.yRim).r, cBot = chamberSurf(MACH.yFloor).r;
+  const bowl = new THREE.Mesh(
+    new THREE.CylinderGeometry(cTop, cBot, h, 64, 1, true), shellMat(0x6670b8, 0.24));
+  bowl.position.y = MACH.yFloor + h / 2;
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(cBot, 56), shellMat(0x4e57a6, 0.5));
+  floor.rotation.x = -Math.PI / 2; floor.position.y = MACH.yFloor;
+  receptacle.add(bowl, floor);
+  for (let k = 0; k < 8; k++) {
+    const a = k * Math.PI / 4;
+    const rib = new THREE.Mesh(new THREE.BoxGeometry(0.004, h, 0.006),
+      new THREE.MeshStandardMaterial({ color: 0x4e57a6, metalness: 0.4, roughness: 0.5, clippingPlanes: clip }));
+    rib.position.set(Math.cos(a) * (cBot - 0.004), MACH.yFloor + h / 2, Math.sin(a) * (cBot - 0.004));
+    rib.rotation.y = -a;
+    receptacle.add(rib);
+  }
+  scene.add(receptacle);
+
+  // grinding element: same taper, offset by D, with a distributor cap
   element = new THREE.Group();
-  const cone = new THREE.Mesh(new THREE.CylinderGeometry(rTop, rBot, h, 56, 1, false), mat);
-  cone.position.y = MACH.yElemBot + h / 2;
-  const capH = elemApex() - MACH.yElemTop;
-  const cap = new THREE.Mesh(new THREE.ConeGeometry(rTop, capH, 56), mat);
-  cap.position.y = MACH.yElemTop + capH / 2;
-  element.add(cone, cap);
+  const eTop = Math.max(0.01, elemSurf(MACH.yRim).r), eBot = Math.max(0.01, elemSurf(MACH.yFloor).r);
+  /* The element is drawn see-through. It is a solid drum filling nearly the
+     whole bowl, and the charge lives in the few millimetres between it and the
+     wall — leave it opaque and the machine hides its own working zone. */
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0x4c2566, metalness: 0.55, roughness: 0.35, clippingPlanes: clip,
+    transparent: true, opacity: 0.45, depthWrite: false, side: THREE.DoubleSide });
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(eTop, eBot, h, 56), mat);
+  body.position.y = MACH.yFloor + h / 2;
+  const capH = MACH.capH;
+  const cap2 = new THREE.Mesh(new THREE.ConeGeometry(eTop, capH, 56), mat);
+  cap2.position.y = MACH.yRim + capH / 2;
+  const key = new THREE.Mesh(new THREE.BoxGeometry(0.005, h * 0.9, 0.010),
+    new THREE.MeshStandardMaterial({ color: 0x7dd462, metalness: 0.3, roughness: 0.5, clippingPlanes: clip }));
+  key.position.set(eBot * 0.98, MACH.yFloor + h / 2, 0);
+  element.add(body, cap2, key);
+  element.position.x = state.offset;
   scene.add(element);
 }
-buildElement();
+buildBodies();
 
-// instanced particles
+// feed hopper (stationary)
+const hopper = new THREE.Mesh(
+  new THREE.CylinderGeometry(MACH.rHop, MACH.rHop, MACH.yHop - Y_CHUTE, 40, 1, true),
+  shellMat(0x9aa3c4, 0.14));
+hopper.position.y = (MACH.yHop + Y_CHUTE) / 2;
+scene.add(hopper);
+
 const oreGeo = new THREE.SphereGeometry(1, 10, 7);
 const mediaGeo = new THREE.SphereGeometry(1, 14, 10);
 const oreMesh = new THREE.InstancedMesh(oreGeo,
-  new THREE.MeshStandardMaterial({ metalness: 0.05, roughness: 0.85, vertexColors: false }), NMAX);
+  new THREE.MeshStandardMaterial({ metalness: 0.05, roughness: 0.85 }), NMAX);
 const mediaMesh = new THREE.InstancedMesh(mediaGeo,
   new THREE.MeshStandardMaterial({ color: 0x9aa3c4, metalness: 0.85, roughness: 0.25 }), 256);
 oreMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -1846,9 +2097,7 @@ function syncInstances() {
       if (state.byStress) {
         const t = Math.min(1, dmg[i] / breakThreshold(i));
         col.copy(t < 0.5 ? C_FRESH.clone().lerp(C_MID, t * 2) : C_MID.clone().lerp(C_HOT, (t - 0.5) * 2));
-      } else {
-        col.setHex(0x62bb43);
-      }
+      } else col.setHex(0x62bb43);
       oreMesh.setColorAt(no, col);
       no++;
     }
@@ -1860,9 +2109,8 @@ function syncInstances() {
 }
 
 function resize() {
-  const w = innerWidth, h = innerHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / h;
+  renderer.setSize(innerWidth, innerHeight, false);
+  camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
 }
 addEventListener('resize', resize);
@@ -1883,7 +2131,7 @@ function drawPSD() {
   if (state.psd.length < 8) return;
   const sorted = state.psd.slice().sort((a, b) => a[0] - b[0]);
   let tot = 0; for (const s of sorted) tot += s[1];
-  const dMax = Math.max(state.topSize, sorted[sorted.length - 1][0]);
+  const dMax = Math.max(0.004, sorted[sorted.length - 1][0]);
   pctx.strokeStyle = '#4e57a6'; pctx.lineWidth = 2; pctx.beginPath();
   let cum = 0;
   for (let i = 0; i < sorted.length; i++) {
@@ -1896,9 +2144,9 @@ function drawPSD() {
   pctx.fillStyle = 'rgba(98,187,67,.18)';
   pctx.lineTo(w - 3, h - 4); pctx.lineTo(3, h - 4); pctx.fill();
   pctx.fillStyle = '#9498b4';
-  pctx.font = '10px ' + getComputedStyle(document.body).getPropertyValue('--fm');
+  pctx.font = '10px "Fira Code", monospace';
   pctx.fillText('0', 3, h - 1);
-  pctx.textAlign = 'right'; pctx.fillText((dMax * 1000).toFixed(0) + ' mm', w - 3, h - 1);
+  pctx.textAlign = 'right'; pctx.fillText((dMax * 1000).toFixed(1) + ' mm', w - 3, h - 1);
   pctx.textAlign = 'left';
 }
 
@@ -1911,30 +2159,34 @@ function p80() {
   return sorted[sorted.length - 1][0];
 }
 
-function trimWindows() {
+function updateReadouts(fps, simRatio) {
   const t0 = state.simTime - 1.5;
   while (state.prodWindow.length && state.prodWindow[0][0] < t0) state.prodWindow.shift();
   while (state.brkWindow.length && state.brkWindow[0] < t0) state.brkWindow.shift();
-}
-
-function updateReadouts(fps, simRatio) {
-  trimWindows();
   const win = Math.min(1.5, Math.max(0.25, state.simTime));
   let pm = 0; for (const p of state.prodWindow) pm += p[1];
-  const tph = pm / win * 3.6;                       // kg/s → t/h
-  state.thruEMA += (tph - state.thruEMA) * 0.15;
+  state.thruEMA += (pm / win * 3.6 - state.thruEMA) * 0.15;
   state.brkEMA += (state.brkWindow.length / win - state.brkEMA) * 0.15;
   let hold = 0; for (let i = 0; i < N; i++) if (!isMedia[i]) hold += mass[i];
   const d80 = p80();
-  document.getElementById('kThru').textContent = state.thruEMA.toFixed(1);
-  document.getElementById('kP80').textContent = d80 ? (d80 * 1000).toFixed(1) + ' mm' : '—';
+  document.getElementById('kThru').textContent = state.thruEMA.toFixed(2);
+  document.getElementById('kP80').textContent = d80 ? (d80 * 1000).toFixed(2) + ' mm' : '—';
   document.getElementById('kPower').textContent = (state.powerEMA / 1000).toFixed(2);
   document.getElementById('kBrk').textContent = state.brkEMA.toFixed(0);
   document.getElementById('kN').textContent = N;
   document.getElementById('kHold').textContent = hold.toFixed(2);
+  document.getElementById('kG').textContent = gForce().toFixed(0) + ' g';
+  document.getElementById('kSlip').textContent = (omega() * state.offset).toFixed(2);
+  /* Say so when the chamber is choked. Once the particle budget is spent the
+     model stops breaking, so throughput and breakage rate both read zero —
+     which looks like a stalled simulation rather than what it is: a machine
+     fed past the power it develops. */
+  const choked = N >= NMAX - 6;
+  document.getElementById('kHold').parentElement.classList.toggle('warn', choked);
   document.getElementById('simstat').textContent =
-    'ehpcc dem model v1.0 · ' + fps.toFixed(0) + ' fps · sim ' + (simRatio * 100).toFixed(0) +
-    '% of real time · t=' + state.simTime.toFixed(1) + ' s';
+    'ehpcc dem model v2.0 · ' + fps.toFixed(0) + ' fps · sim ' + (simRatio * 100).toFixed(0) +
+    '% of real time · t=' + state.simTime.toFixed(1) + ' s' +
+    (choked ? ' · CHAMBER CHOKED — ease the feed, close the gap or lift the air' : '');
 }
 
 /* ═══════════════════════════ controls ════════════════════════════════ */
@@ -1945,17 +2197,17 @@ function bind(id, valId, fmt, apply) {
   run();
 }
 bind('sRpm', 'vRpm', v => v + ' rpm', v => state.rpm = v);
-bind('sGap', 'vGap', v => v + ' mm', v => { state.gap = v / 1000; buildElement(); });
-bind('sEcc', 'vEcc', v => v + ' mm', v => { state.ecc = v / 1000; buildElement(); });
+bind('sGap', 'vGap', v => v + ' mm', v => { state.gap = v / 1000; buildBodies(); });
+bind('sEcc', 'vEcc', v => v + ' mm', v => { state.offset = v / 1000; buildBodies(); });
+bind('sAir', 'vAir', () => state.air + ' m/s · ' + (cutSize() * 1000).toFixed(1) + ' mm cut',
+     v => state.air = v);
 bind('sFeed', 'vFeed', v => v + ' /s', v => state.feedRate = v);
 bind('sTop', 'vTop', v => v + ' mm', v => state.topSize = v / 1000);
-bind('sMedia', 'vMedia', v => v + ' × Ø14', v => state.nMedia = v);
+bind('sMedia', 'vMedia', v => v + ' × Ø5', v => state.nMedia = v);
 bind('sEcs', 'vEcs', v => v.toFixed(2) + ' kWh/t', v => state.ecs = v);
-bind('sFines', 'vFines', v => v.toFixed(1) + ' mm', v => state.fines = v / 1000);
 
 document.getElementById('tCut').addEventListener('change', e => {
   state.cutaway = e.target.checked;
-  renderer.clippingPlanes = [];
   clip[0].constant = state.cutaway ? 0 : 1;
 });
 document.getElementById('tMedia').addEventListener('change', e => state.showMedia = e.target.checked);
@@ -1971,13 +2223,12 @@ document.getElementById('btnReset').addEventListener('click', seedCharge);
 /* ═══════════════════════════ main loop ═══════════════════════════════ */
 seedCharge();
 let last = performance.now(), fpsEMA = 60, frame = 0;
-
 function loop(now) {
   const wall = Math.min((now - last) / 1000, 0.05);
   last = now;
   fpsEMA += (1 / Math.max(wall, 1e-3) - fpsEMA) * 0.06;
 
-  let simAdvanced = 0;
+  let advanced = 0;
   if (state.running) {
     buildPairs();
     for (let s = 0; s < SUBSTEPS; s++) {
@@ -1986,21 +2237,19 @@ function loop(now) {
     }
     houseKeeping();
     feed(DT * SUBSTEPS);
-    simAdvanced = DT * SUBSTEPS;
+    advanced = DT * SUBSTEPS;
   }
 
-  // element follows the eccentric
-  const [ex, ez] = elemCentre();
-  element.position.x = ex; element.position.z = ez;
+  // both bodies turn, synchronously and in the same direction
+  receptacle.rotation.y = state.phase;
+  element.rotation.y = state.phase;
+  element.position.x = state.offset;
 
   syncInstances();
   controls.update();
   renderer.render(scene, camera);
 
-  if (++frame % 6 === 0) {
-    updateReadouts(fpsEMA, simAdvanced * fpsEMA);
-    drawPSD();
-  }
+  if (++frame % 6 === 0) { updateReadouts(fpsEMA, advanced * fpsEMA); drawPSD(); }
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
