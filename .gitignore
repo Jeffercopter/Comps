@@ -14,4 +14,5 @@ next-env.d.ts
 
 # staged from the repo-root index.html by scripts/stage-mill.mjs
 public/mill/
+public/ehpcc/
 
