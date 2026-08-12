@@ -1,0 +1,657 @@
+{
+  "units": {
+    "size": "m",
+    "density": "kg/m3",
+    "ecs": "kWh/t"
+  },
+  "note": "Generated from ores.mjs by export-json.mjs — do not hand-edit.",
+  "minerals": {
+    "chalcopyrite": {
+      "rho": 4200,
+      "mohs": 3.75,
+      "hue": "#c9a227",
+      "strength": 0.3054732128362229
+    },
+    "bornite": {
+      "rho": 5090,
+      "mohs": 3,
+      "hue": "#8c5a3c",
+      "strength": 0.1999144138573782
+    },
+    "chalcocite": {
+      "rho": 5600,
+      "mohs": 2.75,
+      "hue": "#4a4a52",
+      "strength": 0.16945166568696043
+    },
+    "molybdenite": {
+      "rho": 4700,
+      "mohs": 1.25,
+      "hue": "#6e7276",
+      "strength": 0.05
+    },
+    "pyrite": {
+      "rho": 5010,
+      "mohs": 6.25,
+      "hue": "#d4c05a",
+      "strength": 0.8062797582601767
+    },
+    "pyrrhotite": {
+      "rho": 4610,
+      "mohs": 4,
+      "hue": "#a97452",
+      "strength": 0.34532475113085787
+    },
+    "pentlandite": {
+      "rho": 4800,
+      "mohs": 3.75,
+      "hue": "#c3a878",
+      "strength": 0.3054732128362229
+    },
+    "galena": {
+      "rho": 7580,
+      "mohs": 2.5,
+      "hue": "#7d8489",
+      "strength": 0.14138382941330002
+    },
+    "sphalerite": {
+      "rho": 4050,
+      "mohs": 3.75,
+      "hue": "#8a5a3b",
+      "strength": 0.3054732128362229
+    },
+    "arsenopyrite": {
+      "rho": 6100,
+      "mohs": 5.75,
+      "hue": "#b9b3a6",
+      "strength": 0.6881492309852987
+    },
+    "gold": {
+      "rho": 19300,
+      "mohs": 2.75,
+      "hue": "#ffd34d",
+      "strength": 0.16945166568696043
+    },
+    "pgm": {
+      "rho": 10000,
+      "mohs": 5.5,
+      "hue": "#c0c6cc",
+      "strength": 0.6324159782271986
+    },
+    "hematite": {
+      "rho": 5260,
+      "mohs": 6,
+      "hue": "#7a2e22",
+      "strength": 0.7461069744507078
+    },
+    "goethite": {
+      "rho": 4280,
+      "mohs": 5.25,
+      "hue": "#8c5a1e",
+      "strength": 0.5789171300426779
+    },
+    "magnetite": {
+      "rho": 5150,
+      "mohs": 6,
+      "hue": "#2f3336",
+      "strength": 0.7461069744507078
+    },
+    "chromite": {
+      "rho": 4600,
+      "mohs": 5.5,
+      "hue": "#3a3436",
+      "strength": 0.6324159782271986
+    },
+    "ilmenite": {
+      "rho": 4720,
+      "mohs": 5.5,
+      "hue": "#3d3a3f",
+      "strength": 0.6324159782271986
+    },
+    "gibbsite": {
+      "rho": 2420,
+      "mohs": 3,
+      "hue": "#ddd6c6",
+      "strength": 0.1999144138573782
+    },
+    "boehmite": {
+      "rho": 3010,
+      "mohs": 3.5,
+      "hue": "#cfc7b4",
+      "strength": 0.2679433656340733
+    },
+    "diamond": {
+      "rho": 3520,
+      "mohs": 10,
+      "hue": "#e8f4ff",
+      "strength": 1.9693083573873829
+    },
+    "quartz": {
+      "rho": 2650,
+      "mohs": 7,
+      "hue": "#d9d4cb",
+      "strength": 1
+    },
+    "feldspar": {
+      "rho": 2600,
+      "mohs": 6,
+      "hue": "#e3d9c8",
+      "strength": 0.7461069744507078
+    },
+    "plagioclase": {
+      "rho": 2680,
+      "mohs": 6,
+      "hue": "#e6ddd0",
+      "strength": 0.7461069744507078
+    },
+    "biotite": {
+      "rho": 3000,
+      "mohs": 2.75,
+      "hue": "#4d3b26",
+      "strength": 0.16945166568696043
+    },
+    "sericite": {
+      "rho": 2820,
+      "mohs": 2.25,
+      "hue": "#cfc9bb",
+      "strength": 0.11573387872447756
+    },
+    "chlorite": {
+      "rho": 2650,
+      "mohs": 2.25,
+      "hue": "#5f7358",
+      "strength": 0.11573387872447756
+    },
+    "kaolinite": {
+      "rho": 2600,
+      "mohs": 2.25,
+      "hue": "#e7e3dc",
+      "strength": 0.11573387872447756
+    },
+    "talc": {
+      "rho": 2750,
+      "mohs": 1,
+      "hue": "#e9e7e0",
+      "strength": 0.05
+    },
+    "olivine": {
+      "rho": 3300,
+      "mohs": 6.75,
+      "hue": "#7d9455",
+      "strength": 0.9332347296004241
+    },
+    "serpentine": {
+      "rho": 2550,
+      "mohs": 3.5,
+      "hue": "#6d8a73",
+      "strength": 0.2679433656340733
+    },
+    "pyroxene": {
+      "rho": 3250,
+      "mohs": 5.75,
+      "hue": "#4f5a4a",
+      "strength": 0.6881492309852987
+    },
+    "amphibole": {
+      "rho": 3100,
+      "mohs": 5.5,
+      "hue": "#41493d",
+      "strength": 0.6324159782271986
+    },
+    "spodumene": {
+      "rho": 3150,
+      "mohs": 6.75,
+      "hue": "#cbbfc9",
+      "strength": 0.9332347296004241
+    },
+    "apatite": {
+      "rho": 3200,
+      "mohs": 5,
+      "hue": "#b9c8b6",
+      "strength": 0.5276631092496838
+    },
+    "dolomite": {
+      "rho": 2850,
+      "mohs": 3.75,
+      "hue": "#cdbfae",
+      "strength": 0.3054732128362229
+    },
+    "calcite": {
+      "rho": 2710,
+      "mohs": 3,
+      "hue": "#ddd8cc",
+      "strength": 0.1999144138573782
+    }
+  },
+  "ores": {
+    "porphyry-cu-mo": {
+      "name": "Porphyry copper–molybdenum",
+      "note": "Disseminated chalcopyrite with a sericite-altered halo. The alteration is the soft phase and it is pervasive, so fracture finds it readily.",
+      "texture": 0.0009,
+      "bias": 0.55,
+      "ecs": 0.62,
+      "phases": [
+        {
+          "mineral": "chalcopyrite",
+          "vol": 0.018,
+          "grain": 0.00012,
+          "d95": 0.00018,
+          "valuable": true,
+          "assoc": [
+            "pyrite",
+            "sericite"
+          ]
+        },
+        {
+          "mineral": "molybdenite",
+          "vol": 0.002,
+          "grain": 0.00004,
+          "d95": 0.00007,
+          "valuable": true,
+          "assoc": [
+            "quartz"
+          ]
+        },
+        {
+          "mineral": "pyrite",
+          "vol": 0.03,
+          "grain": 0.0002
+        },
+        {
+          "mineral": "quartz",
+          "vol": 0.36,
+          "grain": 0.0005
+        },
+        {
+          "mineral": "feldspar",
+          "vol": 0.43,
+          "grain": 0.0008
+        },
+        {
+          "mineral": "biotite",
+          "vol": 0.06,
+          "grain": 0.0003
+        },
+        {
+          "mineral": "sericite",
+          "vol": 0.1,
+          "grain": 0.00008
+        }
+      ]
+    },
+    "orogenic-gold-quartz": {
+      "name": "Orogenic gold, quartz vein hosted",
+      "note": "Free-milling gold on sulphide grain boundaries. Gold is malleable rather than brittle — it smears rather than breaking, so it liberates by exposure and its d95 is set by grain size alone.",
+      "texture": 0.0015,
+      "bias": 0.7,
+      "ecs": 0.78,
+      "phases": [
+        {
+          "mineral": "gold",
+          "vol": 0.0002,
+          "grain": 0.000035,
+          "d95": 0.00006,
+          "valuable": true,
+          "assoc": [
+            "pyrite",
+            "arsenopyrite"
+          ]
+        },
+        {
+          "mineral": "pyrite",
+          "vol": 0.035,
+          "grain": 0.00025,
+          "assoc": [
+            "arsenopyrite"
+          ]
+        },
+        {
+          "mineral": "arsenopyrite",
+          "vol": 0.01,
+          "grain": 0.00015
+        },
+        {
+          "mineral": "quartz",
+          "vol": 0.76,
+          "grain": 0.0012
+        },
+        {
+          "mineral": "sericite",
+          "vol": 0.12,
+          "grain": 0.00006
+        },
+        {
+          "mineral": "chlorite",
+          "vol": 0.075,
+          "grain": 0.0001
+        }
+      ]
+    },
+    "bif-hematite": {
+      "name": "Banded iron formation, hematite",
+      "note": "Millimetre banding of iron oxide against chert. The bands are the texture, so fracture follows them and liberation is far better than random — the classic case for preferential breakage.",
+      "texture": 0.0025,
+      "bias": 1.1,
+      "ecs": 0.48,
+      "phases": [
+        {
+          "mineral": "hematite",
+          "vol": 0.48,
+          "grain": 0.0003,
+          "d95": 0.0004,
+          "valuable": true,
+          "assoc": [
+            "goethite"
+          ]
+        },
+        {
+          "mineral": "goethite",
+          "vol": 0.11,
+          "grain": 0.0002,
+          "d95": 0.0003,
+          "valuable": true
+        },
+        {
+          "mineral": "quartz",
+          "vol": 0.34,
+          "grain": 0.0004
+        },
+        {
+          "mineral": "kaolinite",
+          "vol": 0.07,
+          "grain": 0.00005
+        }
+      ]
+    },
+    "magnetite-taconite": {
+      "name": "Magnetite taconite",
+      "note": "Fine magnetite disseminated through a silicate matrix. Little hardness contrast and no soft alteration to guide the crack, so breakage is close to random and the grind has to be fine.",
+      "texture": 0.0006,
+      "bias": 0.2,
+      "ecs": 0.85,
+      "phases": [
+        {
+          "mineral": "magnetite",
+          "vol": 0.33,
+          "grain": 0.00006,
+          "d95": 0.0001,
+          "valuable": true
+        },
+        {
+          "mineral": "quartz",
+          "vol": 0.45,
+          "grain": 0.00025
+        },
+        {
+          "mineral": "amphibole",
+          "vol": 0.18,
+          "grain": 0.0003
+        },
+        {
+          "mineral": "pyrite",
+          "vol": 0.04,
+          "grain": 0.0001
+        }
+      ]
+    },
+    "vms-pb-zn": {
+      "name": "Massive sulphide, lead–zinc–copper",
+      "note": "Fine sulphide intergrowths in a pyrite mass. Galena is very soft and smears; sphalerite and chalcopyrite are locked at tens of microns, which is why these ores overgrind.",
+      "texture": 0.0004,
+      "bias": 0.65,
+      "ecs": 0.52,
+      "phases": [
+        {
+          "mineral": "galena",
+          "vol": 0.06,
+          "grain": 0.00005,
+          "d95": 0.00008,
+          "valuable": true,
+          "assoc": [
+            "sphalerite"
+          ]
+        },
+        {
+          "mineral": "sphalerite",
+          "vol": 0.12,
+          "grain": 0.00007,
+          "d95": 0.00011,
+          "valuable": true,
+          "assoc": [
+            "galena",
+            "chalcopyrite"
+          ]
+        },
+        {
+          "mineral": "chalcopyrite",
+          "vol": 0.025,
+          "grain": 0.000025,
+          "d95": 0.00004,
+          "valuable": true,
+          "assoc": [
+            "sphalerite"
+          ]
+        },
+        {
+          "mineral": "pyrite",
+          "vol": 0.52,
+          "grain": 0.00015
+        },
+        {
+          "mineral": "quartz",
+          "vol": 0.18,
+          "grain": 0.0002
+        },
+        {
+          "mineral": "dolomite",
+          "vol": 0.095,
+          "grain": 0.00025
+        }
+      ]
+    },
+    "ni-sulphide": {
+      "name": "Nickel sulphide, komatiite hosted",
+      "note": "Pentlandite exsolved as flames within pyrrhotite. The two are effectively one grain until very fine sizes, and serpentinised matrix is soft and slimes readily.",
+      "texture": 0.0008,
+      "bias": 0.5,
+      "ecs": 0.58,
+      "phases": [
+        {
+          "mineral": "pentlandite",
+          "vol": 0.04,
+          "grain": 0.00003,
+          "d95": 0.00005,
+          "valuable": true,
+          "assoc": [
+            "pyrrhotite"
+          ]
+        },
+        {
+          "mineral": "pyrrhotite",
+          "vol": 0.11,
+          "grain": 0.0002,
+          "assoc": [
+            "pentlandite"
+          ]
+        },
+        {
+          "mineral": "chalcopyrite",
+          "vol": 0.012,
+          "grain": 0.00006,
+          "d95": 0.0001,
+          "valuable": true,
+          "assoc": [
+            "pyrrhotite"
+          ]
+        },
+        {
+          "mineral": "olivine",
+          "vol": 0.38,
+          "grain": 0.0006
+        },
+        {
+          "mineral": "serpentine",
+          "vol": 0.4,
+          "grain": 0.00015
+        },
+        {
+          "mineral": "magnetite",
+          "vol": 0.058,
+          "grain": 0.00008
+        }
+      ]
+    },
+    "pgm-ug2": {
+      "name": "PGM reef, chromitite (UG2 style)",
+      "note": "Platinum group minerals a few microns across in a chromite seam. Nothing liberates the PGM by grinding alone — the model shows this, which is the point of including it.",
+      "texture": 0.0005,
+      "bias": 0.4,
+      "ecs": 0.72,
+      "phases": [
+        {
+          "mineral": "pgm",
+          "vol": 0.0008,
+          "grain": 0.000008,
+          "d95": 0.000012,
+          "valuable": true,
+          "assoc": [
+            "chromite",
+            "pyrrhotite"
+          ]
+        },
+        {
+          "mineral": "chromite",
+          "vol": 0.62,
+          "grain": 0.00015
+        },
+        {
+          "mineral": "pyroxene",
+          "vol": 0.23,
+          "grain": 0.0004
+        },
+        {
+          "mineral": "plagioclase",
+          "vol": 0.13,
+          "grain": 0.0005
+        },
+        {
+          "mineral": "pyrrhotite",
+          "vol": 0.019,
+          "grain": 0.00004,
+          "assoc": [
+            "pgm"
+          ]
+        }
+      ]
+    },
+    "bauxite": {
+      "name": "Bauxite, gibbsitic",
+      "note": "Soft throughout, with pisolitic gibbsite in a clay matrix. Everything is weak, so hardness contrast is small and the bias is low despite the low absolute strength.",
+      "texture": 0.003,
+      "bias": 0.35,
+      "ecs": 0.21,
+      "phases": [
+        {
+          "mineral": "gibbsite",
+          "vol": 0.52,
+          "grain": 0.0008,
+          "d95": 0.001,
+          "valuable": true,
+          "assoc": [
+            "boehmite"
+          ]
+        },
+        {
+          "mineral": "boehmite",
+          "vol": 0.08,
+          "grain": 0.0003,
+          "d95": 0.0004,
+          "valuable": true
+        },
+        {
+          "mineral": "kaolinite",
+          "vol": 0.22,
+          "grain": 0.0001
+        },
+        {
+          "mineral": "hematite",
+          "vol": 0.13,
+          "grain": 0.00015
+        },
+        {
+          "mineral": "quartz",
+          "vol": 0.05,
+          "grain": 0.0005
+        }
+      ]
+    },
+    "spodumene-pegmatite": {
+      "name": "Spodumene pegmatite",
+      "note": "Centimetre crystals. Liberation is achieved at coarse crush sizes, which is why these plants sort and dense-medium separate rather than grind.",
+      "texture": 0.006,
+      "bias": 0.8,
+      "ecs": 0.66,
+      "phases": [
+        {
+          "mineral": "spodumene",
+          "vol": 0.25,
+          "grain": 0.004,
+          "d95": 0.005,
+          "valuable": true
+        },
+        {
+          "mineral": "quartz",
+          "vol": 0.3,
+          "grain": 0.003
+        },
+        {
+          "mineral": "feldspar",
+          "vol": 0.38,
+          "grain": 0.005
+        },
+        {
+          "mineral": "sericite",
+          "vol": 0.07,
+          "grain": 0.0002
+        }
+      ]
+    },
+    "kimberlite-diamond": {
+      "name": "Kimberlite, diamond bearing",
+      "note": "The inverse of every other feed here: the valuable phase is the hardest thing present and must survive intact. Bias is high because the serpentinised matrix is weak, which is what makes autogenous and attrition milling the right choice.",
+      "texture": 0.004,
+      "bias": 1.2,
+      "ecs": 0.3,
+      "phases": [
+        {
+          "mineral": "diamond",
+          "vol": 5e-7,
+          "grain": 0.002,
+          "d95": 0.002,
+          "valuable": true,
+          "indestructible": true
+        },
+        {
+          "mineral": "serpentine",
+          "vol": 0.48,
+          "grain": 0.0004
+        },
+        {
+          "mineral": "olivine",
+          "vol": 0.3,
+          "grain": 0.0015
+        },
+        {
+          "mineral": "calcite",
+          "vol": 0.12,
+          "grain": 0.0006
+        },
+        {
+          "mineral": "biotite",
+          "vol": 0.1,
+          "grain": 0.0005
+        }
+      ]
+    }
+  }
+}

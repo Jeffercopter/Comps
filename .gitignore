@@ -14,4 +14,8 @@ next-env.d.ts
 
 # staged from the repo-root index.html by scripts/stage-mill.mjs
 public/mill/
+public/ehpcc/
 
+
+# screenshots written by scripts/ehpcc-verify/verify.mjs shot
+scripts/ehpcc-verify/shot-*.png
