@@ -129,6 +129,24 @@ Both are worth keeping in mind when reading any DEM output:
   at four, a nip may take only about a third off the diameter in one event, and
   no more than four breaks are processed per frame.
 
+## Known defect — read before trusting the numbers below
+
+The verification harness in [`scripts/ehpcc-verify/`](../scripts/ehpcc-verify/)
+finds that at the default settings **the charge degenerates after roughly eight
+seconds of machine time**: essentially every particle contact becomes a deep
+overlap (182,106 of 182,408 deeper than a fifth of a grain radius), single
+grains carry hundreds of contacts where a sphere can touch about twelve, and the
+annulus population swings between 676 and 20 across identical runs.
+
+Nothing in the on-screen readouts shows this. Throughput, product size and power
+carry on reporting steady, plausible values throughout, which is precisely why
+the harness measures contact state directly.
+
+**The response table below was measured over 20-second soaks and is therefore
+partly measured on a charge in that state.** The trends it shows are
+reproducible and the mechanisms behind them are sound; the absolute figures are
+not verified. Run `node verify.mjs probe '{}' 8` before quoting any of it.
+
 ## Response
 
 Twenty seconds of machine time from the seeded charge. Base case is 420 rpm,

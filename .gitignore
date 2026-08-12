@@ -16,3 +16,6 @@ next-env.d.ts
 public/mill/
 public/ehpcc/
 
+
+# screenshots written by scripts/ehpcc-verify/verify.mjs shot
+scripts/ehpcc-verify/shot-*.png
